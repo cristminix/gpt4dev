@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G4F - Framework</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
+    <link rel="manifest" href="/img/site.webmanifest">
+    <!-- Keep Font Awesome for icons -->
+    <link rel="stylesheet" href="/css/all.min.css">
+    <!-- Add Tailwind CSS -->
+    <link href="/input.css" rel="stylesheet">
+    <link href="/src/styles/home.css" rel="stylesheet">
+    <script src="/js/framework.js"></script>
+    <script>
+        framework.init({
+            translations: true
+        })
+    </script>
+    
+</head>
+<body class="bg-gray-900 text-gray-300 font-sans h-screen m-0 p-0 overflow-hidden font-bold">
+    <iframe id="background" src="background.html" class="absolute top-0 left-0 w-full h-full object-cover object-center z-0"></iframe>
+
+    <button class="slide-button absolute top-5 left-5 bg-gray-200 text-gray-800 rounded cursor-pointer p-2 z-20">
+        <i class="fa-solid fa-arrow-left"></i>
+    </button>
+
+    <!-- Main Content -->
+    <div class="container relative flex flex-col justify-center items-center h-full text-center z-10 transition-transform duration-200 ease-in">
+        <header class="text-5xl uppercase my-5 text-gray-100">
+            G4F - Chat
+        </header>
+        <div class="text-lg mb-8 text-gray-400">
+            <span>Welcome to the G4F Web UI!</span><br>
+            <span>Your AI assistant is ready to assist you.</span>
+        </div>
+
+        <div class="mb-4">
+            <p><strong>Connected to:</strong><span> </span><span id="connect_status" class="text-green-400">...</span></p>
+        </div>
+
+        <!-- Input and Button -->
+        <form action="chat/" class="w-full max-w-md px-4">
+            <input type="text" name="token" class="w-full p-3 my-2 border-2 border-gray-700 bg-gray-800 text-gray-200 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="Enter an Access Token..." autocomplete="off">
+            <div class="flex flex-row items-center gap-2 mt-4">
+                <a id="new_window" href="" class="hidden bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 w-full no-underline whitespace-nowrap" target="_blank">New Window</a>
+                <button class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 w-full cursor-pointer">Submit</button>
+            </div>
+            <p class="mt-4">
+                <a href="https://huggingface.co/settings/tokens" target="_blank" class="text-purple-400 hover:underline">Get Access Token</a>
+            </p>
+            <img src="/img/sign-in-with-huggingface-xl-dark.svg" alt="Sign in with Hugging Face" class="cursor-pointer hidden mx-auto" id="signin">
+        </form>
+        <button id="signout" class="hidden mt-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">Sign out</button>
+        <script type="module">
+            
+        </script>
+
+        <!-- Footer -->
+        <div class="mt-8 text-sm text-gray-500">
+            <p>&copy; 2025 G4F. All Rights Reserved.</p>
+            <p>Powered by the G4F framework</p>
+        </div>
+    </div>
+    <script type="module" src="src/home.js"></script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G4F Demo</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="dist/img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="dist/img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="dist/img/favicon-16x16.png">
+    <link rel="manifest" href="/dist/img/site.webmanifest">
+    <!-- Tailwind CSS -->
+    <link href="/input.css" rel="stylesheet">
+    <script src="/js/framework.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
+</head>
+<body class="bg-background-color text-colour-3 font-inter h-screen m-0 p-0 overflow-hidden font-bold">
+    <iframe id="background" src="background.html" class="h-full absolute top-0 w-full bg-transparent border-none"></iframe>
+
+    <!-- Main Content -->
+    <div class="container flex flex-col justify-center items-center h-full text-center relative z-10">
+        <header class="text-5xl uppercase my-5 text-colour-4">
+            G4F Demo
+        </header>
+        <div class="description text-xl mb-8 text-colour-2">
+            <span>Welcome to the G4F Demo!</span><br>
+            <span>AI assistant is ready to assist you.</span>
+        </div>
+
+        <!-- Input and Button -->
+        <form action="/chat/" class="w-full max-w-md">
+            <input type="text" name="prompt" class="input-field w-4/5 max-w-md p-3 my-2 border-2 border-colour-6 bg-colour-5 text-colour-3 rounded-lg text-lg focus:outline-none focus:border-accent" placeholder="Enter your query...">
+            <button class="button bg-accent text-colour-3 border-none p-4 text-lg rounded-lg cursor-pointer transition-colors duration-300 mt-4 w-full max-w-md font-bold hover:bg-[#7a2ccd]">Open Chat</button>
+        </form>
+
+        <!-- Footer -->
+        <div class="footer mt-8 text-sm text-colour-2">
+            <p>&copy; 2025 G4F. All Rights Reserved.</p>
+            <p>Powered by the G4F framework</p>
+        </div>
+
+        <div class="stream-widget max-h-0 transition-all duration-150 ease-out text-colour-5 overflow-scroll text-left">
+            Loading...
+        </div>
+    </div>
+    <script>
+        const streamWidget = document.querySelector('.stream-widget');
+        (async () => {
+            framework.init({
+                translations: true
+            });
+            await framework.connectToBackend();
+            const randIdx = Math.floor(Math.random() * 12)
+            if (randIdx < 3) {
+                search = "xtekky/gpt4free releases";
+            } else if (randIdx < 6) {
+                search = "developer news";
+            } else {
+                search = (navigator.language == "de" ? "news in deutsch" : navigator.language == "en" ? "world news" : `news in ${navigator.language}`);
+            }
+            let summaryPrompt = "Present the news from the search results in a clear and organized markdown format.";
+            summaryPrompt += "\nInclude a headline, a brief summary, key points, and one or more relevant images with proper attribution.";
+            summaryPrompt += "\nEnsure the content is concise, well-structured, and visually appealing.";
+            summaryPrompt += `\nResponse in language: ${navigator.language} (iso-code)`;
+            const url = `${framework.backendUrl}/backend-api/v2/create?prompt=${summaryPrompt}&stream=1&web_search=${search}`;
+            const response = await fetch(url, {
+                method: 'GET'
+            });
+            const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
+            let buffer = [];
+            let text = "";
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) {
+                    break;
+                }
+                buffer.push(value);
+                text = buffer.join("");
+                streamWidget.innerText = text;
+            }
+            clearTimeout(scrollToBottom);
+            if (text && text.indexOf('"error"') < 0) {
+                streamWidget.classList.add('show');
+                streamWidget.innerHTML = `${framework.markdown(framework.filterMarkdown(text, null, text))}`;
+                streamWidget.scrollTop = "0px";
+            }
+        })();
+        setTimeout(()=>{
+            streamWidget.classList.add('show');
+        }, 1000);
+        let scrollToBottom = null;
+        let scrollToBottomCallback = () => {
+            streamWidget.scrollTop = streamWidget.scrollHeight;
+            if (streamWidget.scrollHeight - streamWidget.scrollTop < 2 * streamWidget.scrollHeight) {
+                scrollToBottom = setTimeout(scrollToBottomCallback, 1000);
+            }
+        };
+        scrollToBottom = setTimeout(scrollToBottomCallback, 1000);
+    </script>
+</body>
+</html>

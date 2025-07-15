@@ -1,0 +1,86 @@
+{
+  "name": "@gpt4free/g4f.dev",
+  "version": "1.0.3",
+  "description": "Use the official GPT4Free.js client right in the browser—no backend needed",
+  "main": "dist/js/client.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "type":"module",
+  "files": [
+    "dist/js/client.d.ts"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gpt4free/g4f.dev.git"
+  },
+  "keywords": [
+    "gpt4free",
+    "gpt4free.js",
+    "g4f",
+    "g4f.dev",
+    "javascript",
+    "npm",
+    "browser",
+    "gpt",
+    "chatgpt",
+    "openai",
+    "ai",
+    "client",
+    "sdk",
+    "free",
+    "ai",
+    "gpt-4",
+    "gpt-4o",
+    "chat",
+    "api",
+    "browser",
+    "ai",
+    "ai",
+    "js",
+    "client",
+    "text",
+    "generation",
+    "image",
+    "generation",
+    "in-browser",
+    "ai",
+    "frontend",
+    "ai",
+    "openai",
+    "alternative",
+    "javascript",
+    "ai",
+    "library",
+    "nodejs",
+    "prompt",
+    "engineering",
+    "chatbot",
+    "ai",
+    "integration"
+  ],
+  "author": "hlohaus",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gpt4free/g4f.dev/issues"
+  },
+  "homepage": "https://github.com/gpt4free/g4f.dev#readme",
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.11",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "postcss-cli": "^11.0.1",
+    "tailwindcss": "^4.1.11",
+    "vite": "^7.0.2"
+  },
+  "dependencies": {
+    "@huggingface/hub": "0.21.0",
+    "@tailwindcss/typography": "^0.5.16",
+    "preline": "^3.1.0"
+  }
+}

@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+/* Preline UI */
+@import "./node_modules/preline/variants.css";
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Plugins */
+/* @plugin "@tailwindcss/forms"; */
+@plugin "@tailwindcss/typography";
+@source "./node_modules/preline/dist/*.js";
+
+.message .content_inner{
+    @apply prose  mx-auto;
+}
+.top .convo .left{
+    cursor: pointer;
+}
+.content_inner_user{
+    @apply flex flex-col items-end;
+}
+.content_inner_user > * {
+    @apply  rounded-lg bg-gray-100 px-4 py-2 text-left;
+
+}
+
+.chat-item-footer{
+    @apply flex gap-2 ;
+}
+.chat-item-footer > button{
+    @apply  bg-gray-100 px-2;
+
+}
+.chat-footer {
+    @apply fixed bottom-0 p-4 right-0;
+}
+.chat-footer > .chat-toolbar {
+    @apply w-[250px] border;
+}
+
+button.new_convo{
+    @apply text-white
+}
+
+.model-selector{
+    @apply fixed w-full flex top-0 py-2 gap-2 px-2 bg-gray-100;
+}
+.top > .convo {
+    @apply flex justify-between
+    
+}
+.top > .convo > .left > .convo-title{
+    @apply block max-h-6 overflow-hidden;
+    /* line-height: 2m; */
+}
+.top > .convo > .left > .datetime,
+.top > .convo > .left > .fa-comments{
+    @apply hidden
+}
+
+select#provider,
+select.model{
+    @apply bg-gray-100 text-gray-700 active:border-none
+}
+.chat-footer{
+    @apply hidden
+}
+.hljs-copy-wrapper{
+    /* @apply flex flex-row-reverse */
+}

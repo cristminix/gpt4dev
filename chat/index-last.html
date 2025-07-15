@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en" data-framework="javascript">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A conversational AI system that listens, learns, and challenges">
+    <meta property="og:title" content="ChatGPT">
+    <meta property="og:image" content="../dist/img/android-chrome-512x512.png">
+    <meta property="og:description" content="A conversational AI system that listens, learns, and challenges">
+    <meta property="og:url" content="https://gpt4free.github.io/">
+    
+    <!-- Tailwind CSS -->
+    <link href="/input.css" rel="stylesheet">
+    
+    <!-- Kept for icons and specific component styling -->
+    <link rel="stylesheet" href="../dist/css/all.min.css">
+    <link rel="stylesheet" href="../dist/css/dracula.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe/dist/photoswipe.css">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="../dist/img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../dist/img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../dist/img/favicon-16x16.png">
+    <link rel="manifest" href="../dist/img/site.webmanifest">
+    
+    <script src="/js/framework.js"></script>
+    <script src="/js/chat.v1.js?v=1.1" defer></script>
+    <script src="/js/recorder.js" async></script>
+    <script src="/js/highlight.min.js" async></script>
+    <script src="/js/highlightjs-copy.min.js" async></script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsencrypt/bin/jsencrypt.min.js"></script>
+    <script src="/js/sanitize-html.js" async></script>
+    
+    <script>
+        MathJax = {
+            chtml: { scale: 1, displayAlign: 'left' },
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+        };
+    </script>
+    <script id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+    <script>
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    </script>
+    <template>
+        <script type="module" src="https://cdn.jsdelivr.net/npm/mistral-tokenizer-js" async>
+            import mistralTokenizer from "mistral-tokenizer-js"
+        </script>
+        <script type="module" src="https://cdn.jsdelivr.net/gh/belladoreai/llama-tokenizer-js@master/llama-tokenizer.js" async>
+            import llamaTokenizer from "llama-tokenizer-js"
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/gpt-tokenizer/dist/cl100k_base.js" async></script>
+        <script src="https://cdn.jsdelivr.net/npm/gpt-tokenizer/dist/o200k_base.js" async></script>
+    </template>
+    <script type="module" src="/js/photoswipe.js" async></script>
+    <script async>
+        if (localStorage.getItem("countTokens") != "false") {
+            const template = document.head.querySelector('template');
+            document.head.appendChild(template.content);
+            template.remove();
+        }
+    </script>
+    <script>
+        const user_image = '<img src="../dist/img/user.png" alt="your avatar" class="w-8 h-8 rounded-full">';
+        const gpt_image = '<img src="../dist/img/gpt.png" alt="gpt avatar" class="w-8 h-8 rounded-full">';
+        window.conversation_id = "";
+    </script>
+    <title>G4F Chat</title>
+</head>
+<body class="bg-gray-800 text-gray-100 font-sans">
+    <script async>
+        localStorage.getItem("darkMode") == "false" ? document.body.classList.add("light-mode") : null;
+    </script>
+    <div class="media-overlay fixed inset-0 bg-black bg-opacity-75 z-40 hidden"></div>
+    <div class="flex h-screen container">
+        <!-- Sidebar -->
+        <div class="sidebar bg-gray-900 text-white w-64 flex-shrink-0 flex flex-col p-2 transition-transform -translate-x-full md:translate-x-0">
+            <div class="sidebar-header flex items-center justify-between p-2">
+                <div class="sidebar-logo text-xl font-bold" data-translate="true">G4F Chat</div>
+                <div class="mobile-sidebar-toggle md:hidden">
+                    <button class="text-gray-400 hover:text-white">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="flex-grow overflow-y-auto">
+                <div class="top mt-4 space-y-2">
+                    <button class="new_convo w-full flex items-center gap-3 px-3 py-2 text-left text-sm rounded-md bg-purple-600 hover:bg-purple-700 transition-colors" onclick="new_conversation()">
+                        <i class="fa-regular fa-plus"></i>
+                        <span>New Conversation</span>
+                    </button>
+                    <button class="new_convo w-full flex items-center gap-3 px-3 py-2 text-left text-sm rounded-md bg-gray-700 hover:bg-gray-600 transition-colors" onclick="new_conversation(true)">
+                        <i class="fa-solid fa-user-secret"></i>
+                        <span>Private Conversation</span>
+                    </button>
+                </div>
+                <div class="conversations-history mt-4">
+                    <!-- Conversation history will be populated here -->
+                </div>
+            </div>
+            <div class="bottom_buttons border-t border-gray-700 pt-2 space-y-1">
+                <button class="w-full flex items-center gap-3 px-3 py-2 text-left text-sm rounded-md hover:bg-gray-700 transition-colors" onclick="open_settings();">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Open Settings</span>
+                </button>
+                <a href="https://discord.gg/qXA4Wf4Fsm" target="_blank" class="w-full flex items-center gap-3 px-3 py-2 text-left text-sm rounded-md hover:bg-gray-700 transition-colors">
+                    <i class="fa fa-question-circle"></i>
+                    <span>Support</span>
+                </a>
+                <a href="https://discord.gg/5E39JUWUFa" target="_blank" class="w-full flex items-center gap-3 px-3 py-2 text-left text-sm rounded-md hover:bg-gray-700 transition-colors">
+                    <i class="fa-brands fa-discord"></i>
+                    <span>Discord</span>
+                </a>
+                <a href="https://github.com/xtekky/gpt4free" target="_blank" class="w-full flex items-center gap-3 px-3 py-2 text-left text-sm rounded-md hover:bg-gray-700 transition-colors">
+                    <i class="fa-brands fa-github"></i>
+                    <span>GitHub</span>
+                </a>
+                <div id="version_text" class="px-3 py-2 text-xs text-gray-500"></div>
+            </div>
+        </div>
+
+        <!-- Settings Panel -->
+        <div class="settings hidden fixed inset-0 bg-gray-800 bg-opacity-95 z-50 p-4 overflow-y-auto">
+            <div class="paper max-w-2xl mx-auto bg-gray-900 rounded-lg shadow-xl p-6">
+                <div class="settings-top-bar flex items-center justify-between mb-6">
+                    <button class="settings-back-button text-gray-400 hover:text-white" onclick="open_settings();">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <span class="text-2xl font-bold">Settings</span>
+                    <div class="w-6"></div>
+                </div>
+                <div class="space-y-6">
+                    <!-- Settings fields will be rendered here -->
+                </div>
+                 <div class="bottom_buttons mt-8 pt-4 border-t border-gray-700 flex flex-wrap gap-2">
+                    <button class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-colors" onclick="delete_conversations()">
+                        <i class="fa-solid fa-trash mr-2"></i>
+                        <span>Clear Conversations</span>
+                    </button>
+                    <button class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors" onclick="save_storage()">
+                        <i class="fa-solid fa-download mr-2"></i>
+                        <span>Export Conversations</span>
+                    </button>
+                    <button class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors" onclick="save_storage(true)">
+                        <i class="fa-solid fa-pencil mr-2"></i>
+                        <span>Export Settings</span>
+                    </button>
+                    <button class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition-colors" onclick="this.querySelector('.fa-spin').classList.remove('hidden'); framework.translateAll().then(()=>{window.location.reload()}).catch(()=>{this.querySelector('.fa-spin').classList.add('hidden')})">
+                        <i class="fa-solid fa-language mr-2"></i>
+                        <span>Translate UI</span>
+                        <i class="fas fa-spinner fa-spin hidden ml-2"></i>
+                    </button>
+                    <button id="showLog" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded transition-colors">
+                        <i class="fa-solid fa-terminal mr-2"></i>
+                        <span>Show log</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="chat-container flex-grow flex flex-col h-screen">
+            <div class="chat-top-panel flex items-center p-2 bg-gray-800 border-b border-gray-700">
+                <div class="mobile-sidebar-toggle md:hidden">
+                     <button class="text-gray-400 hover:text-white mr-2">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+                <div class="convo-title flex-grow text-lg font-semibold">New Conversation</div>
+                <button class="new_convo_icon text-gray-400 hover:text-white" onclick="new_conversation()">
+                    <i class="fa-regular fa-plus"></i>
+                </button>
+            </div>
+            
+            <textarea id="chatPrompt" class="box bg-gray-700 p-2 text-sm w-full focus:outline-none" placeholder="System prompt"></textarea>
+            
+            <div class="chat-body flex-grow p-4 overflow-y-auto" id="chatBody">
+                <!-- Messages will be appended here -->
+            </div>
+
+            <div class="chat-footer p-2 bg-gray-800 border-t border-gray-700">
+                <div class="user-input bg-gray-700 rounded-lg p-2 flex items-end gap-2">
+                    <textarea id="userInput" class="box flex-grow bg-transparent resize-none focus:outline-none p-2" placeholder="Type a message..." rows="1"></textarea>
+                    <label class="file-label cursor-pointer text-gray-400 hover:text-white">
+                        <input type="file" id="file" name="file" class="hidden" accept="*/*" required multiple/>
+                        <i class="fa-solid fa-paperclip"></i>
+                    </label>
+                    <button id="sendButton" aria-label="Send message" class="bg-purple-600 text-white rounded-md p-2 h-10 w-10 flex items-center justify-center hover:bg-purple-700 transition-colors">
+                        <i class="fa-regular fa-paper-plane" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <div class="chat-buttons flex items-center justify-between mt-2 text-sm">
+                     <div class="flex items-center gap-2">
+                        <select name="provider" id="provider" class="bg-gray-700 border border-gray-600 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <!-- Provider options -->
+                        </select>
+                        <select name="model" id="model" class="bg-gray-700 border border-gray-600 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <!-- Model options -->
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div id="input-count" class="text-xs text-gray-500"></div>
+                        <button id="regenerateButton" class="text-gray-400 hover:text-white">
+                            <i class="fa-solid fa-rotate"></i>
+                        </button>
+                        <div class="stop_generating stop_generating-hidden">
+                            <button id="cancelButton" class="flex items-center gap-1 text-red-400 hover:text-red-300">
+                                <i class="fa-solid fa-stop"></i>
+                                <span>Stop</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

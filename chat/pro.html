@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>GPT Chat UI</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background: #f8f9fa;
+    }
+    #topbar {
+      padding: 1rem;
+      background: #e9ecef;
+      border-bottom: 1px solid #ccc;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+    #chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+    .message {
+      margin-bottom: 1rem;
+    }
+    .user {
+      text-align: right;
+      font-weight: bold;
+    }
+    .assistant {
+      background: #fff;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      max-width: 80%;
+    }
+    #form {
+      display: flex;
+      padding: 1rem;
+      background: #fff;
+      border-top: 1px solid #ccc;
+    }
+    #input {
+      flex: 1;
+      padding: 0.75rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    #submit {
+      margin-left: 0.5rem;
+      padding: 0.75rem 1.2rem;
+      font-size: 1rem;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    select, input[type="text"] {
+      padding: 0.4rem;
+      font-size: 0.9rem;
+    }
+    code {
+      background: #eee;
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+    pre {
+      background: #eee;
+      padding: 1em;
+      overflow-x: auto;
+      border-radius: 8px;
+    }
+  </style>
+  <script type="module" crossorigin src="/assets/pro-Cy4AVH11.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
+</head>
+<body>
+<div id="topbar">
+  <div>
+    <label>Provider:
+      <select id="provider">
+        <option value="pollinations">Pollinations.AI</option>
+        <option value="deepinfra">DeepInfra</option>
+        <option value="huggingface">HuggingFace</option>
+        <option value="together">Together</option>
+        <option value="puter">Puter</option>
+        <option value="custom">Custom (http://localhost:8080/v1)</option>
+      </select>
+    </label>
+    <label>API Key: <input type="text" id="apiKey" placeholder="Optional" /></label>
+  </div>
+  <label>Model:
+    <select id="modelSelect"><option>Loading...</option></select>
+  </label>
+</div>
+
+<div id="chat"></div>
+
+<form id="form">
+  <input type="text" id="input" placeholder="Ask something..." autocomplete="off" />
+  <button id="submit">Send</button>
+</form>
+
+
+</body>
+</html>
