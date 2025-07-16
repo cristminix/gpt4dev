@@ -8,7 +8,7 @@ export async function play_last_message(response = null) {
                     event.target.setVolume(100);
                     event.target.playVideo();
                 }
-                player = new YT.Player(new_media, {
+                const player = new YT.Player(new_media, {
                     events: {
                         'onReady': onPlayerReady,
                     }

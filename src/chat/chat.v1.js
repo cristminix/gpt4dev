@@ -204,7 +204,7 @@ hide_input.addEventListener("click", async (e) => {
     document.querySelector(".chat-footer .user-input").classList[func]("hidden");
     document.querySelector(".chat-footer .buttons").classList[func]("hidden");
 });
-
+/*
 sidebar_buttons.forEach((el) => el.addEventListener("click", async () => {
     // Animate sidebar buttons
     sidebar_buttons.forEach((el) => {
@@ -234,7 +234,7 @@ sidebar_buttons.forEach((el) => el.addEventListener("click", async () => {
         }
     }
 }));
-
+*/
 let countFocus = userInput;
 
 userInput.addEventListener("keyup", count_input);

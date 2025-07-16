@@ -1,19 +1,25 @@
+// @ts-nocheck
 import framework from "./framework";
 import { get_api_key_by_provider } from "./get_api_key_by_provider"
 import { settings } from "../constant"
 import { read_response } from "./read_response"
+// import { finish_message } from "./finish_message"
 export async function api(ressource, args = null, files = null, message_id = null, finish_message = null) {
-    const controller_storage = window.controller_storage | {}
+    // const controller_storage = window.controller_storage | {}
+    // @ts-ignore
     if (window?.pywebview) {
         if (args !== null) {
             if (ressource == "conversation") {
+                // @ts-ignore
                 return pywebview.api[`get_${ressource}`](args, message_id);
             }
             if (ressource == "models") {
                 ressource = "provider_models";
             }
+            // @ts-ignore
             return pywebview.api[`get_${ressource}`](args);
         }
+        // @ts-ignore
         return pywebview.api[`get_${ressource}`]();
     }
     let headers = {};
@@ -29,6 +35,7 @@ export async function api(ressource, args = null, files = null, message_id = nul
         if (api_key) {
             headers.x_api_key = api_key;
         }
+        // @ts-ignore
         api_base = args == "Custom" ? document.getElementById(`${args}-api_base`).value : null;
         if (api_base) {
             headers.x_api_base = api_base;
@@ -41,11 +48,13 @@ export async function api(ressource, args = null, files = null, message_id = nul
         headers['content-type'] = 'application/json';
         response = await fetch(url, {
             method: 'GET',
+            // @ts-ignore
             headers: headers,
             signal: providerModelSignal.signal,
         });
     } else if (ressource == "conversation") {
         let body = JSON.stringify(args);
+        // @ts-ignore
         headers = {
             accept: 'text/event-stream',
             ...await framework.getHeaders()
@@ -60,6 +69,7 @@ export async function api(ressource, args = null, files = null, message_id = nul
                 }
             }
             formData.append('json', body);
+            // @ts-ignore
             body = formData;
         } else {
             headers['content-type'] = 'application/json';
@@ -67,6 +77,7 @@ export async function api(ressource, args = null, files = null, message_id = nul
         response = await fetch(url, {
             method: 'POST',
             signal: window.controller_storage[message_id].signal,
+            // @ts-ignore
             headers: headers,
             body: body,
         });

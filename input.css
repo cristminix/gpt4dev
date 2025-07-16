@@ -67,3 +67,31 @@ select.model{
 .hljs-copy-wrapper{
     /* @apply flex flex-row-reverse */
 }
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  .cursor {
+    width: 0.5em;
+    height: 12px;
+    margin-left: 1em;
+    display: inline-block;
+    position: relative;
+    font-size: 11px;
+  }
+
+  .cursor::after {
+    content: '|';
+    position: absolute;
+    top: 0;
+    left: 0;
+    animation: blink 1s infinite;
+    font-weight: bold;
+  }
+
+  .chat-item-footer > button{
+    @apply bg-transparent rounded-md hover:bg-gray-100;
+    cursor: pointer;
+  }

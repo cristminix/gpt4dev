@@ -28,12 +28,17 @@ module.exports = {
       },
       animation: {
         'zoom-gradient': 'zoom_gradient 6s infinite alternate',
+        'blink': 'blink 1s infinite',
       },
       keyframes: {
         zoom_gradient: {
           '0%': { transform: 'translate(-50%, -50%) scale(1)' },
           '100%': { transform: 'translate(-50%, -50%) scale(1.5)' },
-        }
+        },
+        blink: {
+          '0%, 100%': { opacity: 1 },
+          '50%': { opacity: 0 },
+        },
       }
     },
   },

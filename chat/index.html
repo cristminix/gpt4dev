@@ -274,13 +274,19 @@
         </div>
     <div class="py-2 lg:py-2 chat-container-2">
       <!-- Title -->
-      <div class=" hidden  px-4 sm:px-6 lg:px-8 mx-auto text-center">
+      <div class="hidden  sm:px-6 lg:px-8 mx-auto text-center">
         <h1 class="text-3xl font-bold text-gray-800 sm:text-4xl dark:text-white">
           Welcome to Preline AI <div id="version_text"></div>
         </h1>
-        <p class="mt-3 text-gray-600 dark:text-neutral-400">
-          Your AI-powered copilot for the web
-        </p>
+        
+        <li class=" max-w-4xl py-2 px-4 sm:px-6 lg:px-8 mx-auto flex gap-x-2 sm:gap-x-4 text-gray-800 dark:text-white" >
+
+          <div class="space-y-3 content">
+            <div class="provider" data-provider=""></div>
+            <div class="content_inner"><p class="">Your AI-powered copilot for the web <span class="cursor"></span></p></div>
+            <div class="count"></div>
+          </div>
+        </li>
       </div>
       <!-- End Title -->
       <div class="mt-space-y-5"  id="chatBody">

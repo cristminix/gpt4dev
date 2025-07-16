@@ -1,8 +1,11 @@
+import { get_conversation_data } from "./get_conversation_data"
+import { save_conversation } from "./save_conversation"
+import { get_conversation } from "./get_conversation"
 export const remove_message = async (conversation_id, index) => {
     const conversation = await get_conversation(conversation_id);
     const old_message = conversation.items[index];
     let new_items = [];
-    for (i in conversation.items) {
+    for (const i in conversation.items) {
         if (i == index - 1) {
             if (!conversation.items[index]?.regenerate) {
                 delete conversation.items[i]["regenerate"];

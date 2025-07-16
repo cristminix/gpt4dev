@@ -1,3 +1,4 @@
+import { get_conversation } from "./get_conversation"
 const delete_conversation = async (conversation_id) => {
     const conversation = await get_conversation(conversation_id);
     for (const message of conversation.items) {
@@ -12,7 +13,7 @@ const delete_conversation = async (conversation_id) => {
     if (conversation.share) {
         await framework.delete(conversation.id);
     }
-    appStorage.removeItem(`conversation:${conversation_id}`);
+    window.appStorage.removeItem(`conversation:${conversation_id}`);
 
     if (window.conversation_id == conversation_id) {
         await new_conversation();

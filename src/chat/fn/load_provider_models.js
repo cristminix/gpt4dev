@@ -75,7 +75,7 @@ export async function load_provider_models(provider = null) {
         }
         const optgroup = document.createElement('optgroup');
         optgroup.label = "Favorites:";
-        const favorites = JSON.parse(appStorage.getItem("favorites") || "{}");
+        const favorites = JSON.parse(window.appStorage.getItem("favorites") || "{}");
         const selected = favorites[provider] || {};
         Object.keys(selected).forEach((key) => {
             const option = document.createElement('option');
@@ -92,11 +92,11 @@ export async function load_provider_models(provider = null) {
             }
         });
         favorites[provider] = selected;
-        appStorage.setItem("favorites", JSON.stringify(favorites));
+        window.appStorage.setItem("favorites", JSON.stringify(favorites));
         optgroup.lastChild?.setAttribute("selected", "selected");
         modelProvider.appendChild(optgroup);
     }
-    let models = appStorage.getItem(`${provider}:models`);
+    let models = window.appStorage.getItem(`${provider}:models`);
     if (models) {
         models = JSON.parse(models);
         set_provider_models(models);
@@ -104,7 +104,7 @@ export async function load_provider_models(provider = null) {
     models = await api('models', provider);
     if (models) {
         set_provider_models(models);
-        appStorage.setItem(`${provider}:models`, JSON.stringify(models));
+        window.appStorage.setItem(`${provider}:models`, JSON.stringify(models));
     } else {
         modelProvider.classList.add("hidden");
         custom_model.classList.remove("hidden")

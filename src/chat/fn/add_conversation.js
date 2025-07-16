@@ -8,16 +8,19 @@ export async function add_conversation(conversation_id) {
             id: conversation_id,
             title: "",
             added: Date.now(),
+            // @ts-ignore
             system: chatPrompt?.value,
             items: [],
         }
         return;
     }
+    // @ts-ignore
     if (appStorage.getItem(`conversation:${conversation_id}`) == null) {
         await save_conversation(conversation_id, get_conversation_data({
             id: conversation_id,
             title: "",
             added: Date.now(),
+            // @ts-ignore
             system: chatPrompt?.value,
             items: [],
         }));

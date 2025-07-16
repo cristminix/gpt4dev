@@ -1,20 +1,21 @@
+import { inputCount } from "../constant";
 export function import_memory() {
-    if (!appStorage.getItem("mem0-api_key")) {
+    if (!window.appStorage.getItem("mem0-api_key")) {
         return;
     }
     hide_sidebar();
 
     let count = 0;
-    let user_id = appStorage.getItem("user") || appStorage.getItem("mem0-user_id");
+    let user_id = window.appStorage.getItem("user") || window.appStorage.getItem("mem0-user_id");
     if (!user_id) {
         user_id = generateUUID();
-        appStorage.setItem("mem0-user_id", user_id);
+        window.appStorage.setItem("mem0-user_id", user_id);
     }
     inputCount.innerText = framework.translate("Importing conversations...");
     let conversations = [];
-    for (let i = 0; i < appStorage.length; i++) {
-        if (appStorage.key(i).startsWith("conversation:")) {
-            let conversation = appStorage.getItem(appStorage.key(i));
+    for (let i = 0; i < window.appStorage.length; i++) {
+        if (window.appStorage.key(i).startsWith("conversation:")) {
+            let conversation = window.appStorage.getItem(window.appStorage.key(i));
             conversations.push(JSON.parse(conversation));
         }
     }
@@ -24,12 +25,12 @@ export function import_memory() {
             return;
         }
         let body = JSON.stringify(conversations[i]);
-        response = await fetch(`${framework.backendUrl}/backend-api/v2/memory/${user_id}`, {
+        const response = await fetch(`${framework.backendUrl}/backend-api/v2/memory/${user_id}`, {
             method: 'POST',
             body: body,
             headers: {
                 "content-type": "application/json",
-                "x_api_key": appStorage.getItem("mem0-api_key")
+                "x_api_key": window.appStorage.getItem("mem0-api_key")
             }
         });
         const result = await response.json();

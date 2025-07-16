@@ -1,4 +1,6 @@
 
+import { paperclip, inputCount } from "../constant";
+import { handle_ask } from "./handle_ask";
 export async function upload_files(fileInput) {
     const bucket_id = generateUUID();
     paperclip.classList.add("blink");

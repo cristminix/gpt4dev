@@ -52,31 +52,46 @@ export const handle_ask = async (do_ask_gpt = true, message = null) => {
     */
 
     const message_el = document.createElement("ul");
-    message_el.classList.add("mt-16");
-    message_el.classList.add("message");
-
-    message_el.classList.add("space-y-5");
+    message_el.classList.add("mt-16", "message", "space-y-5");
     message_el.dataset.index = message_index;
+    // INITIAL_USER_MESSAGE
+    /*
+    <ul class=" text-gray-800 dark:text-white mt-16 space-y-5 message${item.regenerate ? " regenerate" : ""}" data-index="${i}" data-object_url="${objectUrl}" data-synthesize_url="${synthesize_url}">
+                    <li class="${item.role} max-w-4xl py-2 px-4 sm:px-6 lg:px-8 mx-auto text-right">
+                       
+                        
+                        <div class="space-y-3">
+                            <div class="content mb-1.5 text-gray-800 dark:text-white">
+                                ${provider}
+                        <div class="content_inner_user">
+                            ${framework.markdown(buffer)}
+                        </div>
+                        <div class="count hidden">
+                            ${countTokensEnabled ? count_words_and_tokens(
+                    item.reasoning ? item.reasoning.text + text : text,
+                    next_provider?.model, completion_tokens, prompt_tokens
+                ) : ""}
+                        </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+    */
     message_el.innerHTML = `
-        <li class="py-2 sm:py-4 user text-gray-800 dark:text-white bordered border">
-          <div class="max-w-4xl px-4 sm:px-6 lg:px-8 mx-auto">
-            <div class="max-w-2xl flex gap-x-2 sm:gap-x-4">
-              <span class="shrink-0 inline-flex items-center justify-center size-9.5 rounded-full bg-gray-600">
-       
-                <span class="text-sm font-medium text-white">AZ</span>
-              </span>
-
-              <div class="grow mt-2 space-y-3content">
-                <p class="content_inner">
-                 ${framework.markdown(message)}
-                </p>
-                <div class="count">
-                ${countTokensEnabled ? count_words_and_tokens(message, get_selected_model()?.value) : ""}
+        <li class="user max-w-4xl py-2 px-4 sm:px-6 lg:px-8 mx-auto text-right">
+            <div class="space-y-3">
+                <div class="content mb-1.5 text-gray-800 dark:text-white">
+                  
+            <div class="content_inner_user">
+                ${framework.markdown(message)}
             </div>
-              </div>
+            <div class="count hidden">
+               ${countTokensEnabled ? count_words_and_tokens(message, get_selected_model()?.value) : ""}
             </div>
-          </div>
+                </div>
+            </div>
         </li>
+       
     `;
     chatBody.appendChild(message_el);
     highlight(message_el);

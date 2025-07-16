@@ -110,28 +110,28 @@ export const load_conversation = async (conversation, appStorage, suggestions) =
         if (item.role === "assistant") {
 
             add_buttons.push(`
-            <button><i class="fa-solid fa-qrcode"></i></button>
-            <button><i class="fa-brands fa-whatsapp"></i></button>
-            <button><i class="fa-solid fa-volume-high"></i></i></button>
-            <button><i class="fa-solid fa-print"></i></button>
-            <button><i class="fa-solid fa-file-export"></i></button>
-            <button><i class="fa-regular fa-clipboard"></i></button>
-            <button><i class="fa-solid fa-plus"></i></button>
+            <button class="hidden"><i class="fa-solid fa-qrcode"></i></button>
+            <button class="hidden"><i class="fa-brands fa-whatsapp"></i></button>
+            <button title="Read out loud"><i class="fa-solid fa-volume-high"></i></i></button>
+            <button class="hidden"><i class="fa-solid fa-print"></i></button>
+            <button class="hidden"><i class="fa-solid fa-file-export"></i></button>
+            <button title="Copy to clipboard"><i class="fa-regular fa-clipboard"></i></button>
+            <button class="hidden"><i class="fa-solid fa-plus"></i></button>
         `);
-
-            if (actions.includes("variant")) {
-                add_buttons.push(`<button class="regenerate_button">
-                <i class="fa-solid fa-rotate"></i>
-            </button>`);
-            }
             if (actions.includes("continue")) {
                 if (messages.length >= i - 1) {
-                    add_buttons.push(`<button class="continue_button">
+                    add_buttons.push(`<button title="Continue response" class="continue_button">
                     <i class="fa-solid fa-wand-magic-sparkles"></i>
                 </button>`);
                 }
 
             }
+            if (actions.includes("variant")) {
+                add_buttons.push(`<button title="Regenerate" class="regenerate_button">
+                <i class="fa-solid fa-rotate"></i>
+            </button>`);
+            }
+
         }
 
         let countTokensEnabled = window.appStorage.getItem("countTokens") != "false";

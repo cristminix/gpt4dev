@@ -1,4 +1,4 @@
-import { settings, sidebar, chat, log_storage } from "../constant"
+import { settings } from "../constant"
 
 export async function hide_settings() {
     settings.classList.add("hidden");

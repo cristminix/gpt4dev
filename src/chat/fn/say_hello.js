@@ -3,7 +3,7 @@ export const say_hello = async () => {
   let tokens = framework.translate(`Hello! How can I assist you today?`).split(" ").map((token) => token + " ");
 
   chatBody.innerHTML += `
-<ul>
+<ul class="hidden">
         <li class="message max-w-4xl py-2 px-4 sm:px-6 lg:px-8 mx-auto flex gap-x-2 sm:gap-x-4 text-gray-800 dark:text-white">
           <svg class="shrink-0 size-9.5 rounded-full" width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect width="38" height="38" rx="6" fill="#2563EB" />
@@ -15,7 +15,7 @@ export const say_hello = async () => {
           <div class="space-y-3">
             <div class="content"><p class=" welcome-message"></p></div>
             <div class="provider" data-provider="${provider}"></div>
-            <div class="content_inner"><span class="cursor"></span></div>
+            <div class="content_inner"></div>
             <div class="count"></div>
           </div>
         </li>

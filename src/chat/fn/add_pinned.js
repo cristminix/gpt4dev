@@ -1,8 +1,9 @@
-
+// @ts-nocheck
+import { pin_container } from "../constant"
 export function add_pinned(selected_provider, selected_model, save = true) {
     if (save) {
-        const all_pinned_saved = JSON.parse(appStorage.getItem("pinned") || "[]");
-        appStorage.setItem("pinned", JSON.stringify([{
+        const all_pinned_saved = JSON.parse(window.appStorage.getItem("pinned") || "[]");
+        window.appStorage.setItem("pinned", JSON.stringify([{
             provider: selected_provider?.value,
             model: selected_model?.value,
         }, ...all_pinned_saved]));
@@ -20,13 +21,13 @@ export function add_pinned(selected_provider, selected_model, save = true) {
         <i class="fa-regular fa-circle-xmark"></i>`;
     pinned.addEventListener("click", () => {
         pin_container.removeChild(pinned);
-        let all_pinned = JSON.parse(appStorage.getItem("pinned") || "[]");
+        let all_pinned = JSON.parse(window.appStorage.getItem("pinned") || "[]");
         all_pinned = all_pinned.filter((el) => {
             return el.provider != pinned.dataset.provider || el.model != pinned.dataset.model;
         });
-        appStorage.setItem("pinned", JSON.stringify(all_pinned));
+        window.appStorage.setItem("pinned", JSON.stringify(all_pinned));
     });
-    all_pinned = pin_container.querySelectorAll(".pinned");
+    let all_pinned = pin_container.querySelectorAll(".pinned");
     while (all_pinned.length > 4) {
         pin_container.removeChild(all_pinned[0]);
         all_pinned = pin_container.querySelectorAll(".pinned");

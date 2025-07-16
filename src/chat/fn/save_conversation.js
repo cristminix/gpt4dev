@@ -3,7 +3,7 @@ export async function save_conversation(conversation_id, conversation) {
         privateConversation = conversation;
         return;
     }
-    appStorage.setItem(
+    window.appStorage.setItem(
         `conversation:${conversation_id}`,
         JSON.stringify(conversation)
     );

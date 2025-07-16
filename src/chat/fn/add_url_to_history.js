@@ -1,3 +1,4 @@
+// @ts-nocheck
 export function add_url_to_history(url) {
     if (!window?.pywebview) {
         try {

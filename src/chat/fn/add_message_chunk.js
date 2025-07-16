@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { get_conversation } from "./get_conversation"
 import { register_message_images } from "./register_message_images"
 import { log_storage } from "../constant"
@@ -7,6 +8,7 @@ import { save_conversation } from "./save_conversation"
 import { get_conversation_data } from "./get_conversation_data"
 import { scroll_to_bottom } from "./scroll_to_bottom"
 import { render_reasoning } from "./render_reasoning"
+import { api } from "./api";
 export async function add_message_chunk(message, message_id, provider, finish_message = null) {
     const content_map = window.content_storage[message_id];
     if (message.type == "conversation") {
@@ -17,7 +19,7 @@ export async function add_message_chunk(message, message_id, provider, finish_me
         for (const [key, value] of Object.entries(message.conversation)) {
             conversation.data[key] = value;
         }
-        await save_conversation(conversation_id, get_conversation_data(conversation));
+        await save_conversation(window.conversation_id, get_conversation_data(conversation));
     } else if (message.type == "auth") {
         window.error_storage[message_id] = message.message
         content_map.inner.innerHTML += framework.markdown(`${framework.translate('**An error occured:**')} ${message.message}`);

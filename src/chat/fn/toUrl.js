@@ -1,6 +1,6 @@
 import { toBase64 } from "./fn/toBase64";
 
-const toUrl = async (file) => {
+export const toUrl = async (file) => {
     if (file instanceof File) {
         return await toBase64(file);
     }

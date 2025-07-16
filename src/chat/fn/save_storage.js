@@ -1,11 +1,10 @@
-import { appStorage } from "./chat.v1";
 
 function save_storage(settings = false) {
     let filename = `${settings ? 'settings' : 'chat'} ${new Date().toLocaleString()}.json`.replaceAll(":", "-");
     let data = { "options": { "g4f": "" } };
-    for (let i = 0; i < appStorage.length; i++) {
-        let key = appStorage.key(i);
-        let item = appStorage.getItem(key);
+    for (let i = 0; i < window.appStorage.length; i++) {
+        let key = window.appStorage.key(i);
+        let item = window.appStorage.getItem(key);
         if (key.startsWith("conversation:")) {
             if (!settings) {
                 data[key] = JSON.parse(item);

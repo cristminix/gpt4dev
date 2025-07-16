@@ -2,6 +2,7 @@ import { filter_message } from "./filter_message"
 // import { register_message_buttons } from "../constant"
 export const prepare_messages = (messages, message_index = -1, do_continue = false, do_filter = true) => {
     messages = [...messages]
+    let last_message;
     if (message_index != null) {
         console.debug("Messages Index:", message_index);
 
@@ -11,7 +12,7 @@ export const prepare_messages = (messages, message_index = -1, do_continue = fal
         }
         // Removes none user messages at end
         if (!do_continue) {
-            let last_message;
+
             while (last_message = messages.pop()) {
                 if (last_message["role"] == "user") {
                     messages.push(last_message);

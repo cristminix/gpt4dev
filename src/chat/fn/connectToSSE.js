@@ -24,7 +24,7 @@ export
                 inputCount.innerText = framework.translate("No content found");
                 return
             }
-            appStorage.setItem(`bucket:${bucket_id}`, data.size);
+            window.appStorage.setItem(`bucket:${bucket_id}`, data.size);
             inputCount.innerText = framework.translate("Files are loaded successfully");
 
             const url = `${framework.backendUrl}/backend-api/v2/files/${encodeURIComponent(bucket_id)}`;

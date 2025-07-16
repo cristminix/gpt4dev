@@ -4,4 +4,4 @@ pnpm i
 pnpm dev
 ```
 
-![Screenshoot]("screenshot.png")
+![Screenshoot](screenshot.png)

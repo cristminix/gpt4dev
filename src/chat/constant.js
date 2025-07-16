@@ -31,6 +31,7 @@ const searchButton = document.getElementById("search");
 const paperclip = document.querySelector(".user-input .fa-paperclip");
 const hide_systemPrompt = document.getElementById("hide-systemPrompt")
 const slide_systemPrompt_icon = document.querySelector(".slide-header i");
+const pin_container = document.getElementById("pin_container");
 
 const optionElementsSelector = ".settings input, .settings textarea, .chat-body input, #model, #model2, #provider";
 const translationSnipptes = [
@@ -93,5 +94,5 @@ export {
   paperclip,
   hide_systemPrompt,
   slide_systemPrompt_icon,
-  optionElementsSelector,
+  optionElementsSelector, pin_container
 };

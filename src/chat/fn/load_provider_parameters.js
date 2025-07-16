@@ -1,21 +1,21 @@
 export async function load_provider_parameters(provider) {
     let form_id = `${provider}-form`;
     if (!parameters_storage[provider]) {
-        parameters_storage[provider] = JSON.parse(appStorage.getItem(form_id));
+        parameters_storage[provider] = JSON.parse(window.appStorage.getItem(form_id));
     }
     if (parameters_storage[provider]) {
         let provider_forms = document.querySelector(".provider_forms");
         let form_el = document.createElement("form");
         form_el.id = form_id;
         form_el.classList.add("hidden");
-        appStorage.setItem(form_el.id, JSON.stringify(parameters_storage[provider]));
+        window.appStorage.setItem(form_el.id, JSON.stringify(parameters_storage[provider]));
         let old_form = document.getElementById(form_id);
         if (old_form) {
             old_form.remove();
         }
         Object.entries(parameters_storage[provider]).forEach(([key, value]) => {
             let el_id = `${provider}-${key}`;
-            let saved_value = appStorage.getItem(el_id);
+            let saved_value = window.appStorage.getItem(el_id);
             let input_el;
             let field_el;
             if (typeof value == "boolean") {
@@ -37,9 +37,9 @@ export async function load_provider_parameters(provider) {
                 input_el.dataset.checked = value ? "true" : "false";
                 input_el.onchange = () => {
                     field_el.classList.add("saved");
-                    appStorage.setItem(el_id, input_el.checked ? "true" : "false");
+                    window.appStorage.setItem(el_id, input_el.checked ? "true" : "false");
                 }
-            } else if (typeof value == "string" || typeof value == "object"|| typeof value == "number") {
+            } else if (typeof value == "string" || typeof value == "object" || typeof value == "number") {
                 field_el = document.createElement("div");
                 field_el.classList.add("field");
                 field_el.classList.add("box");
@@ -53,14 +53,14 @@ export async function load_provider_parameters(provider) {
                 }
                 let placeholder;
                 if (["api_key", "proof_token"].includes(key)) {
-                    placeholder = saved_value && saved_value.length >= 22 ? (saved_value.substring(0, 12) + "*".repeat(12) + saved_value.substring(saved_value.length-12)) : value;
+                    placeholder = saved_value && saved_value.length >= 22 ? (saved_value.substring(0, 12) + "*".repeat(12) + saved_value.substring(saved_value.length - 12)) : value;
                 } else {
                     placeholder = value == null ? "null" : value;
                 }
                 field_el.innerHTML = `<label for="${el_id}" title="">${key}:</label>`;
                 if (Number.isInteger(value)) {
-                    max = value == 42 || value >= 4096 ? 8192 : value >= 100 ? 4096 : value == 1 ? 10 : 100;
-                    step = value >= 1024 ? 8 : 1;
+                    const max = value == 42 || value >= 4096 ? 8192 : value >= 100 ? 4096 : value == 1 ? 10 : 100;
+                    const step = value >= 1024 ? 8 : 1;
                     field_el.innerHTML += `<input type="range" id="${el_id}" name="${key}" value="${framework.escape(value)}" class="slider" min="0" max="${max}" step="${step}"/><output>${framework.escape(value)}</output>`;
                     field_el.innerHTML += `<i class="fa-solid fa-xmark"></i>`;
                 } else if (typeof value == "number") {
@@ -81,7 +81,7 @@ export async function load_provider_parameters(provider) {
                     }
                     input_el.oninput = () => {
                         field_el.classList.add("saved");
-                        appStorage.setItem(el_id, input_el.value);
+                        window.appStorage.setItem(el_id, input_el.value);
                         input_el.dataset.saved_value = input_el.value;
                     };
                     input_el.onfocus = () => {
@@ -107,7 +107,7 @@ export async function load_provider_parameters(provider) {
                     input_el.oninput = () => {
                         input_el.nextElementSibling.value = input_el.value;
                         field_el.classList.add("saved");
-                        appStorage.setItem(input_el.id, input_el.value);
+                        window.appStorage.setItem(input_el.id, input_el.value);
                     };
                 }
             }
@@ -123,7 +123,7 @@ export async function load_provider_parameters(provider) {
                     input_el.value = input_el.dataset.text;
                 }
                 delete input_el.dataset.saved_value;
-                appStorage.removeItem(el_id);
+                window.appStorage.removeItem(el_id);
                 field_el.classList.remove("saved");
             }
         });
