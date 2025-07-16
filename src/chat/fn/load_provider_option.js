@@ -24,11 +24,11 @@ export const load_provider_option = (input, provider_name) => {
                 if (!el.dataset.providers) modelSelect.querySelectorAll(`option[value="${el.value}"]`).forEach((o) => o.setAttribute("disabled", "disabled"))
             }
         );
-        providerSelect.querySelectorAll(`option[value="${provider_name}"]`).forEach(
-            (el) => el.setAttribute("disabled", "disabled")
-        );
-        providerSelect.querySelectorAll(`option[data-parent="${provider_name}"]`).forEach(
-            (el) => el.setAttribute("disabled", "disabled")
-        );
+        // providerSelect.querySelectorAll(`option[value="${provider_name}"]`).forEach(
+        // (el) => el.setAttribute("disabled", "disabled")
+        // );
+        // providerSelect.querySelectorAll(`option[data-parent="${provider_name}"]`).forEach(
+        // (el) => el.setAttribute("disabled", "disabled")
+        // );
     }
 };

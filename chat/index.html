@@ -60,8 +60,8 @@
         }
     </script>
     <script>
-        const user_image = '<img src="/img/user.png" alt="your avatar" class="w-8 h-8 rounded-full">';
-        const gpt_image = '<img src="/img/gpt.png" alt="your avatar" class="w-8 h-8 rounded-full">';
+        const user_image = '<img src="/img/user.png" alt="your avatar" class="w-8 h-8 rounded-full user-avatar">';
+        const gpt_image = '<img src="/img/gpt.png" alt="your avatar" class="w-8 h-8 rounded-full assistant-avatar">';
         window.conversation_id = "";
     </script>
     <title>G4F Chat</title>
@@ -252,6 +252,9 @@
                          <option disabled="disabled">----</option>
                         </select>
                     </div>
+                    <div class="media-player">
+                    <button><i class="fa-regular fa-x"></i></button>
+                </div>
                   </div>
     <div class="py-10 lg:py-14 hidden">
 
@@ -279,7 +282,7 @@
           Welcome to Preline AI <div id="version_text"></div>
         </h1>
         
-        <li class=" max-w-4xl py-2 px-4 sm:px-6 lg:px-8 mx-auto flex gap-x-2 sm:gap-x-4 text-gray-800 dark:text-white" >
+        <li class=" max-w-6xl py-2 px-4 sm:px-6 lg:px-8 mx-auto flex gap-x-2 sm:gap-x-4 text-gray-800 dark:text-white" >
 
           <div class="space-y-3 content">
             <div class="provider" data-provider=""></div>
@@ -289,34 +292,14 @@
         </li>
       </div>
       <!-- End Title -->
-      <div class="mt-space-y-5"  id="chatBody">
+      <div class="mt-2 space-y-5"  id="chatBody">
 
       </div>
      
     </div>
     <div class="chat-footer p-2 ">
-                <div class="chat-toolbar flex items-center justify-between mb-2">
-                    <div id="input-count" class="text-xs text-gray-500">
-                        <button class="hide-input text-gray-400 hover:text-white">
-                            <i class="fa-solid fa-angles-down"></i>
-                        </button>
-                        <label for="agree" class="text" onclick="this.innerText='';"></label>
-                    </div>
-                    <div class="stop_generating stop_generating-hidden">
-                        <button id="cancelButton" class="flex items-center gap-1 text-red-400 hover:text-red-300">
-                            
-                            <i class="fa-solid fa-stop"></i>
-                        </button>
-                    </div>
-                    <div class="regenerate">
-                        <button id="regenerateButton" class="flex items-center gap-1 text-blue-400 hover:text-blue-300">
-                            <i class="fa-solid fa-rotate"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="media-player">
-                    <i class="fa-regular fa-x"></i>
-                </div>
+                
+                
                 <div class="media-select hidden flex items-center gap-2 ">
                     <label class="image-select cursor-pointer text-gray-400 hover:text-white" for="image" title="">
                         <input type="file" id="image" name="image" accept="image/*" required class="hidden"/>
@@ -375,7 +358,7 @@
                 </div>
             </div>
     <!-- Textarea -->
-    <div class="max-w-4xl mx-auto sticky bottom-0 z-10 p-3 sm:py-6">
+    <div class="max-w-6xl mx-auto sticky bottom-0 z-10 p-3 sm:py-6">
      
       <!-- Input -->
       <div class="relative">
@@ -390,6 +373,21 @@
           <div class="flex flex-wrap justify-between items-center gap-2">
             <!-- Button Group -->
             <div class="flex items-center">
+              <div class="chat-toolbar flex items-center justify-between mb-2 hidden">
+                    <div id="input-count" class="text-xs text-gray-500">
+                        <button class="hide-input text-gray-400 hover:text-white">
+                            <i class="fa-solid fa-angles-down"></i>
+                        </button>
+                        <label for="agree" class="text" onclick="this.innerText='';"></label>
+                    </div>
+                    <div class="">
+                        
+                    </div>
+                    <div class="">
+                        
+                    </div>
+                </div>
+              
               <!-- Mic Button -->
               <button type="button" class="inline-flex shrink-0 justify-center items-center size-8 rounded-lg text-gray-500 hover:bg-white focus:z-10 focus:outline-hidden focus:bg-white dark:text-neutral-500 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700">
                 <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -420,7 +418,15 @@
                 </svg>
               </button>
               <!-- End Mic Button -->
-
+<!-- Cancel Button-->
+               <button id="cancelButton" class="prompt-action-btn stop_generating stop_generating-hidden text-red-400 hover:text-red-300">
+                            
+                    <i class="fa-solid fa-stop"></i>
+                </button>
+              <!-- Regenerate Button -->
+               <button id="regenerateButton" class="prompt-action-btn regenerate text-blue-400 hover:text-blue-300">
+                  <i class="fa-solid fa-rotate"></i>
+              </button>
               <!-- Send Button -->
               <button type="button" class="inline-flex shrink-0 justify-center items-center size-8 rounded-lg text-white bg-blue-600 hover:bg-blue-500 focus:z-10 focus:outline-hidden focus:bg-blue-500">
                 <svg class="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">

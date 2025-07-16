@@ -52,7 +52,7 @@ export const handle_ask = async (do_ask_gpt = true, message = null) => {
     */
 
     const message_el = document.createElement("ul");
-    message_el.classList.add("mt-16", "message", "space-y-5");
+    message_el.classList.add("mt-16", "message", "space-y-5", "initial-user-chat-buble");
     message_el.dataset.index = message_index;
     // INITIAL_USER_MESSAGE
     /*
@@ -78,7 +78,7 @@ export const handle_ask = async (do_ask_gpt = true, message = null) => {
                 </ul>
     */
     message_el.innerHTML = `
-        <li class="user max-w-4xl py-2 px-4 sm:px-6 lg:px-8 mx-auto text-right">
+        <li class="chat-content">
             <div class="space-y-3">
                 <div class="content mb-1.5 text-gray-800 dark:text-white">
                   

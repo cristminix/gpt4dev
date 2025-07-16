@@ -10,6 +10,7 @@ import { scroll_to_bottom } from "./scroll_to_bottom"
 import { render_reasoning } from "./render_reasoning"
 import { api } from "./api";
 export async function add_message_chunk(message, message_id, provider, finish_message = null) {
+    console.log(message)
     const content_map = window.content_storage[message_id];
     if (message.type == "conversation") {
         const conversation = await get_conversation(window.conversation_id);
@@ -47,6 +48,7 @@ export async function add_message_chunk(message, message_id, provider, finish_me
         content_map.update_timeouts = [];
         window.error_storage[message_id] = message.message
         console.error(message.message);
+        content_map.inner.classList.add("errors")
         content_map.inner.innerHTML += framework.markdown(`${framework.translate('**An error occured:**')} ${message.message}`);
         if (finish_message) {
             await finish_message();
@@ -90,12 +92,15 @@ export async function add_message_chunk(message, message_id, provider, finish_me
     } else if (message.type == "login") {
         update_message(content_map, message_id, framework.markdown(message.login), scroll);
     } else if (message.type == "finish") {
+        console.log("finish")
         window.finish_storage[message_id] = message.finish;
     } else if (message.type == "continue") {
         window.continue_storage[message_id] = message;
     } else if (message.type == "usage") {
         window.usage_storage[message_id] = message.usage;
     } else if (message.type == "reasoning") {
+        console.log("reasoning")
+
         if (!window.reasoning_storage[message_id]) {
             window.reasoning_storage[message_id] = message;
             window.reasoning_storage[message_id].text = "";

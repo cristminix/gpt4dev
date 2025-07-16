@@ -68,6 +68,7 @@ import { get_selected_model } from "./fn/get_selected_model.js";
 import { count_input } from "./fn/count_input.js";
 import { load_provider_models } from "./fn/load_provider_models.js";
 import { initListeners } from "./fn/initListeners"
+import { ask_gpt } from "./fn/ask_gpt.js";
 translationSnipptes.push.apply(translationSnipptes, Object.values(modelTags));
 
 

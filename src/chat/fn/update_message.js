@@ -4,6 +4,7 @@ import { highlight } from "./highlight";
 import { render_reasoning } from "./render_reasoning"
 import { renderLargeMessage } from "./renderLargeMessage"
 export function update_message(content_map, message_id, content = null) {
+    console.log("update_message called", content, window.reasoning_storage[message_id])
     // Clear previous timeouts
     content_map.update_timeouts.forEach(timeoutId => clearTimeout(timeoutId));
     content_map.update_timeouts = [];

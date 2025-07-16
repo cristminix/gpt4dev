@@ -149,8 +149,8 @@ export const load_conversation = async (conversation, appStorage, suggestions) =
         console.log(`${item.role}`)
         if (item.role === "assistant") {
             elements.push(`
-                        <ul class="text-gray-800 dark:text-white mt-8 space-y-5 message${item.regenerate ? " regenerate" : ""}" data-index="${i}" data-object_url="${objectUrl}" data-synthesize_url="${synthesize_url}">
-                            <li class="${item.role} max-w-4xl py-2 px-4 sm:px-6 lg:px-8 mx-auto flex gap-x-2 sm:gap-x-4">
+                        <ul class="assistant-chat-buble message${item.regenerate ? " regenerate" : ""}" data-index="${i}" data-object_url="${objectUrl}" data-synthesize_url="${synthesize_url}">
+                            <li class="${item.role} chat-content">
                                 ${item.role == "assistant" ? gpt_image : user_image}
                                 ${item.role == "assistant"
                     ? `<i class="fa-regular fa-phone-arrow-down-left"></i>`
@@ -179,8 +179,8 @@ export const load_conversation = async (conversation, appStorage, suggestions) =
                     `);
         } else {
             elements.push(`
-            <ul class=" text-gray-800 dark:text-white mt-16 space-y-5 message${item.regenerate ? " regenerate" : ""}" data-index="${i}" data-object_url="${objectUrl}" data-synthesize_url="${synthesize_url}">
-                <li class="${item.role} max-w-4xl py-2 px-4 sm:px-6 lg:px-8 mx-auto text-right">
+            <ul class="user-chat-buble message${item.regenerate ? " regenerate" : ""}" data-index="${i}" data-object_url="${objectUrl}" data-synthesize_url="${synthesize_url}">
+                <li class="${item.role} max-w-6xl py-2 px-4 sm:px-6 lg:px-8 mx-auto text-right">
                    
                     
                     <div class="space-y-3">
@@ -276,7 +276,7 @@ export const load_conversation = async (conversation, appStorage, suggestions) =
             if (count_total > 0) {
                 const count_total_el = document.createElement("ul");
                 count_total_el.classList.add("mt-16", "space-y-5", "message");
-                count_total_el.innerHTML = `<li class="text-gray-800 dark:text-white max-w-4xl py-2 px-4 sm:px-6 lg:px-8 mx-auto flex gap-x-2 sm:gap-x-4">${framework.translate("{0} total tokens").replace("{0}", count_total)}</li>`;
+                count_total_el.innerHTML = `<li class="text-gray-800 dark:text-white max-w-6xl py-2 px-4 sm:px-6 lg:px-8 mx-auto flex gap-x-2 sm:gap-x-4">${framework.translate("{0} total tokens").replace("{0}", count_total)}</li>`;
                 chatBody.appendChild(count_total_el);
             }
         }

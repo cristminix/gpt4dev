@@ -10,7 +10,7 @@
 @source "./node_modules/preline/dist/*.js";
 
 .message .content_inner{
-    @apply prose  mx-auto;
+    @apply prose  !max-w-none;
 }
 .top .convo .left{
     cursor: pointer;
@@ -62,7 +62,7 @@ select.model{
     @apply bg-gray-100 text-gray-700 active:border-none
 }
 .chat-footer{
-    @apply hidden
+    /* @apply hidden */
 }
 .hljs-copy-wrapper{
     /* @apply flex flex-row-reverse */
@@ -75,8 +75,8 @@ select.model{
 
   .cursor {
     width: 0.5em;
-    height: 12px;
-    margin-left: 1em;
+    height: 14px;
+    margin-left: .5em;
     display: inline-block;
     position: relative;
     font-size: 11px;
@@ -87,11 +87,46 @@ select.model{
     position: absolute;
     top: 0;
     left: 0;
-    animation: blink 1s infinite;
+    animation: blink .5s infinite;
     font-weight: bold;
   }
 
   .chat-item-footer > button{
     @apply bg-transparent rounded-md hover:bg-gray-100;
     cursor: pointer;
+  }
+
+  .initial-assistant-chat-buble,
+  .initial-user-chat-buble,
+  .assistant-chat-buble,
+  .user-chat-buble{
+    @apply w-full text-gray-800 dark:text-white mt-16 space-y-5
+  }
+  .initial-assistant-chat-buble{
+    /* @apply text-gray-800 dark:text-white mt-16 space-y-5  */
+  }
+  .initial-user-chat-buble{
+    /* @apply  text-gray-800 dark:text-white mt-16 space-y-5  */
+  }
+
+  .assistant-chat-buble{
+    /* @apply text-gray-800 dark:text-white mt-8 space-y-5 */
+  }
+  .user-chat-buble{
+    /* @apply text-gray-800 dark:text-white mt-16 space-y-5  */
+  }
+  .chat-content {
+    @apply max-w-6xl py-2 px-4 sm:px-6 lg:px-8 mx-auto flex gap-x-2 sm:gap-x-4
+  }
+  .chat-content > .space-y-3{
+    /* @apply  */
+  }
+  .assistant-avatar{
+    @apply mt-2
+  }
+  .prompt-action-btn{
+    @apply inline-flex shrink-0 justify-center items-center size-8 rounded-lg text-gray-500 hover:bg-white focus:z-10 focus:outline-hidden focus:bg-white dark:text-neutral-500 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700
+  }
+  .media-player{
+    @apply flex
   }

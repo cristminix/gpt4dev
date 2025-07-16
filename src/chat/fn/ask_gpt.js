@@ -26,17 +26,17 @@ export const ask_gpt = async (message_id, message_index = -1, regenerate = false
     if (!conversation) {
         return;
     }
-    const message_storage = window.message_storage;
-    const controller_storage = window.controller_storage
-    const content_storage = window.content_storage
-    const mediaChunks = window.mediaChunks
-    const countTokensEnabled = window.countTokensEnabled
-    const image_storage = window.image_storage
-    const synthesize_storage = window.synthesize_storage
-    const finish_storage = window.finish_storage
+    // const window.message_storage = window.window.message_storage;
+    // const controller_storage = window.controller_storage
+    // const content_storage = window.content_storage
+    // const mediaChunks = window.mediaChunks
+    // const countTokensEnabled = window.countTokensEnabled
+    // const image_storage = window.image_storage
+    // const synthesize_storage = window.synthesize_storage
+    // const finish_storage = window.finish_storage
     await requestWakeLock();
     let messages = prepare_messages(conversation.items, message_index, action == "continue");
-    message_storage[message_id] = "";
+    window.message_storage[message_id] = "";
     stop_generating.classList.remove("stop_generating-hidden");
 
     let suggestions_el = chatBody.querySelector('.suggestions');
@@ -47,7 +47,7 @@ export const ask_gpt = async (message_id, message_index = -1, regenerate = false
     }
 
     const message_el = document.createElement("ul");
-    message_el.classList.add("mt-8", "message");
+    message_el.classList.add("mt-8", "message", "initial-assistant-chat-buble");
     if (message_index != -1 || regenerate) {
         message_el.classList.add("regenerate");
     }
@@ -57,7 +57,7 @@ export const ask_gpt = async (message_id, message_index = -1, regenerate = false
     // INITIAL_ASSISTANT_MESSAGE
 
     message_el.innerHTML = `
-       <li class=" max-w-4xl py-2 px-4 sm:px-6 lg:px-8 mx-auto flex gap-x-2 sm:gap-x-4 text-gray-800 dark:text-white" >
+       <li class="assistant chat-content" >
 ${gpt_image}
           <div class="space-y-3 content">
             <div class="provider" data-provider="${provider}"></div>
@@ -87,14 +87,15 @@ ${gpt_image}
         message_index: message_index,
     }
     async function finish_message() {
+        console.log("finish_message", { a: window.error_storage[message_id], b: window.message_storage[message_id], c: window.reasoning_storage[message_id] })
         content_map.update_timeouts.forEach((timeoutId) => clearTimeout(timeoutId));
         content_map.update_timeouts = [];
-        if (!error_storage[message_id] && message_storage[message_id]) {
-            const html = framework.markdown(message_storage[message_id]);
+        if (!window.error_storage[message_id] && window.message_storage[message_id]) {
+            const html = framework.markdown(window.message_storage[message_id]);
             content_map.inner.innerHTML = html;
             highlight(content_map.inner);
         }
-        if (message_storage[message_id] || reasoning_storage[message_id]?.status || reasoning_storage[message_id]?.text) {
+        if (window.message_storage[message_id] || window.reasoning_storage[message_id]?.status || window.reasoning_storage[message_id]?.text) {
             const message_provider = message_id in provider_storage ? provider_storage[message_id] : null;
             let usage = {};
             if (usage_storage[message_id]) {
@@ -105,8 +106,8 @@ ${gpt_image}
                 const prompt_token_model = model?.startsWith("gpt-3") ? "gpt-3.5-turbo" : "gpt-4"
                 const filtered = messages.filter((item) => !Array.isArray(item.content) && item.content);
                 const prompt_tokens = GPTTokenizer_cl100k_base?.encodeChat(filtered, prompt_token_model).length;
-                const completion_tokens = count_tokens(message_provider?.model, message_storage[message_id])
-                    + (reasoning_storage[message_id] ? count_tokens(message_provider?.model, reasoning_storage[message_id].text) : 0);
+                const completion_tokens = count_tokens(message_provider?.model, window.message_storage[message_id])
+                    + (window.reasoning_storage[message_id] ? count_tokens(message_provider?.model, window.reasoning_storage[message_id].text) : 0);
                 usage = {
                     ...usage,
                     prompt_tokens: prompt_tokens,
@@ -120,8 +121,13 @@ ${gpt_image}
                 regenerate = conversation.items[conversation.items.length - 1]["role"] != "user";
             }
             // Create final message content
-            const final_message = message_storage[message_id]
-                + (error_storage[message_id] ? " [error]" : "")
+            let actual_content = window.message_storage[message_id]
+            if (actual_content == "") {
+                actual_content = window.reasoning_storage[message_id].text
+            }
+            console.log({ actual_content })
+            const final_message = actual_content
+                + (window.error_storage[message_id] ? " [error]" : "")
                 + (stop_generating.classList.contains('stop_generating-hidden') ? " [aborted]" : "")
             // Save message in local storage
             message_index = await add_message(
@@ -135,11 +141,11 @@ ${gpt_image}
                 title_storage[message_id],
                 finish_storage[message_id],
                 usage,
-                reasoning_storage[message_id],
+                window.reasoning_storage[message_id],
                 action == "continue"
             );
-            delete message_storage[message_id];
-            delete reasoning_storage[message_id];
+            delete window.message_storage[message_id];
+            delete window.reasoning_storage[message_id];
             delete synthesize_storage[message_id];
             delete title_storage[message_id];
             delete finish_storage[message_id];
@@ -163,7 +169,7 @@ ${gpt_image}
             delete controller_storage[message_id];
         }
         // Reload conversation if no error
-        if (!error_storage[message_id]) {
+        if (!window.error_storage[message_id]) {
             if (await safe_load_conversation(window.conversation_id)) {
                 play_last_message(); // Play last message async
                 const new_message = chatBody.querySelector(`[data-index="${message_index}"]`)
