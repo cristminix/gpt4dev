@@ -69,6 +69,7 @@ import { count_input } from "./fn/count_input.js";
 import { load_provider_models } from "./fn/load_provider_models.js";
 import { initListeners } from "./fn/initListeners"
 import { ask_gpt } from "./fn/ask_gpt.js";
+import '@fortawesome/fontawesome-free/css/all.css';
 translationSnipptes.push.apply(translationSnipptes, Object.values(modelTags));
 
 

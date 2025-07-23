@@ -1,5 +1,6 @@
 module.exports = {
-  content: ["./**/*.{html,js}"],
+  content: ["./**/*.{html,js}", "./src/**/*.{js,ts,jsx,tsx}",
+    "node_modules/preline/dist/**/*.js"],
   theme: {
     extend: {
       colors: {
@@ -42,5 +43,5 @@ module.exports = {
       }
     },
   },
-  plugins: [require('@preline/plugin')],
+  plugins: [require('@preline/plugin', require('@tailwindcss/forms'))],
 }

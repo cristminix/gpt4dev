@@ -1,0 +1,53 @@
+.file-explorer-app{
+	@apply grid grid-cols-3 gap-2
+}
+.file-explorer-app .left-side{
+	@apply h-screen px-1 py-2 overflow-auto border border-solid border-slate-200
+}
+.file-explorer-app .right-side{
+	@apply col-span-2  border border-solid border-slate-200
+}
+.file-explorer-app svg.feather-icon{
+	@apply !w-[18px]
+}
+
+.file-explorer-app .folder{
+	@apply ml-4 items-center font-normal text-sm
+}
+.file-explorer-app .folder.root-folder{
+	@apply w-full p-0
+}
+.file-explorer-app .folder .folder-wrap{
+	@apply flex justify-between items-center  rounded  cursor-pointer  items-center
+}
+.file-explorer-app .folder .folder{
+	@apply  ml-4 py-[2px]
+}
+.file-explorer-app .folder .icon-wrap .folder-name{
+	@apply pl-1
+}
+.file-explorer-app .folder .icon-wrap{
+	@apply flex items-center 
+}
+.file-explorer-app .folder .file{
+	@apply pl-4 flex items-center  py-1 cursor-pointer
+}
+.file-explorer-app .folder .folder.selected,
+.file-explorer-app .folder .file.selected{
+	@apply bg-gray-300
+}
+
+.file-explorer-app .folder .folder-toolbar-action {
+	@apply flex items-center justify-end hidden
+}
+
+.file-explorer-app .folder .folder-toolbar-action > .btn-action {
+	@apply bg-transparent hover:text-slate-400 duration-100 border-none
+}
+
+.file-explorer-app .file-viewer {
+	@apply flex items-center overflow-hidden
+}
+.file-explorer-app .file-viewer .image-preview{
+	@apply w-full object-cover
+}

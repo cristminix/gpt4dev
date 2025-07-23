@@ -1,0 +1,155 @@
+@import "tailwindcss";
+@import "preline/variants.css";
+
+/* Preline UI */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Plugins */
+/* @plugin "@tailwindcss/forms"; */
+@plugin "@tailwindcss/typography";
+@source "./node_modules/preline/dist/*.js";
+
+.message .content_inner{
+    @apply prose  !max-w-none;
+}
+.top .convo .left{
+    cursor: pointer;
+}
+.content_inner_user{
+    @apply flex flex-col items-end;
+}
+.content_inner_user > * {
+    @apply  rounded-lg bg-gray-100 px-4 py-2 text-left;
+
+}
+
+.chat-item-footer{
+    @apply flex gap-2 ;
+}
+.chat-item-footer > button{
+    @apply  bg-gray-100 px-2;
+
+}
+.chat-footer {
+    @apply fixed bottom-0 p-4 right-0;
+}
+.chat-footer > .chat-toolbar {
+    @apply w-[250px] border;
+}
+
+button.new_convo{
+    @apply text-white
+}
+
+.model-selector{
+    @apply fixed w-full flex top-0 py-2 gap-2 px-2 bg-gray-100;
+}
+.top > .convo {
+    @apply flex justify-between
+    
+}
+.top > .convo > .left > .convo-title{
+    @apply block max-h-6 overflow-hidden;
+    /* line-height: 2m; */
+}
+.top > .convo > .left > .datetime,
+.top > .convo > .left > .fa-comments{
+    @apply hidden
+}
+
+select#provider,
+select.model{
+    @apply bg-gray-100 text-gray-700 active:border-none
+}
+.chat-footer{
+    /* @apply hidden */
+}
+.hljs-copy-wrapper{
+    /* @apply flex flex-row-reverse */
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  .cursor {
+    width: 0.5em;
+    height: 14px;
+    margin-left: .5em;
+    display: inline-block;
+    position: relative;
+    font-size: 11px;
+  }
+
+  .cursor::after {
+    content: '|';
+    position: absolute;
+    top: 0;
+    left: 0;
+    animation: blink .5s infinite;
+    font-weight: bold;
+  }
+
+  .chat-item-footer > button{
+    @apply bg-transparent rounded-md hover:bg-gray-100;
+    cursor: pointer;
+  }
+
+  .initial-assistant-chat-buble,
+  .initial-user-chat-buble,
+  .assistant-chat-buble,
+  .user-chat-buble{
+    @apply w-full text-gray-800 dark:text-white mt-16 space-y-5
+  }
+  .initial-assistant-chat-buble{
+    /* @apply text-gray-800 dark:text-white mt-16 space-y-5  */
+  }
+  .initial-user-chat-buble{
+    /* @apply  text-gray-800 dark:text-white mt-16 space-y-5  */
+  }
+
+  .assistant-chat-buble{
+    /* @apply text-gray-800 dark:text-white mt-8 space-y-5 */
+  }
+  .user-chat-buble{
+    /* @apply text-gray-800 dark:text-white mt-16 space-y-5  */
+  }
+  .chat-content {
+    @apply max-w-6xl py-2 px-4 sm:px-6 lg:px-8 mx-auto flex gap-x-2 sm:gap-x-4
+  }
+  .chat-content > .space-y-3{
+    /* @apply  */
+  }
+  .assistant-avatar{
+    @apply mt-2
+  }
+  .prompt-action-btn{
+    @apply inline-flex shrink-0 justify-center items-center size-8 rounded-lg text-gray-500 hover:bg-white focus:z-10 focus:outline-hidden focus:bg-white dark:text-neutral-500 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700
+  }
+  .media-player{
+    @apply flex
+  }
+
+  /**/
+
+  .conversation-item-button.active{
+    @apply bg-gray-100 dark:bg-gray-700
+  }
+
+  .inner-content{
+    /* font-family: Inter; */
+    /* font-size: 1em; */
+    /* @apply border w-full */
+  }
+  .codemirror-wrapper{
+    font-size: 1.095em;
+    line-height: 1.2em;
+  }
+  .inner-content table{
+    @apply border w-full
+  }
+  .inner-content table > tbody > tr > td{
+    @apply text-left border
+  }
+
