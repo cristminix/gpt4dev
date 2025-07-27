@@ -4,8 +4,11 @@
 
   import hljs from "highlight.js"
   import jquery from "jquery"
-
+  import svelte from "highlight.svelte"
   import "highlight.js/styles/github-dark.css"
+
+  hljs.registerLanguage("svelte", svelte)
+
   async function loadHighlight(lang: string) {
     // hljs.registerLanguage(
     //   lang,
