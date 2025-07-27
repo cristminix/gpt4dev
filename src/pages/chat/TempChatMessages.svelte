@@ -5,6 +5,7 @@
   export let model: any
   export let conversation_id
   export let provider
+  export let messageId
 </script>
 
 <div class="mt-16 space-y-5">
@@ -14,5 +15,6 @@
     {model}
     {conversation_id}
     {provider}
+    {messageId}
   />
 </div>

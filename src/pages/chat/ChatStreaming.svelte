@@ -7,6 +7,8 @@
   export let model: any = "gpt-4:blackbox"
   export let conversation_id
   export let provider
+  export let messageId
+
   let chatContainer
 
   function autoScroll() {
@@ -22,7 +24,7 @@
   })
 </script>
 
-<ul id="chat-container" class="mt-16 space-y-5">
+<ul id="chat-container" class="mt-16 space-y-5 conversation-list">
   {#if messages.length > 0}
     <UserMessage content={messages[messages.length - 1].content} />
     <AssistantMessage
@@ -32,6 +34,7 @@
       {model}
       {conversation_id}
       {provider}
+      {messageId}
     />
   {/if}
 </ul>

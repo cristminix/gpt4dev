@@ -2,46 +2,47 @@
   import { onMount } from "svelte"
   import Link from "../global/components/ux/Link.svelte"
   import jquery from "jquery"
+  import { writable } from "svelte/store"
   export let routeApp: any
-  let conversations: any[] = []
+  const conversations = writable([])
   export let loadChatCallback: any
+  let lastRoutePath = ""
+
   function loadConversations() {
     // TODO: Load conversations from the backend
+    let conversationsStore = []
     if (localStorage) {
       for (let i = 0; i < localStorage.length; i++) {
         //@ts-ignore
         if (localStorage.key(i).startsWith("conversation:")) {
           //@ts-ignore
 
-          let conversation = localStorage.getItem(localStorage.key(i))
+          const conversation = localStorage.getItem(localStorage.key(i))
           //@ts-ignore
 
-          conversations.push(JSON.parse(conversation))
+          conversationsStore.push(JSON.parse(conversation))
         }
       }
     }
-    conversations.sort((a, b) => (b.updated || 0) - (a.updated || 0))
-    console.log(conversations)
+    conversationsStore.sort((a, b) => (b.updated || 0) - (a.updated || 0))
+    // console.log(conversationsStore)
+    conversations.update(() => conversationsStore)
 
     ///@ts-ignore
     setTimeout(() => {
       HSAccordion.autoInit()
-      jquery("#conversations-accordion > button").trigger("click")
+      const accordionBtn = jquery("#conversations-accordion > button")
+      if (accordionBtn.attr("aria-expanded") != "true")
+        accordionBtn.trigger("click")
       activateConversationBtnStyles()
-
-      if (routeApp) {
-        console.log("add route changed")
-
-        routeApp.addRouteChangeCallback(
-          () => {
-            console.log("route changed")
-            activateConversationBtnStyles()
-          },
-          "sidebar",
-          true
-        )
-      }
     }, 512)
+  }
+  function updateConversationList() {
+    // alert("1234")
+    conversations.update(() => [])
+    setTimeout(() => {
+      loadConversations()
+    }, 32)
   }
   function loadChat(conversation: any) {
     // console.log(conversation)
@@ -65,7 +66,27 @@
       }
     }, 15)
   }
-  onMount(() => {})
+  onMount(() => {
+    setTimeout(() => {
+      if (routeApp) {
+        console.log("add route changed")
+        lastRoutePath = routeApp.getRoute()[0]
+        routeApp.addRouteChangeCallback(
+          (path, qs) => {
+            console.log("route changed")
+            activateConversationBtnStyles()
+            if (lastRoutePath === "/chat/new") {
+              console.log("Must update conversation list")
+              updateConversationList()
+            }
+            lastRoutePath = path
+          },
+          "sidebar",
+          true
+        )
+      }
+    }, 512)
+  })
 
   $: loadConversations()
 </script>
@@ -142,9 +163,10 @@
       >
         <ul class="flex flex-col space-y-1">
           <li>
-            <a
-              class="w-full flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-hidden focus:bg-gray-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700 dark:text-neutral-200"
-              href="#"
+            <Link
+              className="w-full flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-hidden focus:bg-gray-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700 dark:text-neutral-200"
+              to="/chat/new"
+              {routeApp}
             >
               <svg
                 class="shrink-0 size-4"
@@ -170,7 +192,7 @@
                 <path d="M16 18h.01" />
               </svg>
               New Chat
-            </a>
+            </Link>
           </li>
           <li>
             <a
@@ -290,7 +312,7 @@
             <button
               type="button"
               class="hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-hidden focus:bg-gray-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700 dark:text-neutral-200"
-              aria-expanded="true"
+              aria-expanded="false"
               aria-controls="projects-accordion-child"
             >
               <svg
@@ -348,9 +370,10 @@
               aria-labelledby="conversation-accordion"
             >
               <ul class=" pt-1 space-y-1">
-                {#each conversations as conversation}
+                {#each $conversations as conversation}
                   <li>
                     <Link
+                      title={conversation.title}
                       {routeApp}
                       to={`/chat/${conversation.id}`}
                       className="conversation-item-button flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-hidden focus:bg-gray-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700 dark:text-neutral-200"

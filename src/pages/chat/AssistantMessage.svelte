@@ -12,41 +12,40 @@
   export let messages: any = []
   export let conversation_id
   export let provider
+  export let messageId
   const finalContent = writable("")
   let fullText = ""
   let currentMessageElement
   let chatContainer
+  function autoScroll() {
+    setTimeout(() => {
+      window.scrollTo({
+        top: document.querySelector(".template-content").scrollHeight + 200,
+        behavior: "smooth", // Optional: smooth scrolling
+      })
+    }, 1000)
+  }
   async function updateMessage(text) {
-    console.log(text)
-    // finalContent.update(() => "")
-    await setTimeout(() => {
+    setTimeout(() => {
       finalContent.update(() => text)
-    }, 200)
-    /*
-    if (currentMessageElement) {
-      currentMessageElement.textContent = `${text}`
-    } else {
-      currentMessageElement = document.createElement("div")
-      currentMessageElement.classList.add("assistant-message")
-      currentMessageElement.textContent = `${text}`
-      chatContainer.appendChild(currentMessageElement)
-    }
-      */
+      autoScroll()
+    }, 256)
   }
 
   function finalizeMessage() {
-    // console.log(fullText)
-    /*
-    if (currentMessageElement) {
-      currentMessageElement.innerHTML = `${marked.parse(fullText)}`
-      currentMessageElement = null
-    }
-      */
-    onProcessingDone(fullText)
+    onProcessingDone(fullText, messageId)
+  }
+  function getReasoningText(resp) {
+    if (resp.token) return resp.token
+    if (resp.status) return resp.status
+    if (resp.label) return resp.label
+    return ""
   }
   const OPENAI_API_KEY = "your-openai-api-key" // Replace with your actual API key
 
   async function fetchOpenAIResponse() {
+    await new Promise((resolve) => setTimeout(resolve, 512))
+
     fullText = ""
     const response = await fetch("/api/backend-api/v2/conversation", {
       method: "POST",
@@ -63,7 +62,7 @@
         messages,
         stream: true, // Enable streaming
         provider,
-        id: conversation_id,
+        id: messageId,
         conversation_id,
         download_media: true,
       }),
@@ -71,6 +70,7 @@
 
     const reader = response.body.getReader()
     let line = ""
+    let reasoningText = ""
     while (true) {
       let buffer = ""
 
@@ -79,7 +79,7 @@
 
       buffer += new TextDecoder().decode(value)
       let resp
-      let reasoningText = ""
+
       let previewText = ""
       for (const line of buffer.split("\n")) {
         if (!line) {
@@ -111,16 +111,20 @@
             case "parameters":
               break
             case "error":
+              fullText = resp.message
+              finalizeMessage()
               break
             case "preview":
               updateMessage(resp.preview)
 
               break
             case "reasoning":
-              reasoningText += resp.status ?? resp.label
+              reasoningText += getReasoningText(resp)
               updateMessage(reasoningText)
               break
           }
+        } else {
+          alert("no response")
         }
       }
 
@@ -140,7 +144,7 @@
 </script>
 
 <li
-  class="max-w-6xl py-2 px-4 sm:px-6 lg:px-8 mx-auto flex gap-x-2 sm:gap-x-4 bg-neutral-800 pt-4 rounded-md"
+  class="max-w-6xl py-2 px-4 sm:px-6 lg:px-8 mx-auto flex gap-x-2 sm:gap-x-4 bg-neutral-800 pt-4 rounded-md conversation-item assistant-message"
 >
   <svg
     class="shrink-0 size-9.5 rounded-full"
@@ -165,6 +169,11 @@
   </svg>
 
   <div class="grow max-w-[90%] w-full space-y-3">
+    <div class="model-info pt-1">
+      <h4 class="text-xl font-semibold">
+        {model}:{provider}
+      </h4>
+    </div>
     <!-- Card -->
     <div class="space-y-3 inner-content">
       {#if $finalContent.length > 0}

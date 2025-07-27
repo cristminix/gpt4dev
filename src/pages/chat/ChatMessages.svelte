@@ -2,15 +2,25 @@
   import CodeRenderer from "./CodeRenderer.svelte"
   import SvelteMarkdown from "svelte-markdown"
   export let conversation: any
+
+  function autoScroll() {
+    setTimeout(() => {
+      window.scrollTo({
+        top: document.querySelector(".template-content").scrollHeight + 200,
+        behavior: "smooth", // Optional: smooth scrolling
+      })
+    }, 1000)
+  }
+  $: autoScroll()
 </script>
 
 {#if conversation}
-  <ul class="mt-16 space-y-5">
+  <ul class="mt-16 space-y-5 conversation-list">
     <!-- Chat Bubble -->
     {#each conversation.items as message}
       {#if message.role === "user"}
         <li
-          class="max-w-6xl py-2 px-4 sm:px-6 lg:px-8 mx-auto flex gap-x-2 sm:gap-x-4 bg-slate-700 pt-4 rounded-md"
+          class="max-w-6xl py-2 px-4 sm:px-6 lg:px-8 mx-auto flex gap-x-2 sm:gap-x-4 bg-slate-700 pt-4 rounded-md conversation-item user-message"
         >
           <div class="grow max-w-[95%] w-full">
             <div class="flex gap-x-2 sm:gap-x-4">
@@ -21,14 +31,14 @@
               </span>
 
               <div class="space-y-3 inner-content">
-                <SvelteMarkdown source={message.content} />
+                {message.content}
               </div>
             </div>
           </div>
         </li>
       {:else}
         <li
-          class="max-w-6xl py-2 px-4 sm:px-6 lg:px-8 mx-auto flex gap-x-2 sm:gap-x-4 bg-neutral-800 pt-4 rounded-md"
+          class="max-w-6xl py-2 px-4 sm:px-6 lg:px-8 mx-auto flex gap-x-2 sm:gap-x-4 bg-neutral-800 pt-4 rounded-md conversation-item assistant-message"
         >
           <svg
             class="shrink-0 size-9.5 rounded-full"
@@ -55,6 +65,15 @@
 
           <div class="grow max-w-[90%] w-full space-y-3">
             <!-- Card -->
+            <div class="model-info pt-1">
+              {#if message.provider}
+                <h4 class="text-xl font-semibold">
+                  {message.provider.model}:{message.provider.label}
+                </h4>
+              {:else}
+                <h4 class="text-xl font-semibold">Assistant</h4>
+              {/if}
+            </div>
             <div class="space-y-3 inner-content">
               <SvelteMarkdown
                 source={message.content}
@@ -67,100 +86,29 @@
             <div>
               <div class="sm:flex sm:justify-between">
                 <div>
-                  <div
-                    class="inline-flex border border-gray-200 rounded-full p-0.5 dark:border-neutral-700"
-                  >
-                    <button
-                      type="button"
-                      class="inline-flex shrink-0 justify-center items-center size-8 rounded-full text-gray-500 hover:bg-blue-100 hover:text-blue-800 focus:z-10 focus:outline-hidden focus:bg-blue-100 focus:text-blue-800 dark:text-neutral-500 dark:hover:bg-blue-900 dark:hover:text-blue-200 dark:focus:bg-blue-900 dark:focus:text-blue-200"
-                    >
-                      <svg
-                        class="shrink-0 size-4"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      >
-                        <path d="M7 10v12"></path>
-                        <path
-                          d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"
-                        ></path>
-                      </svg>
-                    </button>
-                    <button
-                      type="button"
-                      class="inline-flex shrink-0 justify-center items-center size-8 rounded-full text-gray-500 hover:bg-blue-100 hover:text-blue-800 focus:z-10 focus:outline-hidden focus:bg-blue-100 focus:text-blue-800 dark:text-neutral-500 dark:hover:bg-blue-900 dark:hover:text-blue-200 dark:focus:bg-blue-900 dark:focus:text-blue-200"
-                    >
-                      <svg
-                        class="shrink-0 size-4"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      >
-                        <path d="M17 14V2"></path>
-                        <path
-                          d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h0a3.13 3.13 0 0 1-3-3.88Z"
-                        ></path>
-                      </svg>
-                    </button>
-                  </div>
                   <button
                     type="button"
                     class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
                   >
-                    <svg
-                      class="shrink-0 size-4"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    >
-                      <path d="M17 14V2"></path>
-                      <path
-                        d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h0a3.13 3.13 0 0 1-3-3.88Z"
-                      ></path>
-                    </svg>
-                    Copy
+                    <i class="fa fa-copy"></i>
                   </button>
                   <button
                     type="button"
                     class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
                   >
-                    <svg
-                      class="shrink-0 size-4"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    >
-                      <circle cx="18" cy="5" r="3"></circle>
-                      <circle cx="6" cy="12" r="3"></circle>
-                      <circle cx="18" cy="19" r="3"></circle>
-                      <line x1="8.59" x2="15.42" y1="13.51" y2="17.49"></line>
-                      <line x1="15.41" x2="8.59" y1="6.51" y2="10.49"></line>
-                    </svg>
-                    Share
+                    <i class="fa fa-volume-up"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+                  >
+                    <i class="fa fa-play"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+                  >
+                    <i class="fa fa-refresh"></i>
                   </button>
                 </div>
 
@@ -169,24 +117,22 @@
                     type="button"
                     class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
                   >
-                    <svg
-                      class="shrink-0 size-4"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    >
-                      <path
-                        d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"
-                      ></path>
-                      <path d="M21 3v5h-5"></path>
-                    </svg>
-                    New answer
+                    <i class="fa fa-minus"></i>
+                    Collapse
+                  </button>
+                  <button
+                    type="button"
+                    class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+                  >
+                    <i class="fa fa-plus"></i>
+                    Expand
+                  </button>
+                  <button
+                    type="button"
+                    class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+                  >
+                    <i class="fa fa-trash"></i>
+                    Delete
                   </button>
                 </div>
               </div>

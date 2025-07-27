@@ -4,15 +4,21 @@
   import { writable } from "svelte/store"
   const providerList = writable([])
   const modelList = writable([])
+  let firstTimer = 0
   export function getModelConfig() {
     return JSON.parse(localStorage.getItem("modelConfig") || "{}")
   }
   function setModelConfig(provider = null, model = null) {
+    const oldConfig = getModelConfig()
+    console.log({ oldConfig, firstTimer, provider, model })
+    firstTimer++
+
     const modelConfig = {
       provider: provider ?? jquery("#provider").val(),
       model: model ?? jquery("#model").val(),
     }
     console.log(typeof modelConfig.model)
+    // if (!model && oldConfig.provider === provider) return
     if (modelConfig.model == "") {
       console.log($modelList)
       for (const model of $modelList) {
@@ -76,6 +82,16 @@
     // console.log({ provider })
   }
   $: loadProviderList()
+
+  function isModelSelected(model, provider, index) {
+    const modelConfig = getModelConfig()
+    if (
+      (provider ? modelConfig.provider === provider : true) &&
+      modelConfig.model === model
+    )
+      return true
+    return index === 0
+  }
 </script>
 
 <div class="relative">
@@ -94,12 +110,16 @@
             {#if Array.isArray(model.models)}
               <option value="" disabled>{model.group}</option>
               {#each model.models as subModel, subIndex}
-                <option value={subModel.model} selected={subIndex === 0}
+                <option
+                  value={subModel.model}
+                  selected={isModelSelected(model.model, null)}
                   >{subModel.label}</option
                 >
               {/each}
             {:else}
-              <option value={model.model} selected={index === 0}
+              <option
+                value={model.model}
+                selected={isModelSelected(model.model, null)}
                 >{model.label}</option
               >
             {/if}

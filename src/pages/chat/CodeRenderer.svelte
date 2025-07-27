@@ -1,25 +1,16 @@
 <script lang="ts">
   export let lang = ""
   export let text = ""
-  import CodeMirror from "svelte-codemirror-editor"
-  import { javascript } from "@codemirror/lang-javascript"
-  import { html } from "@codemirror/lang-html"
-  import { css } from "@codemirror/lang-css"
-  import { oneDark } from "@codemirror/theme-one-dark"
-  import { python } from "@codemirror/lang-python"
-  import { rust } from "@codemirror/lang-rust"
+
   import hljs from "highlight.js"
   import jquery from "jquery"
-  const languages_maps = {
-    javascript,
-    html,
-    typescript: javascript,
-    html,
-    css,
-    python,
-    rust,
-  }
-  function loadHighlight(lang: string) {
+
+  import "highlight.js/styles/github-dark.css"
+  async function loadHighlight(lang: string) {
+    // hljs.registerLanguage(
+    //   lang,
+    //   await import(`highlight.js/lib/languages/${lang}`)
+    // )
     setTimeout(() => {
       document.querySelectorAll("pre code").forEach((el) => {
         if (!jquery(el).attr("data-highlighted")) {
@@ -41,12 +32,12 @@
     theme={oneDark}
   />
 </div> -->
-<div class="mt-3 bg-gray-900 rounded-lg dark:bg-neutral-800">
-  <div class="px-3 py-1">
+<div class="my-3 bg-gray-900 rounded-lg dark:bg-neutral-800">
+  <!-- <div class="px-3 py-1">
     <span class="text-xs text-gray-400 dark:text-neutral-500">{lang}</span>
-  </div>
+  </div> -->
   <div class="code-toolbar">
-    <pre class="rounded-lg language-js" tabindex="0"><code class="language-js"
+    <pre class="rounded-lg" tabindex="0"><code class="language-{lang}"
         >{text}</code
       ></pre>
     <div class="toolbar">

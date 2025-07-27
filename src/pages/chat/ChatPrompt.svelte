@@ -9,6 +9,20 @@
   function onUserPromptChange() {
     // console.log("user prompt change")
   }
+  function sendKeystroke(text) {
+    const textarea = document.getElementById("userInput")
+    textarea.focus() // Memfokuskan textarea
+
+    // Menambahkan teks ke textarea
+    textarea.value = text
+
+    // Membuat dan memicu event 'input' untuk memperbarui interaksi pengguna
+    const event = new Event("input", {
+      bubbles: true,
+      cancelable: true,
+    })
+    textarea.dispatchEvent(event)
+  }
   function onUserPromptKeydown(e: Event) {
     if (e.keyCode === 13) {
       onSubmitUserPrompt()
@@ -20,6 +34,7 @@
   function onSubmitUserPrompt() {
     console.log("submit user prompt")
     const content = jquery("#userInput").val()
+    sendKeystroke("")
     onSubmitPrompt(content)
   }
 </script>
