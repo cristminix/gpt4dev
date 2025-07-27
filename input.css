@@ -32,7 +32,7 @@
     @apply px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500
   }
   .inner-content table > tbody > tr > td{
-    @apply px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200 text-left
+    @apply px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-400 text-left
   }
   .inner-content table > tbody {
     @apply divide-y divide-gray-200 dark:divide-neutral-700
@@ -48,5 +48,5 @@
   @apply !p-0 !m-0 !border-0 !bg-transparent
 }
 .conversation-list .conversation-item .inner-content{
-@apply  !overflow-x-hidden !max-w-none prose dark:prose-invert prose-headings:font-semibold prose-headings:text-gray-800 dark:prose-headings:text-white prose-p:text-gray-800 dark:prose-p:text-white prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
+@apply  !overflow-x-hidden !max-w-none prose dark:prose-invert prose-headings:font-semibold prose-headings:text-gray-800 dark:prose-headings:text-neutral-400 prose-p:text-neutral-400 dark:prose-p:text-neutral-300 prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
 }

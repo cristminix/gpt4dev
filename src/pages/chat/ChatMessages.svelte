@@ -2,7 +2,10 @@
   import CodeRenderer from "./CodeRenderer.svelte"
   import SvelteMarkdown from "svelte-markdown"
   export let conversation: any
-
+  async function deleteMessage(messageId: string) {
+    // Implement message deletion logic here
+    console.log("Delete message with ID:", messageId)
+  }
   function autoScroll() {
     setTimeout(() => {
       window.scrollTo({
@@ -23,7 +26,7 @@
           class="max-w-6xl py-2 px-4 sm:px-6 lg:px-8 mx-auto flex gap-x-2 sm:gap-x-4 bg-slate-700 pt-4 rounded-md conversation-item user-message"
         >
           <div class="grow max-w-[95%] w-full">
-            <div class="flex gap-x-2 sm:gap-x-4">
+            <div class="flex gap-x-2 sm:gap-x-4 flex-row-reverse">
               <span
                 class="shrink-0 inline-flex items-center justify-center size-9.5 rounded-full bg-gray-600"
               >
@@ -128,6 +131,7 @@
                     Expand
                   </button>
                   <button
+                    on:click={() => deleteMessage(message.id)}
                     type="button"
                     class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
                   >

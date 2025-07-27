@@ -13,6 +13,7 @@
   export let conversation_id
   export let provider
   export let messageId
+  let oldRequestDate = Date.now()
   const finalContent = writable("")
   let fullText = ""
   let currentMessageElement
@@ -34,6 +35,7 @@
 
   function finalizeMessage() {
     onProcessingDone(fullText, messageId)
+    oldRequestDate = Date.now()
   }
   function getReasoningText(resp) {
     if (resp.token) return resp.token
@@ -44,7 +46,17 @@
   const OPENAI_API_KEY = "your-openai-api-key" // Replace with your actual API key
 
   async function fetchOpenAIResponse() {
-    await new Promise((resolve) => setTimeout(resolve, 512))
+    const now = Date.now()
+    // Menghitung selisih dalam milidetik
+    if (!oldRequestDate) {
+      oldRequestDate = now
+    }
+    const differenceInMilliseconds = now - oldRequestDate
+
+    // Mengonversi selisih milidetik ke detik
+    await new Promise((resolve) =>
+      setTimeout(resolve, 512 - differenceInMilliseconds)
+    )
 
     fullText = ""
     const response = await fetch("/api/backend-api/v2/conversation", {
@@ -75,7 +87,10 @@
       let buffer = ""
 
       const { done, value } = await reader.read()
-      if (done) break
+      if (done) {
+        finalizeMessage()
+        break
+      }
 
       buffer += new TextDecoder().decode(value)
       let resp
@@ -118,6 +133,17 @@
               updateMessage(resp.preview)
 
               break
+            case "conversation":
+              try {
+                const { message_history } = resp.conversation[$provider]
+                const lastMessage = message_history[message_history.length - 1]
+                tmpFullText = lastMessage.content
+                resolve(tmpFullText)
+              } catch (error) {
+                console.error("Error accessing conversation data:", error)
+              }
+
+              break
             case "reasoning":
               reasoningText += getReasoningText(resp)
               updateMessage(reasoningText)
@@ -130,7 +156,7 @@
 
       //   await new Promise((r) => setTimeout(r, 512))
     }
-    finalizeMessage()
+    // finalizeMessage()
   }
   onMount(() => {})
   $: {

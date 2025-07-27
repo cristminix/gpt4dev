@@ -58,16 +58,25 @@
     const id = createMessageId()
     messageId.update(() => id)
     addMessageTask(id)
-    const messages = [
-      ...previousMessages.map((message) => ({
-        role: message.role,
-        content: message.content,
-      })),
+    let messages = [
       {
         role: "user",
         content,
       },
     ]
+    if (params.id !== "new") {
+      messages = [
+        ...previousMessages.map((message) => ({
+          role: message.role,
+          content: message.content,
+        })),
+        {
+          role: "user",
+          content,
+        },
+      ]
+    }
+
     userPrompt.update(() => content)
     // construct messages
     // console.log(messages)
@@ -87,7 +96,7 @@
   let tmpFullText = ""
 
   async function makeUpConversationTitle(lastMessage: string) {
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 3000))
     tmpFullText = ""
     return new Promise(async (resolve, reject) => {
       const OPENAI_API_KEY = "your-openai-api-key" // Replace with your actual API key
@@ -108,8 +117,9 @@
             {
               role: "user",
               content:
+                "Generate one title with a relevant emoji for this text: \n" +
                 lastMessage +
-                "\nMake good title with unicode icon in 50 charachter length based on this content ",
+                ",give one result only without quotes, make sure to include an emoji",
             },
           ],
           stream: true, // Enable streaming
@@ -126,7 +136,7 @@
         let buffer = ""
 
         const { done, value } = await reader.read()
-        console.log("reading response", done, value)
+        // console.log("reading response", done, value)
         if (done) {
           resolve(tmpFullText)
           break
@@ -174,10 +184,16 @@
               case "preview":
                 break
               case "conversation":
-                const { message_history } = resp.conversation[$provider]
-                const lastMessage = message_history[message_history.length - 1]
-                tmpFullText = lastMessage.content
-                resolve(tmpFullText)
+                try {
+                  const { message_history } = resp.conversation[$provider]
+                  const lastMessage =
+                    message_history[message_history.length - 1]
+                  tmpFullText = lastMessage.content
+                  resolve(tmpFullText)
+                } catch (error) {
+                  console.error("Error accessing conversation data:", error)
+                }
+
                 break
               case "reasoning":
                 break
@@ -200,9 +216,18 @@
         setTimeout(async () => {
           tempConversation.update((o) => o.concat(fullText))
           const newConversation = $conversation
+          let title = $userPrompt
+          if ($userPrompt.length > 250) title = $userPrompt.slice(0, 250)
           if (params.id === "new") {
-            let title = (await makeUpConversationTitle(fullText)) || ""
-            if (title.length === 0) title = $userPrompt
+            if (!fullText.match(/error/gi)) {
+              title = (await makeUpConversationTitle(fullText)) || ""
+              if (title.length === 0) title = $userPrompt
+              if (title.length > 250) title = title.slice(0, 250)
+            } else {
+              alert("Ada yang salah, silahkan coba lagi")
+              isProcessing.update(() => false)
+              return
+            }
             // if ($userPrompt.length > 250)
             newConversation.title = title
             // else newConversation.title = $userPrompt
@@ -213,10 +238,13 @@
           newConversation.items.push({
             role: "user",
             content: $userPrompt,
+            id,
           })
           newConversation.items.push({
             role: "assistant",
             content: fullText,
+            id: createMessageId(),
+            parentId: id,
             provider: {
               model: $model,
               label: $provider,
