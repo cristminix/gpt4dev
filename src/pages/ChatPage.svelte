@@ -11,6 +11,7 @@
   export let routeApp: any
   export let params: any
   export let queryString: any
+  let modelImageGens = ["flux", "flux-dev", "sd-3.5-large"]
   const tempConversation = writable<any>([])
   const isProcessing = writable(false)
   let conversation = writable<any>(null)
@@ -219,6 +220,13 @@
       // reject("No response from API")
     })
   }
+  function shouldPerformTitleGeneration() {
+    // Check if the user prompt is empty or too short
+    if (modelImageGens.includes($model)) {
+      return false
+    }
+    return true
+  }
   function onProcessingDone(fullText: string, id: string) {
     const task = getMessageTask(id)
     if (task) {
@@ -230,15 +238,15 @@
           if ($userPrompt.length > 250) title = $userPrompt.slice(0, 250)
           if (params.id === "new") {
             //!fullText.match(/error/gi)p
-            if (true) {
+            if (shouldPerformTitleGeneration()) {
               title = (await makeUpConversationTitle(fullText)) || ""
               title = stripMarkdown(title)
               if (title.length === 0) title = $userPrompt
               if (title.length > 250) title = title.slice(0, 250)
             } else {
-              alert("Terjadi kesalahan")
-              isProcessing.update(() => false)
-              return
+              // alert("Terjadi kesalahan")
+              // isProcessing.update(() => false)
+              // return
             }
             // if ($userPrompt.length > 250)
             newConversation.title = title
@@ -428,7 +436,9 @@
     class="max-w-6xl px-4 sm:px-6 lg:px-8 mx-auto text-center bg-neutral-800"
   >
     {#if $conversation}
-      <h1 class="text-xl font-bold text-gray-400 sm:text-xl lg:text-3xl py-4">
+      <h1
+        class="text-xl font-bold text-gray-400 sm:text-xl lg:text-3xl py-4 text-left"
+      >
         {$conversation.title}
       </h1>
     {/if}

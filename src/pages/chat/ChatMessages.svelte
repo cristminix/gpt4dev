@@ -23,7 +23,7 @@
     {#each conversation.items as message}
       {#if message.role === "user"}
         <li
-          class="max-w-6xl py-2 px-4 sm:px-6 lg:px-8 mx-auto flex gap-x-2 sm:gap-x-4 bg-slate-700 pt-4 rounded-md conversation-item user-message"
+          class="max-w-6xl py-2 px-4 sm:px-6 lg:px-8 mx-auto flex flex-row-reverse gap-x-2 sm:gap-x-4 bg-slate-700 pt-4 rounded-md conversation-item user-message"
         >
           <div class="grow max-w-[95%] w-full">
             <div class="flex gap-x-2 sm:gap-x-4 flex-row-reverse">
