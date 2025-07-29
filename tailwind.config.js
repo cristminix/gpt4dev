@@ -2,6 +2,7 @@ module.exports = {
   content: ["./**/*.{html,js}", "./src/**/*.{js,ts,jsx,tsx}",
     "node_modules/preline/dist/**/*.js"],
   theme: {
+    darkMode: 'class',
     extend: {
       colors: {
         'colour-1': '#000000',

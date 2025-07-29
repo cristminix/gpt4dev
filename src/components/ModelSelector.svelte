@@ -5,10 +5,9 @@
   const providerList = writable([])
   const modelList = writable([])
   let firstTimer = 0
-  export function getModelConfig() {
-    return JSON.parse(localStorage.getItem("modelConfig") || "{}")
-  }
-  function setModelConfig(provider = null, model = null) {
+  import { getModelConfig } from "@/global/store/chat/getModelConfig"
+  import { setModelConfig } from "@/global/store/chat/setModelConfig";
+  function doSetModelConfig(provider = null, model = null) {
     const oldConfig = getModelConfig()
     console.log({ oldConfig, firstTimer, provider, model })
     firstTimer++
@@ -31,8 +30,7 @@
       }
     }
     console.log(modelConfig)
-
-    localStorage.setItem("modelConfig", JSON.stringify(modelConfig))
+    setModelConfig(modelConfig)
   }
   async function initProviderData() {
     const providerListSet = await fetch("api/backend-api/v2/providers").then(
@@ -42,12 +40,13 @@
     providerList.update((o) => providerListSet)
   }
   async function initModelData(providerName: string) {
-    const modelListSet = await fetch(
+    let modelListSet = await fetch(
       `api/backend-api/v2/models/${providerName}`
     ).then((r) => r.json())
+    modelListSet = modelListSet.sort((a, b) => a.label.localeCompare(b.label));
     modelList.update((o) => modelListSet)
     setTimeout(() => {
-      setModelConfig(providerName)
+      doSetModelConfig(providerName)
     }, 256)
   }
   async function loadProviderList() {
@@ -103,7 +102,7 @@
         <select
           name="model"
           id="model"
-          on:change={(e) => setModelConfig(null, e.target.value)}
+          on:change={(e) => doSetModelConfig(null, e.target.value)}
           class="w-full py-3 px-4 pe-9 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
         >
           {#each $modelList as model, index}

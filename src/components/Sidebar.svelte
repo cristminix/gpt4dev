@@ -3,30 +3,15 @@
   import Link from "../global/components/ux/Link.svelte"
   import jquery from "jquery"
   import { writable } from "svelte/store"
+  import { getConversations } from "@/global/store/conversation/getConversations";
   export let routeApp: any
   const conversations = writable([])
   export let loadChatCallback: any
   let lastRoutePath = ""
 
   function loadConversations() {
-    // TODO: Load conversations from the backend
-    let conversationsStore = []
-    if (localStorage) {
-      for (let i = 0; i < localStorage.length; i++) {
-        //@ts-ignore
-        if (localStorage.key(i).startsWith("conversation:")) {
-          //@ts-ignore
-
-          const conversation = localStorage.getItem(localStorage.key(i))
-          //@ts-ignore
-
-          conversationsStore.push(JSON.parse(conversation))
-        }
-      }
-    }
-    conversationsStore.sort((a, b) => (b.updated || 0) - (a.updated || 0))
-    // console.log(conversationsStore)
-    conversations.update(() => conversationsStore)
+    
+    conversations.update(() => getConversations())
 
     ///@ts-ignore
     setTimeout(() => {

@@ -6,8 +6,13 @@
   import TempChatMessages from "./chat/TempChatMessages.svelte"
   import { v1 } from "uuid"
   import jquery from "jquery"
-  import { marked } from "marked"
+  import { createMessageId } from "./chat/chat-page/fn/createMessageId"
+  import { makeUpConversationTitle } from "./chat/chat-page/fn/makeUpConversationTitle"
+
   import { onMount } from "svelte"
+  import { getConversation } from "@/global/store/conversation/getConversation";
+  import { getModelConfig } from "@/global/store/chat/getModelConfig"
+  import { stripMarkdown } from "./chat/chat-page/fn/stripMarkdown";
   export let routeApp: any
   export let params: any
   export let queryString: any
@@ -21,17 +26,8 @@
   const userPrompt = writable("")
   const messageId = writable("")
   const messageTasks = writable({})
-  function stripMarkdown(text) {
-    return text
-      .replace(/\*\*(.*?)\*\*/g, "$1") // Bold
-      .replace(/\_(.*?)\_/g, "$1") // Italic
-      .replace(/`(.*?)`/g, "$1") // Inline code
-      .replace(/\[(.*?)\]\((.*?)\)/g, "$1") // Links
-      .replace(/#(.*?)/g, "$1") // Headers
-  }
-  function getModelConfig() {
-    return JSON.parse(localStorage.getItem("modelConfig") || "{}")
-  }
+  
+  
   function addMessageTask(id: string) {
     const exists = Object.keys($messageTasks).includes(id)
     if (!exists) {
@@ -56,16 +52,8 @@
     }
     return null
   }
-  export function createMessageId() {
-    let random_bytes = (
-      Math.floor(Math.random() * 1338377565) + 2956589730
-    ).toString(2)
-    let unix = Math.floor(Date.now() / 1000).toString(2)
-
-    return BigInt(`0b${unix}${random_bytes}`).toString()
-  }
+  
   function onSubmitPrompt(content: string) {
-    const previousMessages = $conversation.items
     const id = createMessageId()
     messageId.update(() => id)
     addMessageTask(id)
@@ -76,6 +64,8 @@
       },
     ]
     if (params.id !== "new") {
+    const previousMessages = $conversation.items
+
       messages = [
         ...previousMessages.map((message) => ({
           role: message.role,
@@ -106,120 +96,7 @@
   }
   let tmpFullText = ""
 
-  async function makeUpConversationTitle(lastMessage: string) {
-    await new Promise((resolve) => setTimeout(resolve, 3000))
-    tmpFullText = ""
-    return new Promise(async (resolve, reject) => {
-      const OPENAI_API_KEY = "your-openai-api-key" // Replace with your actual API key
-
-      const response = await fetch("/api/backend-api/v2/conversation", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${OPENAI_API_KEY}`,
-        },
-        body: JSON.stringify({
-          action: "next",
-          api_key: null,
-          aspect_ratio: "16:9",
-          conversation: null,
-          model: $model, // or 'gpt-3.5-turbo'
-          messages: [
-            {
-              role: "user",
-              content:
-                "Generate one title with a relevant emoji for this text: \n" +
-                lastMessage +
-                ",give one result only without quotes, make sure to include an emoji",
-            },
-          ],
-          stream: true, // Enable streaming
-          provider: $provider,
-          id: createMessageId(),
-          conversation_id: $conversation.id,
-          download_media: true,
-        }),
-      })
-      const reader = response.body.getReader()
-      let line = ""
-      let reasoningText = ""
-      while (true) {
-        let buffer = ""
-
-        const { done, value } = await reader.read()
-        // console.log("reading response", done, value)
-        if (done) {
-          resolve(tmpFullText)
-          break
-        }
-
-        buffer += new TextDecoder().decode(value)
-        let resp
-
-        let previewText = ""
-        for (const line of buffer.split("\n")) {
-          if (!line) {
-            continue
-          }
-          try {
-            resp = JSON.parse(line)
-          } catch (error) {
-            console.error("Error parsing JSON:", error)
-          }
-          if (resp) {
-            console.log(resp)
-
-            switch (resp.type) {
-              case "log":
-                break
-              case "provider":
-                break
-              case "content":
-                tmpFullText += resp.content
-                // resolve(tmpFullText)
-
-                console.log(line)
-
-                break
-              case "finish":
-                const reason = resp.finish.reason
-                resolve(tmpFullText)
-
-              case "parameters":
-                break
-              case "error":
-                tmpFullText = resp.message
-                resolve(tmpFullText)
-
-                break
-              case "preview":
-                break
-              case "conversation":
-                try {
-                  const { message_history } = resp.conversation[$provider]
-                  const lastMessage =
-                    message_history[message_history.length - 1]
-                  tmpFullText = lastMessage.content
-                  resolve(tmpFullText)
-                } catch (error) {
-                  console.error("Error accessing conversation data:", error)
-                }
-
-                break
-              case "reasoning":
-                break
-            }
-          } else {
-            alert("no response")
-          }
-        }
-
-        //   await new Promise((r) => setTimeout(r, 512))
-      }
-      // return fullText
-      // reject("No response from API")
-    })
-  }
+  
   function shouldPerformTitleGeneration() {
     // Check if the user prompt is empty or too short
     if (modelImageGens.includes($model)) {
@@ -239,7 +116,7 @@
           if (params.id === "new") {
             //!fullText.match(/error/gi)p
             if (shouldPerformTitleGeneration()) {
-              title = (await makeUpConversationTitle(fullText)) || ""
+              title = (await makeUpConversationTitle(fullText,$model,$provider,$conversation)) || ""
               title = stripMarkdown(title)
               if (title.length === 0) title = $userPrompt
               if (title.length > 250) title = title.slice(0, 250)
@@ -317,28 +194,9 @@
     console.log("load chat", id)
     if (id == "new") {
       createNewChat()
-    }
-    if (localStorage) {
-      for (let i = 0; i < localStorage.length; i++) {
-        //@ts-ignore
-        if (localStorage.key(i).startsWith("conversation:")) {
-          //@ts-ignore
+    }else
+   conversation.update(() => getConversation(id))
 
-          const conversationSet = JSON.parse(
-            localStorage.getItem(localStorage.key(i))
-          )
-          //@ts-ignore
-          // console.log(conversationSet)
-          if (conversationSet.id === id) {
-            conversation.update(() => conversationSet)
-            //@ts-ignore
-            // console.log(conversationSet)
-            break
-          }
-          // conversations.push(JSON.parse(conversation))
-        }
-      }
-    }
     if ($conversation) {
       document.title = $conversation.title
       console.log($conversation)
@@ -412,25 +270,25 @@
   let currentTime = new Date().toLocaleTimeString()
 
   // Update the time every second
-  setInterval(() => {
-    currentTime = new Date().toLocaleTimeString()
-  }, 1000)
+  // setInterval(() => {
+  //   currentTime = new Date().toLocaleTimeString()
+  // }, 1000)
   $: loadChat(params.id)
 </script>
 
 {#if !toastClosed}
-  <div class="clock">
+  <!-- <div class="clock">
     {currentTime}
-  </div>
+  </div> -->
 {/if}
-<button
+<!-- <button
   id="hs-new-toast"
   type="button"
   on:click={displayToast}
   class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
 >
   Call toast
-</button>
+</button> -->
 <div class="py-10 lg:py-14">
   <div
     class="max-w-6xl px-4 sm:px-6 lg:px-8 mx-auto text-center bg-neutral-800"

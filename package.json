@@ -74,6 +74,7 @@
     "@sveltejs/vite-plugin-svelte": "^5.1.0",
     "@tailwindcss/postcss": "^4.1.11",
     "@tsconfig/svelte": "^5.0.4",
+    "@types/jquery": "^3.5.32",
     "@types/node": "^24.0.10",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.6",

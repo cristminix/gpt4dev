@@ -5,6 +5,7 @@
   import CodeRenderer from "./CodeRenderer.svelte"
   import { writable } from "svelte/store"
   import CodeRendererStream from "./CodeRendererStream.svelte"
+  import { getProviderApiKey } from "@/global/store/auth/getProviderApiKey";
   export let prompt: any = "hi"
   export let model: any = "gpt-4:blackbox"
   export let isStreaming = false
@@ -43,7 +44,7 @@
     if (resp.label) return resp.label
     return ""
   }
-  const OPENAI_API_KEY = "your-openai-api-key" // Replace with your actual API key
+  
 
   async function fetchOpenAIResponse() {
     const now = Date.now()
@@ -57,7 +58,7 @@
     await new Promise((resolve) =>
       setTimeout(resolve, 512 - differenceInMilliseconds)
     )
-
+    const OPENAI_API_KEY = getProviderApiKey(provider)
     fullText = ""
     const response = await fetch("/api/backend-api/v2/conversation", {
       method: "POST",
@@ -67,7 +68,7 @@
       },
       body: JSON.stringify({
         action: "next",
-        api_key: null,
+        api_key: OPENAI_API_KEY,
         aspect_ratio: "16:9",
         conversation: null,
         model, // or 'gpt-3.5-turbo'
@@ -79,7 +80,10 @@
         download_media: true,
       }),
     })
-
+    if (!response.ok) {
+      updateMessage("Error fetching response:"+ response.statusText)
+      return
+    }
     const reader = response.body.getReader()
     let line = ""
     let reasoningText = ""
