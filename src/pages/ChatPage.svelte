@@ -10,9 +10,9 @@
   import { makeUpConversationTitle } from "./chat/chat-page/fn/makeUpConversationTitle"
 
   import { onMount } from "svelte"
-  import { getConversation } from "@/global/store/conversation/getConversation";
+  import { getConversation } from "@/global/store/conversation/getConversation"
   import { getModelConfig } from "@/global/store/chat/getModelConfig"
-  import { stripMarkdown } from "./chat/chat-page/fn/stripMarkdown";
+  import { stripMarkdown } from "./chat/chat-page/fn/stripMarkdown"
   export let routeApp: any
   export let params: any
   export let queryString: any
@@ -26,8 +26,12 @@
   const userPrompt = writable("")
   const messageId = writable("")
   const messageTasks = writable({})
-  
-  
+  const chatConfig = writable({
+    attachChatHistoryToUserPrompt: false,
+  })
+  function setChatConfig(config: any) {
+    chatConfig.update((o: any) => ({ ...o, ...config }))
+  }
   function addMessageTask(id: string) {
     const exists = Object.keys($messageTasks).includes(id)
     if (!exists) {
@@ -52,8 +56,10 @@
     }
     return null
   }
-  
+
   function onSubmitPrompt(content: string) {
+    const { attachChatHistoryToUserPrompt } = $chatConfig
+
     const id = createMessageId()
     messageId.update(() => id)
     addMessageTask(id)
@@ -63,8 +69,10 @@
         content,
       },
     ]
-    if (params.id !== "new") {
-    const previousMessages = $conversation.items
+    let previousMessages = []
+    let isNewConversation = params.id === "new"
+    if (!isNewConversation) {
+      previousMessages = $conversation.items
 
       messages = [
         ...previousMessages.map((message) => ({
@@ -77,7 +85,27 @@
         },
       ]
     }
+    if (attachChatHistoryToUserPrompt) {
+      console.log("attachChatHistoryToUserPrompt is enabled")
+      let messageHistory = ""
+      if (!isNewConversation) {
+        previousMessages = $conversation.items
 
+        messageHistory = `[Chat History]`
+        previousMessages.forEach((message) => {
+          messageHistory += `\n${message.role}: ${message.content}`
+        })
+
+        messages = [
+          {
+            role: "user",
+            content: `${messageHistory}\n\n${content}`,
+          },
+        ]
+      }
+    }
+    console.log("onSubmitPrompt", content, messages)
+    // return
     userPrompt.update(() => content)
     // construct messages
     // console.log(messages)
@@ -96,7 +124,6 @@
   }
   let tmpFullText = ""
 
-  
   function shouldPerformTitleGeneration() {
     // Check if the user prompt is empty or too short
     if (modelImageGens.includes($model)) {
@@ -116,7 +143,13 @@
           if (params.id === "new") {
             //!fullText.match(/error/gi)p
             if (shouldPerformTitleGeneration()) {
-              title = (await makeUpConversationTitle(fullText,$model,$provider,$conversation)) || ""
+              title =
+                (await makeUpConversationTitle(
+                  fullText,
+                  $model,
+                  $provider,
+                  $conversation
+                )) || ""
               title = stripMarkdown(title)
               if (title.length === 0) title = $userPrompt
               if (title.length > 250) title = title.slice(0, 250)
@@ -194,8 +227,7 @@
     console.log("load chat", id)
     if (id == "new") {
       createNewChat()
-    }else
-   conversation.update(() => getConversation(id))
+    } else conversation.update(() => getConversation(id))
 
     if ($conversation) {
       document.title = $conversation.title
@@ -362,5 +394,5 @@
       messageId={$messageId}
     />
   {/if}
-  <ChatPrompt {onSubmitPrompt} />
+  <ChatPrompt {onSubmitPrompt} {setChatConfig} />
 </div>

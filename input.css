@@ -50,3 +50,9 @@
 .conversation-list .conversation-item .inner-content{
 @apply  !overflow-x-hidden !max-w-none prose dark:prose-invert prose-headings:font-semibold prose-headings:text-gray-800 dark:prose-headings:text-neutral-400 prose-p:text-neutral-400 dark:prose-p:text-neutral-300 prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
 }
+.chat-toolbar-left{
+  @apply border-r border-gray-200 dark:border-neutral-700
+}
+.chat-toolbar-left button.active{
+  @apply !border
+}
