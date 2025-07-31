@@ -196,17 +196,17 @@
               newConversation,
               chatMessagesData
             )
-            conversation.update(() => c)
-            chatMessages.update(() => m)
+            // conversation.update(() => c)
+            // chatMessages.update(() => m)
             if (routeApp) {
-              routeApp.navigate(`/chat/${$conversation.id}`)
+              routeApp.navigate(`/chat/${newConversation.id}`)
             }
           } else {
             const [c, m] = await updateConversation(
               newConversation,
               chatMessagesData
             )
-            conversation.update(() => c)
+            // conversation.update(() => c)
             chatMessages.update(() => m)
             console.log({ m })
           }
