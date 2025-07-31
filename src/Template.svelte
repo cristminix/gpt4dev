@@ -13,7 +13,6 @@
   // console.log("Parent component rendered")
   onMount(() => {})
 
-  export let store: DBStore
   export let config: any = null
   export let routeApp: any
 </script>

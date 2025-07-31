@@ -46,7 +46,7 @@ export async function updateConversation(
       newChatMessagesData.push({
         role: message.participantRole,
         content: message.content,
-        created: new Date().toISOString(), // Assuming the server will handle the timestamp
+        createdAt: message.createdAt, // Assuming the server will handle the timestamp
         id: messageData.id, // Assuming the server returns the message ID
       })
     }
