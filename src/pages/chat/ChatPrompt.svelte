@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte"
   import jquery from "jquery"
-  import { set } from "idb-keyval"
   export let onSubmitPrompt: any
   export let setChatConfig: any
   let attachChatHistoryToUserPrompt = false

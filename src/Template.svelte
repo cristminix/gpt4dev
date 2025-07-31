@@ -10,7 +10,7 @@
   import Content from "./components/Content.svelte"
   import { onMount } from "svelte"
 
-  console.log("Parent component rendered")
+  // console.log("Parent component rendered")
   onMount(() => {})
 
   export let store: DBStore

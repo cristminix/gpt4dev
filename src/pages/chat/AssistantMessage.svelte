@@ -5,7 +5,7 @@
   import CodeRenderer from "./CodeRenderer.svelte"
   import { writable } from "svelte/store"
   import CodeRendererStream from "./CodeRendererStream.svelte"
-  import { getProviderApiKey } from "@/global/store/auth/getProviderApiKey";
+  import { getProviderApiKey } from "@/global/store/auth/getProviderApiKey"
   export let prompt: any = "hi"
   export let model: any = "gpt-4:blackbox"
   export let isStreaming = false
@@ -17,6 +17,7 @@
   let oldRequestDate = Date.now()
   const finalContent = writable("")
   let fullText = ""
+  let tmpFullText = ""
   let currentMessageElement
   let chatContainer
   function autoScroll() {
@@ -44,7 +45,6 @@
     if (resp.label) return resp.label
     return ""
   }
-  
 
   async function fetchOpenAIResponse() {
     const now = Date.now()
@@ -81,7 +81,7 @@
       }),
     })
     if (!response.ok) {
-      updateMessage("Error fetching response:"+ response.statusText)
+      updateMessage("Error fetching response:" + response.statusText)
       return
     }
     const reader = response.body.getReader()
@@ -110,7 +110,7 @@
           console.error("Error parsing JSON:", error)
         }
         if (resp) {
-          console.log(resp)
+          // console.log(resp)
 
           switch (resp.type) {
             case "log":
@@ -119,7 +119,7 @@
               break
             case "content":
               fullText += resp.content
-              console.log(line)
+              // console.log(line)
               updateMessage(fullText)
 
               break
@@ -139,10 +139,11 @@
               break
             case "conversation":
               try {
-                const { message_history } = resp.conversation[$provider]
-                const lastMessage = message_history[message_history.length - 1]
-                tmpFullText = lastMessage.content
-                resolve(tmpFullText)
+                // const { message_history } = resp.conversation[provider]
+                // const lastMessage = message_history[message_history.length - 1]
+                // // tmpFullText = tmpFullText
+                // fullText = lastMessage
+                // finalizeMessage()
               } catch (error) {
                 console.error("Error accessing conversation data:", error)
               }

@@ -3,15 +3,15 @@
   import Link from "../global/components/ux/Link.svelte"
   import jquery from "jquery"
   import { writable } from "svelte/store"
-  import { getConversations } from "@/global/store/conversation/getConversations";
+  import { getConversations } from "@/global/store/conversation/getConversations"
   export let routeApp: any
   const conversations = writable([])
   export let loadChatCallback: any
   let lastRoutePath = ""
 
-  function loadConversations() {
-    
-    conversations.update(() => getConversations())
+  async function loadConversations() {
+    const conversationList = await getConversations()
+    conversations.update(() => conversationList)
 
     ///@ts-ignore
     setTimeout(() => {
@@ -54,14 +54,14 @@
   onMount(() => {
     setTimeout(() => {
       if (routeApp) {
-        console.log("add route changed")
+        // console.log("add route changed")
         lastRoutePath = routeApp.getRoute()[0]
         routeApp.addRouteChangeCallback(
           (path, qs) => {
-            console.log("route changed")
+            // console.log("route changed")
             activateConversationBtnStyles()
             if (lastRoutePath === "/chat/new") {
-              console.log("Must update conversation list")
+              // console.log("Must update conversation list")
               updateConversationList()
             }
             lastRoutePath = path
@@ -86,12 +86,12 @@
     fixed inset-y-0 start-0 z-60
     bg-white border-e border-gray-200
     lg:block lg:translate-x-0 lg:end-auto lg:bottom-0
-    dark:bg-neutral-800 dark:border-neutral-700"
+    dark:bg-neutral-800 dark:border-neutral-700 overflow-hidden"
   role="dialog"
   tabindex="-1"
   aria-label="Sidebar"
 >
-  <div class="relative flex flex-col h-full max-h-full">
+  <div class="relative flex flex-col h-screen max-h-full overflow-hidden">
     <div class="px-6 pt-4 flex items-center">
       <!-- Logo -->
       <a

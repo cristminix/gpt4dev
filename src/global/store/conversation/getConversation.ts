@@ -1,25 +1,15 @@
-export function getConversation(id: string) {
-  if (localStorage) {
-      for (let i = 0; i < localStorage.length; i++) {
-        //@ts-ignore
-        if (localStorage.key(i).startsWith("conversation:")) {
-          //@ts-ignore
+// import { getChatMessages } from "./getChatMessages"
 
-          const conversationSet = JSON.parse(
-            //@ts-ignore
-            localStorage.getItem(localStorage.key(i))
-          )
-          //@ts-ignore
-          // console.log(conversationSet)
-          if (conversationSet.id === id) {
-            return conversationSet
-            //@ts-ignore
-            // console.log(conversationSet)
-            break
-          }
-          // conversations.push(JSON.parse(conversation))
-        }
-      }
-    }
-    return null; // Return null if no conversation found with the given ID
+export async function getConversation(id: string) {
+  const response = await fetch(`/llm/conversations/${id}`).then((res) =>
+    res.json()
+  )
+  console.log("getConversation response", response)
+  if (response.data) {
+    let conversation = response.data
+    // conversation.items = await getChatMessages(id)
+    return conversation
+  }
+
+  return null // Return null if no conversation found with the given ID
 }

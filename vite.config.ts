@@ -11,6 +11,11 @@ export default defineConfig({
         changeOrigin: true, // Ensure the request appears to come from the frontend server
         rewrite: (path) => path.replace(/^\/api/, ""), // Optional: Remove '/api' prefix
       },
+      "/llm": {
+        target: "http://localhost:5007", // Backend server
+        changeOrigin: true, // Ensure the request appears to come from the frontend server
+        rewrite: (path) => path.replace(/^\/llm/, "/api/llm"), // Optional: Remove '/api' prefix
+      },
       "/media": {
         target: "http://localhost:7000", // Backend server
         changeOrigin: true, // Ensure the request appears to come from the frontend server

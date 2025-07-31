@@ -13,13 +13,18 @@
   import { getConversation } from "@/global/store/conversation/getConversation"
   import { getModelConfig } from "@/global/store/chat/getModelConfig"
   import { stripMarkdown } from "./chat/chat-page/fn/stripMarkdown"
+  import { createConversation } from "@/global/store/conversation/createConversation"
+  import { updateConversation } from "@/global/store/conversation/updateConversation"
+  import { cleanQuotes } from "./chat/chat-page/fn/cleanQuotes"
+  import { getChatMessages } from "@/global/store/conversation/getChatMessages"
   export let routeApp: any
   export let params: any
   export let queryString: any
   let modelImageGens = ["flux", "flux-dev", "sd-3.5-large"]
   const tempConversation = writable<any>([])
   const isProcessing = writable(false)
-  let conversation = writable<any>(null)
+  const conversation = writable<any>(null)
+  const chatMessages = writable([])
   const promptMessages = writable([])
   const model = writable("")
   const provider = writable("")
@@ -72,7 +77,7 @@
     let previousMessages = []
     let isNewConversation = params.id === "new"
     if (!isNewConversation) {
-      previousMessages = $conversation.items
+      previousMessages = $chatMessages
 
       messages = [
         ...previousMessages.map((message) => ({
@@ -89,7 +94,7 @@
       console.log("attachChatHistoryToUserPrompt is enabled")
       let messageHistory = ""
       if (!isNewConversation) {
-        previousMessages = $conversation.items
+        previousMessages = $chatMessages
 
         messageHistory = `[Chat History]`
         previousMessages.forEach((message) => {
@@ -137,7 +142,7 @@
       if (task.status === "onProcess") {
         setTimeout(async () => {
           tempConversation.update((o) => o.concat(fullText))
-          const newConversation = $conversation
+          const newConversation = { ...$conversation }
           let title = $userPrompt
           if ($userPrompt.length > 250) title = $userPrompt.slice(0, 250)
           if (params.id === "new") {
@@ -151,6 +156,7 @@
                   $conversation
                 )) || ""
               title = stripMarkdown(title)
+              title = cleanQuotes(title)
               if (title.length === 0) title = $userPrompt
               if (title.length > 250) title = title.slice(0, 250)
             } else {
@@ -164,13 +170,13 @@
             newConversation.items = newConversation.items.slice(1)
           }
           newConversation.updated = Date.now()
-
-          newConversation.items.push({
+          const chatMessagesData = [...$chatMessages] as any[]
+          chatMessagesData.push({
             role: "user",
             content: $userPrompt,
             id,
           })
-          newConversation.items.push({
+          chatMessagesData.push({
             role: "assistant",
             content: fullText,
             id: createMessageId(),
@@ -181,18 +187,30 @@
               finish: { reason: "stop" },
             },
           })
-          conversation.update((o) => newConversation)
-          console.log("saving to ls")
-          localStorage.setItem(
-            "conversation:" + $conversation.id,
-            JSON.stringify(newConversation)
-          )
+          // conversation.update((o) => newConversation)
+
+          console.log("saving to storage")
           if (params.id === "new") {
+            const [c, m] = await createConversation(
+              newConversation,
+              chatMessagesData
+            )
+            conversation.update(() => c)
+            chatMessages.update(() => m)
             if (routeApp) {
               routeApp.navigate(`/chat/${$conversation.id}`)
             }
+          } else {
+            const [c, m] = await updateConversation(
+              newConversation,
+              chatMessagesData
+            )
+            conversation.update(() => c)
+            chatMessages.update(() => m)
+            console.log({ m })
           }
           isProcessing.update(() => false)
+          // loadChat($conversation.id)
         }, 512)
         updateMessageTask(id, true)
       } else {
@@ -221,13 +239,18 @@
     }, 1000)
     conversation.update((o) => newConversation)
   }
-  function loadChat(id: string) {
+  async function loadChat(id: string) {
     conversation.update((o) => null)
 
     console.log("load chat", id)
     if (id == "new") {
       createNewChat()
-    } else conversation.update(() => getConversation(id))
+    } else {
+      const conversationData = await getConversation(id)
+      const chatMessagesData = await getChatMessages(id)
+      conversation.update(() => conversationData)
+      chatMessages.update(() => chatMessagesData)
+    }
 
     if ($conversation) {
       document.title = $conversation.title
@@ -382,7 +405,7 @@
     </div>
     <!-- End Button Group -->
   </div>
-  <ChatMessages conversation={$conversation} />
+  <ChatMessages chatMessages={$chatMessages} />
   {#if $isProcessing}
     <TempChatMessages
       conversation={$tempConversation}

@@ -6,17 +6,17 @@
   const modelList = writable([])
   let firstTimer = 0
   import { getModelConfig } from "@/global/store/chat/getModelConfig"
-  import { setModelConfig } from "@/global/store/chat/setModelConfig";
+  import { setModelConfig } from "@/global/store/chat/setModelConfig"
   function doSetModelConfig(provider = null, model = null) {
     const oldConfig = getModelConfig()
-    console.log({ oldConfig, firstTimer, provider, model })
+    // console.log({ oldConfig, firstTimer, provider, model })
     firstTimer++
 
     const modelConfig = {
       provider: provider ?? jquery("#provider").val(),
       model: model ?? jquery("#model").val(),
     }
-    console.log(typeof modelConfig.model)
+    // console.log(typeof modelConfig.model)
     // if (!model && oldConfig.provider === provider) return
     if (modelConfig.model == "") {
       console.log($modelList)
@@ -29,7 +29,7 @@
         }
       }
     }
-    console.log(modelConfig)
+    // console.log(modelConfig)
     setModelConfig(modelConfig)
   }
   async function initProviderData() {
@@ -43,7 +43,7 @@
     let modelListSet = await fetch(
       `api/backend-api/v2/models/${providerName}`
     ).then((r) => r.json())
-    modelListSet = modelListSet.sort((a, b) => a.label.localeCompare(b.label));
+    modelListSet = modelListSet.sort((a, b) => a.label.localeCompare(b.label))
     modelList.update((o) => modelListSet)
     setTimeout(() => {
       doSetModelConfig(providerName)
@@ -63,7 +63,7 @@
       }
     }, 1000)
 
-    console.log(modelConfig)
+    // console.log(modelConfig)
   })
   modelList.subscribe((o) => {
     // console.log(o)
