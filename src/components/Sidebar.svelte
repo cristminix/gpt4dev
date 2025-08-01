@@ -64,6 +64,10 @@
               // console.log("Must update conversation list")
               updateConversationList()
             }
+            if (path === "/chat/deleted") {
+              updateConversationList()
+              routeApp.setRoute("/chat/new")
+            }
             lastRoutePath = path
           },
           "sidebar",

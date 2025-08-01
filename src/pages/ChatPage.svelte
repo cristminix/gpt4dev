@@ -17,6 +17,8 @@
   import { updateConversation } from "@/global/store/conversation/updateConversation"
   import { cleanQuotes } from "./chat/chat-page/fn/cleanQuotes"
   import { getChatMessages } from "@/global/store/conversation/getChatMessages"
+  import ConversationWidget from "./chat/ConversationWidget.svelte"
+  import { deleteChatMessage } from "@/global/store/conversation/deleteChatMessage"
   export let routeApp: any
   export let params: any
   export let queryString: any
@@ -224,12 +226,7 @@
   function createNewChat() {
     const newConversation = {
       id: v1(),
-      items: [
-        {
-          role: "assistant",
-          content: "Ada yang bisa saya bantu ?",
-        },
-      ],
+
       title: "New Conversation",
       added: Date.now(),
       updated: Date.now(),
@@ -239,6 +236,12 @@
       jquery("#userInput").focus()
     }, 1000)
     conversation.update((o) => newConversation)
+    chatMessages.update((o) => [
+      {
+        role: "assistant",
+        content: "Ada yang bisa saya bantu ?",
+      },
+    ])
   }
   async function loadChat(id: string) {
     conversation.update((o) => null)
@@ -256,6 +259,17 @@
     if ($conversation) {
       document.title = $conversation.title
       console.log($conversation)
+    }
+  }
+  function onDeleteMessage(id: number) {
+    if (confirm("Item ini akan dihapus, yakin?")) {
+      const indexToDelete = $chatMessages.findIndex((item) => item.id === id)
+      if (indexToDelete > -1) {
+        $chatMessages.splice(indexToDelete, 1)
+      }
+      chatMessages.update((o) => $chatMessages)
+      deleteChatMessage($conversation.id, id)
+      console.log($chatMessages)
     }
   }
   function tostifyCustomClose(el) {
@@ -346,67 +360,8 @@
   Call toast
 </button> -->
 <div class="py-10 lg:py-14">
-  <div
-    class="max-w-6xl px-4 sm:px-6 lg:px-8 mx-auto text-center bg-neutral-800"
-  >
-    {#if $conversation}
-      <h1
-        class="text-xl font-bold text-gray-400 sm:text-xl lg:text-3xl py-4 text-left"
-      >
-        {$conversation.title}
-      </h1>
-    {/if}
-    <!-- Button Group -->
-    <div>
-      <div class="sm:flex sm:justify-between">
-        <div>
-          <button
-            type="button"
-            class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
-          >
-            <svg
-              class="shrink-0 size-4"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <circle cx="18" cy="5" r="3"></circle>
-              <circle cx="6" cy="12" r="3"></circle>
-              <circle cx="18" cy="19" r="3"></circle>
-              <line x1="8.59" x2="15.42" y1="13.51" y2="17.49"></line>
-              <line x1="15.41" x2="8.59" y1="6.51" y2="10.49"></line>
-            </svg>
-            Share
-          </button>
-        </div>
-
-        <div class="mt-1 sm:mt-0">
-          <button
-            type="button"
-            class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
-          >
-            <i class="fa fa-edit"></i>
-            Edit
-          </button>
-          <button
-            type="button"
-            class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
-          >
-            <i class="fa fa-trash"></i>
-            Delete
-          </button>
-        </div>
-      </div>
-    </div>
-    <!-- End Button Group -->
-  </div>
-  <ChatMessages chatMessages={$chatMessages} />
+  <ConversationWidget conversation={$conversation} {routeApp} />
+  <ChatMessages chatMessages={$chatMessages} {onDeleteMessage} />
   {#if $isProcessing}
     <TempChatMessages
       conversation={$tempConversation}

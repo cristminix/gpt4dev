@@ -1,5 +1,13 @@
-export function deleteConversation(conversationId: string) {
-  // Logic to delete a conversation by its ID
-  console.log(`Deleting conversation with ID: ${conversationId}`);
-  // Here you would typically call your database or API to perform the deletion
+export async function deleteConversation(conversationId: string) {
+  const response = await fetch(`/llm/conversations/${conversationId}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+  if (!response.ok) {
+    throw new Error(`Failed to create conversation: ${response.statusText}`)
+  }
+  const result = await response.json()
+  return result.success
 }
