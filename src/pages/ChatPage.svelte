@@ -148,6 +148,8 @@
           const newConversation = { ...$conversation }
           let title = $userPrompt
           if ($userPrompt.length > 250) title = $userPrompt.slice(0, 250)
+          let chatMessagesData = [...$chatMessages] as any[]
+
           if (params.id === "new") {
             //!fullText.match(/error/gi)p
             if (shouldPerformTitleGeneration()) {
@@ -170,13 +172,13 @@
             // if ($userPrompt.length > 250)
             newConversation.title = title
             // else newConversation.title = $userPrompt
-            newConversation.items = newConversation.items.slice(1)
+            chatMessagesData = chatMessagesData.slice(1)
           }
           newConversation.updated = Date.now()
-          const chatMessagesData = [...$chatMessages] as any[]
           chatMessagesData.push({
             role: "user",
             content: $userPrompt,
+            username: "bob",
             id,
           })
           chatMessagesData.push({

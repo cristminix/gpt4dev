@@ -139,7 +139,7 @@
           >
             <img
               class="shrink-0 size-9.5 rounded-full"
-              src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=2&w=320&h=320&q=80"
+              src="https://yt3.ggpht.com/12FI-egQT8pzC2MrkVzR2TgjIX7ul6mxmqTvrLd21m_rvUzQyVIAy4Phtv7J2TBp0Vi37PMh0iA=s88-c-k-c0x00ffffff-no-rj"
               alt="Avatar"
             />
           </button>

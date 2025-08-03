@@ -32,7 +32,11 @@
             <span
               class="shrink-0 inline-flex items-center justify-center size-9.5 rounded-full bg-gray-600"
             >
-              <span class="text-sm font-medium text-white">AZ</span>
+              <img
+                class="shrink-0 size-9.5 rounded-full"
+                src="https://yt3.ggpht.com/12FI-egQT8pzC2MrkVzR2TgjIX7ul6mxmqTvrLd21m_rvUzQyVIAy4Phtv7J2TBp0Vi37PMh0iA=s88-c-k-c0x00ffffff-no-rj"
+                alt="Avatar"
+              />
             </span>
 
             <div

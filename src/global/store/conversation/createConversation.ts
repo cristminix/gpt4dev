@@ -35,7 +35,7 @@ export async function createConversation(
 
       participantUsername: item.provider
         ? createProviderUsername(item.provider)
-        : "bob",
+        : "lalisa",
       participantRole: item.role,
     }
   })

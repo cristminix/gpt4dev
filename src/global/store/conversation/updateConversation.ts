@@ -18,7 +18,7 @@ export async function updateConversation(
 
       participantUsername: item.provider
         ? createProviderUsername(item.provider)
-        : "bob",
+        : "lalisa",
       participantRole: item.role,
     }
   })
