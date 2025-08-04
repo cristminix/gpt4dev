@@ -4,10 +4,12 @@
   import jquery from "jquery"
   import { writable } from "svelte/store"
   import { getConversations } from "@/global/store/conversation/getConversations"
+  import type { ConversationInterface } from "@/pages/chat/chat-page/types"
   export let routeApp: any
-  const conversations = writable([])
+  const conversations = writable<ConversationInterface[]>([])
   export let loadChatCallback: any
   let lastRoutePath = ""
+  const HSAccordion = window.HSAccordion
 
   async function loadConversations() {
     const conversationList = await getConversations()
