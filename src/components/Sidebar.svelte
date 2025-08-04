@@ -15,7 +15,6 @@
     const conversationList = await getConversations()
     conversations.update(() => conversationList)
 
-    ///@ts-ignore
     setTimeout(() => {
       HSAccordion.autoInit()
       const accordionBtn = jquery("#conversations-accordion > button")
@@ -26,14 +25,12 @@
     }, 512)
   }
   function updateConversationList() {
-    // alert("1234")
     conversations.update(() => [])
     setTimeout(() => {
       loadConversations()
     }, 32)
   }
   function loadChat(conversation: any) {
-    // console.log(conversation)
     loadChatCallback(conversation)
   }
   function triggerWindowResize() {
@@ -45,11 +42,8 @@
     setTimeout(() => {
       const [path, queryString] = routeApp.getRoute()
       if (path.startsWith("/chat")) {
-        // console.log(path)
-        // jquery(`.conversation-item-button`).removeClass("active")
         for (const elem of jquery(`.conversation-item-button`)) {
           if (jquery(elem).attr("href") === path) {
-            // console.log(elem)
             jquery(elem).addClass("active")
             // break
           } else {
@@ -60,6 +54,7 @@
     }, 15)
   }
   onMount(() => {
+    loadConversations()
     let resizeTimeout: number | null = null
     jquery(window)
       .on("resize", () => {
@@ -82,12 +77,11 @@
             windowHeight -
             appBannerHeight -
             conversationTopButtonContainerHeight
-          console.log({
-            windowHeight,
-            appBannerHeight,
-            conversationTopButtonContainerHeight,
-            conversationListContainerHeight,
-          })
+          //   windowHeight,
+          //   appBannerHeight,
+          //   conversationTopButtonContainerHeight,
+          //   conversationListContainerHeight,
+          // })
           conversationListContainer.height(conversationListContainerHeight)
         }, 512) as unknown as number
       })
@@ -96,14 +90,11 @@
     triggerWindowResize()
     setTimeout(() => {
       if (routeApp) {
-        // console.log("add route changed")
         lastRoutePath = routeApp.getRoute()[0]
         routeApp.addRouteChangeCallback(
           (path: string, qs: string) => {
-            // console.log("route changed")
             activateConversationBtnStyles()
             if (lastRoutePath === "/chat/new") {
-              // console.log("Must update conversation list")
               updateConversationList()
             }
             if (path === "/chat/deleted") {
@@ -124,8 +115,6 @@
       }
     }, 512)
   })
-
-  $: loadConversations()
 </script>
 
 <div
@@ -148,7 +137,7 @@
       <!-- Logo -->
       <a
         class="flex-none rounded-xl text-xl inline-block font-semibold focus:outline-hidden focus:opacity-80"
-        href="#"
+        href="/"
         aria-label="Preline"
       >
         <svg
@@ -235,10 +224,10 @@
               New Chat
             </Link>
           </li>
-          <li>
+          <li class="hidden">
             <a
               class="w-full flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-hidden focus:bg-gray-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700 dark:text-neutral-200"
-              href="#"
+              href="javascript:void(0)"
             >
               <svg
                 class="shrink-0 size-4"
@@ -258,7 +247,7 @@
               Private Chat
             </a>
           </li>
-          <li class="hs-accordion" id="account-accordion">
+          <li class="hs-accordion hidden" id="account-accordion">
             <button
               type="button"
               class="hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-hidden focus:bg-gray-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700 dark:text-neutral-200"
@@ -332,7 +321,7 @@
                 <li>
                   <a
                     class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-hidden focus:bg-gray-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700 dark:text-neutral-200"
-                    href="#"
+                    href="javascript:void(0)"
                   >
                     Link 2
                   </a>
@@ -340,7 +329,7 @@
                 <li>
                   <a
                     class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-hidden focus:bg-gray-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700 dark:text-neutral-200"
-                    href="#"
+                    href="javascript:void(0)"
                   >
                     Link 3
                   </a>
