@@ -22,6 +22,7 @@
       if (accordionBtn.attr("aria-expanded") != "true")
         accordionBtn.trigger("click")
       activateConversationBtnStyles()
+      triggerWindowResize()
     }, 512)
   }
   function updateConversationList() {
@@ -34,6 +35,11 @@
   function loadChat(conversation: any) {
     // console.log(conversation)
     loadChatCallback(conversation)
+  }
+  function triggerWindowResize() {
+    setTimeout(() => {
+      jquery(window).trigger("resize")
+    }, 1000)
   }
   function activateConversationBtnStyles() {
     setTimeout(() => {
@@ -54,6 +60,40 @@
     }, 15)
   }
   onMount(() => {
+    let resizeTimeout: number | null = null
+    jquery(window)
+      .on("resize", () => {
+        if (resizeTimeout) {
+          clearTimeout(resizeTimeout)
+        }
+        resizeTimeout = setTimeout(() => {
+          const conversationListContainer = jquery(
+            "#conversation-accordion-child"
+          )
+          const appBannerContainer = jquery("#appBannerContainer")
+          const conversationTopButtonContainer = jquery(
+            "#conversationTopButtonContainer"
+          )
+          const windowHeight = window.innerHeight - 80
+          const appBannerHeight = appBannerContainer.height()
+          const conversationTopButtonContainerHeight =
+            conversationTopButtonContainer.height()
+          const conversationListContainerHeight =
+            windowHeight -
+            appBannerHeight -
+            conversationTopButtonContainerHeight
+          console.log({
+            windowHeight,
+            appBannerHeight,
+            conversationTopButtonContainerHeight,
+            conversationListContainerHeight,
+          })
+          conversationListContainer.height(conversationListContainerHeight)
+        }, 512) as unknown as number
+      })
+      .resize()
+
+    triggerWindowResize()
     setTimeout(() => {
       if (routeApp) {
         // console.log("add route changed")
@@ -104,7 +144,7 @@
   aria-label="Sidebar"
 >
   <div class="relative flex flex-col h-screen max-h-full overflow-hidden">
-    <div class="px-6 pt-4 flex items-center">
+    <div class="px-6 pt-4 flex items-center" id="appBannerContainer">
       <!-- Logo -->
       <a
         class="flex-none rounded-xl text-xl inline-block font-semibold focus:outline-hidden focus:opacity-80"
@@ -152,13 +192,17 @@
 
     <!-- Content -->
     <div
-      class="h-full overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500"
+      class="h-full overflow-hidden
+      [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100
+      [&::-webkit-scrollbar-thumb]:bg-gray-300
+      dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500
+    "
     >
       <nav
         class="hs-accordion-group p-3 w-full flex flex-col flex-wrap"
         data-hs-accordion-always-open=""
       >
-        <ul class="flex flex-col space-y-1">
+        <ul class="sticky" id="conversationTopButtonContainer">
           <li>
             <Link
               className="w-full flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-hidden focus:bg-gray-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700 dark:text-neutral-200"
@@ -304,7 +348,8 @@
               </ul>
             </div>
           </li>
-
+        </ul>
+        <ul class="overflow-hidden grow">
           <li class="hs-accordion" id="conversations-accordion">
             <button
               type="button"
@@ -362,7 +407,9 @@
 
             <div
               id="conversation-accordion-child"
-              class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 hidden"
+              class="hs-accordion-content w-full transition-[height] duration-300 overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100
+      [&::-webkit-scrollbar-thumb]:bg-gray-300
+      dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500"
               role="region"
               aria-labelledby="conversation-accordion"
             >
