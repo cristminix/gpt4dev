@@ -99,7 +99,7 @@
                 {message.provider.model}:{message.provider.label}
               </h4>
             {:else}
-              <h4 class="text-xl font-semibold">Assistant</h4>
+              <h4 class="text-xl font-semibold">{message.username}</h4>
             {/if}
           </div>
           <div class="space-y-3 inner-content">

@@ -12,6 +12,6 @@ export interface ChatMessageInterface {
 export interface ConversationInterface {
   id: string
   title: string
-  added?: Date | string
-  updated?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }

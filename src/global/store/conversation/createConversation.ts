@@ -17,8 +17,8 @@ export async function createConversation(
     body: JSON.stringify({
       id: conversation.id,
       title: conversation.title,
-      created_at: conversation.added || new Date().toISOString(),
-      updated_at: conversation.updated || new Date().toISOString(),
+      created_at: conversation.createdAt || new Date().getTime(),
+      updated_at: conversation.updatedAt || new Date().getTime(),
     }),
   })
   if (!response.ok) {

@@ -4,7 +4,7 @@
   import type { ConversationInterface } from "./chat-page/types"
   import type { RouteApp } from "@/components/RouteApp.types"
   // import updateC
-  export let conversation: ConversationInterface
+  export let conversation: ConversationInterface | null = null
   export let routeApp: RouteApp
   let editMode = false
   async function onDeleteConversation(id: string) {
@@ -21,8 +21,14 @@
   async function onUpdateConversationTitle() {
     // const title =
     // console.log(conversation.title)
-    await updateConversationTitle(conversation)
-
+    if (conversation) {
+      await updateConversationTitle(conversation)
+      if (routeApp) {
+        routeApp.setRoute(
+          `/chat/${conversation.id}?reloadSidebar=${Date.now()}`
+        )
+      }
+    }
     editMode = false
   }
 </script>
@@ -99,7 +105,8 @@
           {/if}
 
           <button
-            on:click={(e) => onDeleteConversation(conversation.id)}
+            on:click={(e) =>
+              conversation && onDeleteConversation(conversation.id)}
             type="button"
             class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
           >

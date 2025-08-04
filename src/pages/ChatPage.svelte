@@ -26,7 +26,7 @@
     ChatMessageInterface,
     ConversationInterface,
   } from "./chat/chat-page/types"
-  export let routeAppRef: RouteAppType
+  export let routeApp: RouteAppType
   export let params: { id?: string } | null
 
   let modelImageGens = ["flux", "flux-dev", "sd-3.5-large"]
@@ -40,10 +40,10 @@
   const userPrompt = writable("")
   const messageId = writable("")
   interface MessageTask {
-    status: string
+    status: string | boolean
   }
 
-  const messageTasks = writable<Record<string, MessageTask | boolean>>({})
+  const messageTasks = writable<Record<string, MessageTask>>({})
   const chatConfig = writable({
     attachChatHistoryToUserPrompt: false,
   })
@@ -60,10 +60,10 @@
   function updateMessageTask(id: string, status: boolean) {
     const exists = Object.keys($messageTasks).includes(id)
     if (exists) {
-      const newData: Record<string, MessageTask | boolean> = {
+      const newData: Record<string, MessageTask> = {
         ...$messageTasks,
       }
-      newData[id] = status
+      newData[id] = { status }
       messageTasks.update(() => newData)
     }
     console.log({ exists, $messageTasks })
@@ -153,9 +153,10 @@
     }
     return true
   }
-  function onProcessingDone(fullText: string, id: string) {
-    const task = getMessageTask(id)
-    if (task && typeof task !== "boolean") {
+  function onProcessingDone(fullText: string, id: string | number) {
+    const taskId = typeof id === "number" ? id.toString() : id
+    const task = getMessageTask(taskId)
+    if (task) {
       if (task.status === "onProcess") {
         setTimeout(async () => {
           tempConversation.update((o) => o.concat(fullText))
@@ -182,7 +183,6 @@
             newConversation.title = title
             chatMessagesData = chatMessagesData.slice(1)
           }
-          ;(newConversation as any).updated = Date.now()
           chatMessagesData.push({
             role: "user",
             content: $userPrompt,
@@ -204,28 +204,32 @@
           console.log("saving to storage")
           if (params?.id === "new") {
             const [c, m] = await createConversation(
-              newConversation,
+              newConversation as ConversationInterface,
               chatMessagesData
             )
-            if (routeAppRef) {
-              routeAppRef.navigate(`/chat/${newConversation.id}`)
+            if (routeApp) {
+              routeApp.navigate(`/chat/${newConversation.id}`)
             }
           } else {
             const [c, m] = await updateConversation(
-              newConversation,
+              newConversation as ConversationInterface,
               chatMessagesData
             )
-            chatMessages.update(() => m)
+            chatMessages.update(() => m as ChatMessageInterface[])
             console.log({ m })
           }
           isProcessing.update(() => false)
         }, 512)
-        updateMessageTask(id, true)
+        updateMessageTask(taskId, true)
       } else {
-        console.log("Message already saved", getMessageTask(id), $messageTasks)
+        console.log(
+          "Message already saved",
+          getMessageTask(taskId),
+          $messageTasks
+        )
       }
     } else {
-      console.log(`No message task correspond to ${id}`)
+      console.log(`No message task correspond to ${taskId}`)
     }
   }
   function createNewChat() {
@@ -233,8 +237,8 @@
       id: v1(),
 
       title: "New Conversation",
-      added: Date.now(),
-      updated: Date.now(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       system: "",
     }
     setTimeout(() => {
@@ -359,7 +363,7 @@
 </script>
 
 <div class="py-10 lg:py-14">
-  <ConversationWidget conversation={$conversation} routeApp={routeAppRef} />
+  <ConversationWidget conversation={$conversation} {routeApp} />
   <ChatMessages
     conversation={$conversation}
     chatMessages={$chatMessages}
