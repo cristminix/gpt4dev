@@ -1,20 +1,29 @@
 <script lang="ts">
   import CodeRenderer from "./CodeRenderer.svelte"
   import SvelteMarkdown from "svelte-markdown"
-  export let conversation: any
-  export let chatMessages: any[] = []
-  export let onDeleteMessage
-  async function deleteMessage(messageId: string) {
+  import type {
+    ChatMessageInterface,
+    ConversationInterface,
+  } from "./chat-page/types"
+
+  export let conversation: ConversationInterface | null = null
+  export let chatMessages: ChatMessageInterface[] = []
+  export let onDeleteMessage: (id: string | number) => void
+
+  async function deleteMessage(messageId: string | number) {
     // Implement message deletion logic here
     console.log("Delete message with ID:", messageId)
     onDeleteMessage(messageId)
   }
   function autoScroll() {
     setTimeout(() => {
-      window.scrollTo({
-        top: document.querySelector(".template-content").scrollHeight + 200,
-        behavior: "smooth", // Optional: smooth scrolling
-      })
+      const element = document.querySelector(".template-content")
+      if (element) {
+        window.scrollTo({
+          top: element.scrollHeight + 200,
+          behavior: "smooth", // Optional: smooth scrolling
+        })
+      }
     }, 1000)
   }
   $: autoScroll()
@@ -45,8 +54,11 @@
               <div>{message.content}</div>
             </div>
             <div class="px-2">
-              <button on:click={() => deleteMessage(message.id)}>
-                <i class="fa fa-trash" />
+              <button
+                on:click={() => deleteMessage(message.id)}
+                aria-label="Delete message"
+              >
+                <i class="fa fa-trash"></i>
               </button>
             </div>
           </div>
@@ -105,24 +117,28 @@
                 <button
                   type="button"
                   class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+                  aria-label="Copy message"
                 >
                   <i class="fa fa-copy"></i>
                 </button>
                 <button
                   type="button"
                   class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+                  aria-label="Play audio"
                 >
                   <i class="fa fa-volume-up"></i>
                 </button>
                 <button
                   type="button"
                   class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+                  aria-label="Play video"
                 >
                   <i class="fa fa-play"></i>
                 </button>
                 <button
                   type="button"
                   class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+                  aria-label="Refresh"
                 >
                   <i class="fa fa-refresh"></i>
                 </button>
@@ -132,6 +148,7 @@
                 <button
                   type="button"
                   class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+                  aria-label="Collapse"
                 >
                   <i class="fa fa-minus"></i>
                   Collapse
@@ -139,6 +156,7 @@
                 <button
                   type="button"
                   class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+                  aria-label="Expand"
                 >
                   <i class="fa fa-plus"></i>
                   Expand
@@ -147,6 +165,7 @@
                   on:click={() => deleteMessage(message.id)}
                   type="button"
                   class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+                  aria-label="Delete message"
                 >
                   <i class="fa fa-trash"></i>
                   Delete

@@ -1,60 +1,56 @@
 <script lang="ts">
-  import { marked } from "marked"
   import { onMount } from "svelte"
   import SvelteMarkdown from "svelte-markdown"
-  import CodeRenderer from "./CodeRenderer.svelte"
   import { writable } from "svelte/store"
   import CodeRendererStream from "./CodeRendererStream.svelte"
   import { getProviderApiKey } from "@/global/store/auth/getProviderApiKey"
-  export let prompt: any = "hi"
-  export let model: any = "gpt-4:blackbox"
+  import type { ChatMessageInterface } from "./chat-page/types"
+  import { autoScroll } from "./chat-page/fn/autoScroll"
+  export let prompt: string = "hi"
+  export let model: string = "gpt-4:blackbox"
   export let isStreaming = false
-  export let onProcessingDone: any = null
-  export let messages: any = []
-  export let conversation_id
-  export let provider
-  export let messageId
-  let oldRequestDate = Date.now()
+  export let onProcessingDone: (text: string, id: number | string) => void
+  export let messages: ChatMessageInterface[] = []
+  export let conversation_id: string
+  export let provider: string
+  export let messageId: number | string
+  let oldRequestDate: number = Date.now()
   const finalContent = writable("")
   let fullText = ""
-  let tmpFullText = ""
-  let currentMessageElement
-  let chatContainer
-  function autoScroll() {
-    setTimeout(() => {
-      window.scrollTo({
-        top: document.querySelector(".template-content").scrollHeight + 200,
-        behavior: "smooth", // Optional: smooth scrolling
-      })
-    }, 1000)
-  }
-  async function updateMessage(text) {
+
+  async function updateMessage(text: string): Promise<void> {
     setTimeout(() => {
       finalContent.update(() => text)
       autoScroll()
     }, 256)
   }
 
-  function finalizeMessage() {
-    onProcessingDone(fullText, messageId)
+  function finalizeMessage(): void {
+    if (onProcessingDone) {
+      onProcessingDone(fullText, messageId)
+    }
     oldRequestDate = Date.now()
   }
-  function getReasoningText(resp) {
+  interface ReasoningResponse {
+    token?: string
+    status?: string
+    label?: string
+  }
+
+  function getReasoningText(resp: ReasoningResponse): string {
     if (resp.token) return resp.token
     if (resp.status) return resp.status
     if (resp.label) return resp.label
     return ""
   }
 
-  async function fetchOpenAIResponse() {
+  async function fetchOpenAIResponse(): Promise<void> {
     const now = Date.now()
-    // Menghitung selisih dalam milidetik
     if (!oldRequestDate) {
       oldRequestDate = now
     }
     const differenceInMilliseconds = now - oldRequestDate
 
-    // Mengonversi selisih milidetik ke detik
     await new Promise((resolve) =>
       setTimeout(resolve, 512 - differenceInMilliseconds)
     )
@@ -84,8 +80,11 @@
       updateMessage("Error fetching response:" + response.statusText)
       return
     }
-    const reader = response.body.getReader()
-    let line = ""
+    const reader = response.body?.getReader()
+    if (!reader) {
+      updateMessage("Error: Unable to get response reader")
+      return
+    }
     let reasoningText = ""
     while (true) {
       let buffer = ""
@@ -97,17 +96,17 @@
       }
 
       buffer += new TextDecoder().decode(value)
-      let resp
 
-      let previewText = ""
       for (const line of buffer.split("\n")) {
         if (!line) {
           continue
         }
+        let resp
         try {
           resp = JSON.parse(line)
         } catch (error) {
-          console.error("Error parsing JSON:", error)
+          // Skip invalid JSON lines
+          continue
         }
         if (resp) {
           // console.log(resp)
@@ -126,6 +125,7 @@
             case "finish":
               const reason = resp.finish.reason
               finalizeMessage()
+              break
 
             case "parameters":
               break
@@ -158,14 +158,10 @@
           alert("no response")
         }
       }
-
-      //   await new Promise((r) => setTimeout(r, 512))
     }
-    // finalizeMessage()
   }
   onMount(() => {})
   $: {
-    // chatContainer = document.querySelector("#chat-container")
     if (isStreaming) {
       fetchOpenAIResponse()
     } else {

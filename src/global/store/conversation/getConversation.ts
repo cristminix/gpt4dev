@@ -1,15 +1,25 @@
 // import { getChatMessages } from "./getChatMessages"
 
 export async function getConversation(id: string) {
-  const response = await fetch(`/llm/conversations/${id}`).then((res) =>
-    res.json()
-  )
-  console.log("getConversation response", response)
-  if (response.data) {
-    let conversation = response.data
-    // conversation.items = await getChatMessages(id)
-    return conversation
-  }
+  try {
+    const response = await fetch(`/llm/conversations/${id}`)
 
-  return null // Return null if no conversation found with the given ID
+    // Periksa apakah response berhasil
+    if (!response.ok) {
+      throw new Error(`Failed to fetch conversation: ${response.statusText}`)
+    }
+
+    const responseJson = await response.json()
+    console.log("getConversation response", responseJson)
+    if (responseJson.data) {
+      let conversation = responseJson.data
+      // conversation.items = await getChatMessages(id)
+      return conversation
+    }
+
+    return null // Return null if no conversation found with the given ID
+  } catch (error) {
+    console.error("Error fetching conversation:", error)
+    throw error // Melempar error kembali agar dapat ditangani oleh pemanggil fungsi
+  }
 }

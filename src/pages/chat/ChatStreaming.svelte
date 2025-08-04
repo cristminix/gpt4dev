@@ -2,21 +2,16 @@
   import UserMessage from "./UserMessage.svelte"
   import AssistantMessage from "./AssistantMessage.svelte"
   import { onMount } from "svelte"
-  export let onProcessingDone: any
-  export let messages: any = []
-  export let model: any = "gpt-4:blackbox"
-  export let conversation_id
-  export let provider
-  export let messageId
+  import { autoScroll } from "./chat-page/fn/autoScroll"
+  import type { ChatMessageInterface } from "./chat-page/types"
+  export let onProcessingDone: (text: string, id: number | string) => void
+  export let messages: ChatMessageInterface[] = []
+  export let model: string = "gpt-4:blackbox"
+  export let conversation_id: string
+  export let provider: string
+  export let messageId: string | number
 
   let chatContainer
-
-  function autoScroll() {
-    window.scrollTo({
-      top: document.querySelector(".template-content").scrollHeight,
-      behavior: "smooth", // Optional: smooth scrolling
-    })
-  }
 
   onMount(() => {
     chatContainer = document.querySelector("#chat-container")

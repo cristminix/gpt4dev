@@ -1,6 +1,8 @@
 <script lang="ts">
   import { writable } from "svelte/store"
 
+  const Toastify = window.Toastify
+
   import ChatMessages from "./chat/ChatMessages.svelte"
   import ChatPrompt from "./chat/ChatPrompt.svelte"
   import TempChatMessages from "./chat/TempChatMessages.svelte"
@@ -19,21 +21,29 @@
   import { getChatMessages } from "@/global/store/conversation/getChatMessages"
   import ConversationWidget from "./chat/ConversationWidget.svelte"
   import { deleteChatMessage } from "@/global/store/conversation/deleteChatMessage"
-  export let routeApp: any
-  export let params: any
-  export let queryString: any
+  import type { RouteApp as RouteAppType } from "@/components/RouteApp.types"
+  import type {
+    ChatMessageInterface,
+    ConversationInterface,
+  } from "./chat/chat-page/types"
+  export let routeAppRef: RouteAppType
+  export let params: { id?: string } | null
 
   let modelImageGens = ["flux", "flux-dev", "sd-3.5-large"]
   const tempConversation = writable<any>([])
   const isProcessing = writable(false)
-  const conversation = writable<any>(null)
-  const chatMessages = writable([])
-  const promptMessages = writable([])
+  const conversation = writable<ConversationInterface | null>(null)
+  const chatMessages = writable<ChatMessageInterface[]>([])
+  const promptMessages = writable<ChatMessageInterface[]>([])
   const model = writable("")
   const provider = writable("")
   const userPrompt = writable("")
   const messageId = writable("")
-  const messageTasks = writable({})
+  interface MessageTask {
+    status: string
+  }
+
+  const messageTasks = writable<Record<string, MessageTask | boolean>>({})
   const chatConfig = writable({
     attachChatHistoryToUserPrompt: false,
   })
@@ -50,7 +60,9 @@
   function updateMessageTask(id: string, status: boolean) {
     const exists = Object.keys($messageTasks).includes(id)
     if (exists) {
-      const newData = { ...$messageTasks }
+      const newData: Record<string, MessageTask | boolean> = {
+        ...$messageTasks,
+      }
       newData[id] = status
       messageTasks.update(() => newData)
     }
@@ -75,10 +87,12 @@
       {
         role: "user",
         content,
+        id: createMessageId(),
+        username: "user",
       },
     ]
     let previousMessages = []
-    let isNewConversation = params.id === "new"
+    let isNewConversation = params?.id === "new"
     if (!isNewConversation) {
       previousMessages = $chatMessages
 
@@ -86,10 +100,14 @@
         ...previousMessages.map((message) => ({
           role: message.role,
           content: message.content,
+          id: message.id as string,
+          username: message.username,
         })),
         {
           role: "user",
           content,
+          id: createMessageId() as string,
+          username: "user",
         },
       ]
     }
@@ -108,23 +126,20 @@
           {
             role: "user",
             content: `${messageHistory}\n\n${content}`,
+            id: createMessageId(),
+            username: "user",
           },
         ]
       }
     }
     console.log("onSubmitPrompt", content, messages)
-    // return
     userPrompt.update(() => content)
-    // construct messages
-    // console.log(messages)
-    // return
     const modelConfig = getModelConfig()
     model.update(() => modelConfig.model)
     provider.update(() => modelConfig.provider)
     promptMessages.update(() => messages)
     console.log("submit prompt", content)
     console.log(modelConfig)
-    // return
     isProcessing.update(() => false)
     setTimeout(() => {
       isProcessing.update(() => true)
@@ -133,7 +148,6 @@
   let tmpFullText = ""
 
   function shouldPerformTitleGeneration() {
-    // Check if the user prompt is empty or too short
     if (modelImageGens.includes($model)) {
       return false
     }
@@ -141,7 +155,7 @@
   }
   function onProcessingDone(fullText: string, id: string) {
     const task = getMessageTask(id)
-    if (task) {
+    if (task && typeof task !== "boolean") {
       if (task.status === "onProcess") {
         setTimeout(async () => {
           tempConversation.update((o) => o.concat(fullText))
@@ -150,31 +164,25 @@
           if ($userPrompt.length > 250) title = $userPrompt.slice(0, 250)
           let chatMessagesData = [...$chatMessages] as any[]
 
-          if (params.id === "new") {
-            //!fullText.match(/error/gi)p
+          if (params?.id === "new") {
             if (shouldPerformTitleGeneration()) {
-              title =
+              const newTitle =
                 (await makeUpConversationTitle(
                   fullText,
                   $model,
                   $provider,
                   $conversation
                 )) || ""
+              title = newTitle as string
               title = stripMarkdown(title)
               title = cleanQuotes(title)
               if (title.length === 0) title = $userPrompt
               if (title.length > 250) title = title.slice(0, 250)
-            } else {
-              // alert("Terjadi kesalahan")
-              // isProcessing.update(() => false)
-              // return
             }
-            // if ($userPrompt.length > 250)
             newConversation.title = title
-            // else newConversation.title = $userPrompt
             chatMessagesData = chatMessagesData.slice(1)
           }
-          newConversation.updated = Date.now()
+          ;(newConversation as any).updated = Date.now()
           chatMessagesData.push({
             role: "user",
             content: $userPrompt,
@@ -192,30 +200,25 @@
               finish: { reason: "stop" },
             },
           })
-          // conversation.update((o) => newConversation)
 
           console.log("saving to storage")
-          if (params.id === "new") {
+          if (params?.id === "new") {
             const [c, m] = await createConversation(
               newConversation,
               chatMessagesData
             )
-            // conversation.update(() => c)
-            // chatMessages.update(() => m)
-            if (routeApp) {
-              routeApp.navigate(`/chat/${newConversation.id}`)
+            if (routeAppRef) {
+              routeAppRef.navigate(`/chat/${newConversation.id}`)
             }
           } else {
             const [c, m] = await updateConversation(
               newConversation,
               chatMessagesData
             )
-            // conversation.update(() => c)
             chatMessages.update(() => m)
             console.log({ m })
           }
           isProcessing.update(() => false)
-          // loadChat($conversation.id)
         }, 512)
         updateMessageTask(id, true)
       } else {
@@ -242,6 +245,8 @@
       {
         role: "assistant",
         content: "Ada yang bisa saya bantu ?",
+        id: createMessageId(),
+        username: "assistant",
       },
     ])
   }
@@ -263,22 +268,31 @@
       console.log($conversation)
     }
   }
-  function onDeleteMessage(id: number) {
+  function onDeleteMessage(id: string | number) {
     if (confirm("Item ini akan dihapus, yakin?")) {
       const indexToDelete = $chatMessages.findIndex((item) => item.id === id)
       if (indexToDelete > -1) {
         $chatMessages.splice(indexToDelete, 1)
       }
       chatMessages.update((o) => $chatMessages)
-      deleteChatMessage($conversation.id, id)
+      if ($conversation) {
+        // Convert id to number for API call if it's a string
+        const numericId = typeof id === "string" ? parseInt(id) : id
+        if (!isNaN(numericId)) {
+          deleteChatMessage($conversation.id, numericId)
+        }
+      }
       console.log($chatMessages)
     }
   }
-  function tostifyCustomClose(el) {
+  function tostifyCustomClose(el: HTMLElement) {
     const parent = el.closest(".toastify")
-    const close = parent.querySelector(".toast-close")
-
-    close.click()
+    if (parent) {
+      const close = parent.querySelector(".toast-close")
+      if (close && "click" in close) {
+        ;(close as HTMLElement).click()
+      }
+    }
   }
   let i = 0
   const toastMarkup1 = `
@@ -341,37 +355,23 @@
   }
   let currentTime = new Date().toLocaleTimeString()
 
-  // Update the time every second
-  // setInterval(() => {
-  //   currentTime = new Date().toLocaleTimeString()
-  // }, 1000)
-  $: loadChat(params.id)
+  $: if (params?.id) loadChat(params.id)
 </script>
 
-{#if !toastClosed}
-  <!-- <div class="clock">
-    {currentTime}
-  </div> -->
-{/if}
-<!-- <button
-  id="hs-new-toast"
-  type="button"
-  on:click={displayToast}
-  class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
->
-  Call toast
-</button> -->
 <div class="py-10 lg:py-14">
-  <ConversationWidget conversation={$conversation} {routeApp} />
-  <ChatMessages chatMessages={$chatMessages} {onDeleteMessage} />
+  <ConversationWidget conversation={$conversation} routeApp={routeAppRef} />
+  <ChatMessages
+    conversation={$conversation}
+    chatMessages={$chatMessages}
+    {onDeleteMessage}
+  />
   {#if $isProcessing}
     <TempChatMessages
-      conversation={$tempConversation}
       {onProcessingDone}
       messages={$promptMessages}
       model={$model}
       provider={$provider}
-      conversation_id={$conversation.id}
+      conversation_id={$conversation ? $conversation.id : ""}
       messageId={$messageId}
     />
   {/if}

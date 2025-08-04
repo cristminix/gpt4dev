@@ -5,34 +5,37 @@
   export let setChatConfig: any
   let attachChatHistoryToUserPrompt = false
   onMount(() => {
+    //@ts-ignore
     HSTextareaAutoHeight.autoInit()
   })
 
   function onUserPromptChange() {
     // console.log("user prompt change")
   }
-  function sendKeystroke(text) {
+  function sendKeystroke(text: string) {
     const textarea = document.getElementById("userInput")
-    textarea.focus() // Memfokuskan textarea
+    if (textarea && textarea instanceof HTMLTextAreaElement) {
+      textarea.focus() // Memfokuskan textarea
 
-    // Menambahkan teks ke textarea
-    textarea.value = text
+      // Menambahkan teks ke textarea
+      textarea.value = text
 
-    // Membuat dan memicu event 'input' untuk memperbarui interaksi pengguna
-    const event = new Event("input", {
-      bubbles: true,
-      cancelable: true,
-    })
-    textarea.dispatchEvent(event)
+      // Membuat dan memicu event 'input' untuk memperbarui interaksi pengguna
+      const event = new Event("input", {
+        bubbles: true,
+        cancelable: true,
+      })
+      textarea.dispatchEvent(event)
+    }
   }
-  function onUserPromptKeydown(event: Event) {
-    if (event.shiftKey && event.keyCode === 13) {
-      console.log("Ctrl+Enter was pressed!")
+  function onUserPromptKeydown(event: KeyboardEvent) {
+    if (event.shiftKey && event.key === "Enter") {
+      console.log("Shift+Enter was pressed!")
       const oldValue = jquery("#userInput").val()
       jquery("#userInput").val(oldValue + "\n")
       return event.preventDefault()
     }
-    if (event.keyCode === 13) {
+    if (event.key === "Enter") {
       onSubmitUserPrompt()
       return event.preventDefault()
     }
@@ -78,6 +81,7 @@
             class="chat-toolbar flex items-center justify-between mb-2 hidden"
           >
             <div id="input-count" class="text-xs text-gray-500">
+              <!-- svelte-ignore a11y_consider_explicit_label -->
               <button class="hide-input text-gray-400 hover:text-white">
                 <i class="fa-solid fa-angles-down"></i>
               </button>
@@ -88,6 +92,7 @@
           </div>
 
           <!-- Mic Button -->
+          <!-- svelte-ignore a11y_consider_explicit_label -->
           <button
             type="button"
             title="Attach chat history to user prompt"
@@ -106,6 +111,7 @@
 
           <button
             type="button"
+            aria-label="Microphone"
             class="hidden inline-flex shrink-0 justify-center items-center size-8 rounded-lg text-gray-500 hover:bg-white focus:z-10 focus:outline-hidden focus:bg-white dark:text-neutral-500 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
           >
             <i class="fa fa-microphone"></i>
@@ -113,6 +119,7 @@
 
           <button
             type="button"
+            aria-label="Clear"
             class=" inline-flex shrink-0 justify-center items-center size-8 rounded-lg text-gray-500 hover:bg-white focus:z-10 focus:outline-hidden focus:bg-white dark:text-neutral-500 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700 hidden"
           >
             <svg
@@ -136,6 +143,7 @@
           <!-- Attach Button -->
           <button
             type="button"
+            aria-label="Attach file"
             class="hidden inline-flex shrink-0 justify-center items-center size-8 rounded-lg text-gray-500 hover:bg-white focus:z-10 focus:outline-hidden focus:bg-white dark:text-neutral-500 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
           >
             <svg
@@ -164,6 +172,7 @@
           <!-- Mic Button -->
           <button
             type="button"
+            aria-label="Voice input"
             class="hidden inline-flex shrink-0 justify-center items-center size-8 rounded-lg text-gray-500 hover:bg-white focus:z-10 focus:outline-hidden focus:bg-white dark:text-neutral-500 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
           >
             <svg
@@ -188,6 +197,7 @@
           <!-- Cancel Button-->
           <button
             id="cancelButton"
+            aria-label="Cancel generation"
             class="prompt-action-btn stop_generating stop_generating-hidden text-red-400 hover:text-red-300 hidden"
           >
             <i class="fa-solid fa-stop"></i>
@@ -195,11 +205,13 @@
           <!-- Regenerate Button -->
           <button
             id="regenerateButton"
+            aria-label="Regenerate response"
             class="prompt-action-btn regenerate text-blue-400 hover:text-blue-300 hidden"
           >
             <i class="fa-solid fa-rotate"></i>
           </button>
           <!-- Send Button -->
+          <!-- svelte-ignore a11y_consider_explicit_label -->
           <button
             on:click={onSubmitUserPrompt}
             type="button"

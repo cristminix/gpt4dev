@@ -16,8 +16,11 @@
     // )
     setTimeout(() => {
       document.querySelectorAll("pre code").forEach((el) => {
-        if (!jquery(el).attr("data-highlighted")) {
-          hljs.highlightElement(el)
+        // Pastikan el adalah HTMLElement sebelum digunakan dengan hljs.highlightElement
+        if (el instanceof HTMLElement) {
+          if (!jquery(el).attr("data-highlighted")) {
+            hljs.highlightElement(el)
+          }
         }
       })
     }, 1000)
@@ -40,9 +43,7 @@
     <span class="text-xs text-gray-400 dark:text-neutral-500">{lang}</span>
   </div> -->
   <div class="code-toolbar">
-    <pre class="rounded-lg" tabindex="0"><code class="language-{lang}"
-        >{text}</code
-      ></pre>
+    <pre class="rounded-lg"><code class="language-{lang}">{text}</code></pre>
     <div class="toolbar">
       <div class="toolbar-item">
         <button

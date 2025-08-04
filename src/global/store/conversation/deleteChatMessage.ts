@@ -1,15 +1,27 @@
 export async function deleteChatMessage(conversationId: string, id: number) {
-  const responseMessage = await fetch(
-    `/llm/conversations/${conversationId}/messages/${id}`,
-    {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
+  try {
+    const response = await fetch(
+      `/llm/conversations/${conversationId}/messages/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+
+    // Periksa apakah response berhasil
+    if (!response.ok) {
+      throw new Error(`Failed to delete message: ${response.statusText}`)
     }
-  ).then((res) => res.json())
 
-  console.log("getChatMessages responseMessage", responseMessage)
+    const responseMessage = await response.json()
 
-  return responseMessage.success
+    console.log("deleteChatMessage responseMessage", responseMessage)
+
+    return responseMessage.success
+  } catch (error) {
+    console.error("Error deleting chat message:", error)
+    throw error // Melempar error kembali agar dapat ditangani oleh pemanggil fungsi
+  }
 }

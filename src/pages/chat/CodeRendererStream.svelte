@@ -1,7 +1,6 @@
 <script lang="ts">
   export let lang = ""
   export let text = ""
-  import CodeMirror from "svelte-codemirror-editor"
   import { javascript } from "@codemirror/lang-javascript"
   import { html } from "@codemirror/lang-html"
   import { css } from "@codemirror/lang-css"
@@ -17,7 +16,6 @@
     javascript,
     html,
     typescript: javascript,
-    html,
     css,
     python,
     rust,
@@ -58,8 +56,7 @@
     <span class="text-xs text-gray-400 dark:text-neutral-500">{lang}</span>
   </div>
   <div class="code-toolbar">
-    <pre class="rounded-lg language-js" tabindex="0"><code class="language-js"
-        >{text}</code
+    <pre class="rounded-lg language-js"><code class="language-js">{text}</code
       ></pre>
   </div>
 </div>

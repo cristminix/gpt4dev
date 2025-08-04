@@ -1,9 +1,11 @@
 <script lang="ts">
   import { deleteConversation } from "@/global/store/conversation/deleteConversation"
   import { updateConversationTitle } from "@/global/store/conversation/updateConversationTitle"
+  import type { ConversationInterface } from "./chat-page/types"
+  import type { RouteApp } from "@/components/RouteApp.types"
   // import updateC
-  export let conversation
-  export let routeApp
+  export let conversation: ConversationInterface
+  export let routeApp: RouteApp
   let editMode = false
   async function onDeleteConversation(id: string) {
     if (confirm("This will also delete all messages, continue ?")) {
