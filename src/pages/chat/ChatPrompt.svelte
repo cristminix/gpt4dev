@@ -4,6 +4,7 @@
   import TurndownService from "turndown";
   import ChatPromptWyswyg from "./ChatPromptWyswyg.svelte";
   import { cleanSurplusBlankLine } from "./chat-page/fn/cleanSurplusBlankLine";
+  import ChatPromptToolbox from "./ChatPromptToolbox.svelte";
   export let onSubmitPrompt: any;
   export let setChatConfig: any;
   let attachChatHistoryToUserPrompt = false;
@@ -62,6 +63,13 @@
     sendKeystroke("");
     onSubmitPrompt(content, systemMessage);
   }
+  $: {
+    setTimeout(() => {
+      console.log("HSTabs.autoInit()");
+      //@ts-ignore
+      HSTabs.autoInit();
+    }, 1000);
+  }
 </script>
 
 <div id="chatPromptContainer">
@@ -69,6 +77,7 @@
     <!-- Input -->
 
     <div class="relative">
+      <!-- svelte-ignore a11y_no_noninteractive_element_to_interactive_role -->
       <nav
         class="flex gap-x-1"
         aria-label="Tabs"
@@ -108,6 +117,17 @@
         >
           System
         </button>
+        <button
+          type="button"
+          class="hs-tab-active:bg-gray-200 hs-tab-active:text-gray-800 hs-tab-active:hover:text-gray-800 dark:hs-tab-active:bg-neutral-700 dark:hs-tab-active:text-white py-3 px-4 inline-flex items-center gap-x-2 bg-transparent text-sm font-medium text-center text-gray-500 rounded-lg hover:text-blue-600 focus:outline-hidden focus:text-blue-600 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-500 dark:hover:text-neutral-400 dark:focus:text-neutral-400"
+          id="pills-on-gray-color-item-4"
+          aria-selected="false"
+          data-hs-tab="#pills-on-gray-color-4"
+          aria-controls="pills-on-gray-color-4"
+          role="tab"
+        >
+          Tools
+        </button>
       </nav>
 
       <div class="mt-3">
@@ -146,6 +166,18 @@
             class="p-3 sm:p-4 pb-12 sm:pb-12 block w-full bg-gray-100 border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
             placeholder="Add instruction..."
           ></textarea>
+        </div>
+        <div
+          id="pills-on-gray-color-4"
+          class="hidden"
+          role="tabpanel"
+          aria-labelledby="pills-on-gray-color-item-4"
+        >
+          <div
+            class="p-3 h-38 sm:p-4 pb-12 sm:pb-12 block w-full bg-gray-100 border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
+          >
+            <ChatPromptToolbox />
+          </div>
         </div>
       </div>
 
