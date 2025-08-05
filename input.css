@@ -56,3 +56,11 @@
 .chat-toolbar-left button.active{
   @apply !border
 }
+
+#hs-editor-tiptap-blockquote-alt .tiptap{
+  /* font-family: Inter; */
+  @apply !py-4;
+  font-size: 16px !important; 
+  line-height: .5m;
+}
+

@@ -1,90 +1,152 @@
 <script lang="ts">
-  import { onMount } from "svelte"
-  import jquery from "jquery"
-  import TurndownService from "turndown"
-  import ChatPromptWyswyg from "./ChatPromptWyswyg.svelte"
+  import { onMount } from "svelte";
+  import jquery from "jquery";
+  import TurndownService from "turndown";
+  import ChatPromptWyswyg from "./ChatPromptWyswyg.svelte";
   import { cleanSurplusBlankLine } from "./chat-page/fn/cleanSurplusBlankLine";
-  export let onSubmitPrompt: any
-  export let setChatConfig: any
-  let attachChatHistoryToUserPrompt = false
+  export let onSubmitPrompt: any;
+  export let setChatConfig: any;
+  let attachChatHistoryToUserPrompt = false;
 
   // Initialize turndown service
-  const turndownService = new TurndownService()
+  const turndownService = new TurndownService();
 
   onMount(() => {
     //@ts-ignore
-    HSTextareaAutoHeight.autoInit()
-  })
+    HSTextareaAutoHeight.autoInit();
+  });
 
   function onWysywygEditorChange(html: string) {
-    console.log({ html })
+    console.log({ html });
     // Convert HTML to markdown
-    const markdown = cleanSurplusBlankLine( turndownService.turndown(html))
-    console.log({ markdown })
-    jquery("#userInput").val(markdown)
+    const markdown = cleanSurplusBlankLine(turndownService.turndown(html));
+    console.log({ markdown });
+    jquery("#userInput").val(markdown);
   }
   function onUserPromptChange() {
     // console.log("user prompt change")
   }
   function sendKeystroke(text: string) {
-    const textarea = document.getElementById("userInput")
+    const textarea = document.getElementById("userInput");
     if (textarea && textarea instanceof HTMLTextAreaElement) {
-      textarea.focus() // Memfokuskan textarea
+      textarea.focus(); // Memfokuskan textarea
 
       // Menambahkan teks ke textarea
-      textarea.value = text
+      textarea.value = text;
 
       // Membuat dan memicu event 'input' untuk memperbarui interaksi pengguna
       const event = new Event("input", {
         bubbles: true,
         cancelable: true,
-      })
-      textarea.dispatchEvent(event)
+      });
+      textarea.dispatchEvent(event);
     }
   }
   function onUserPromptKeydown(event: KeyboardEvent) {
     if (event.shiftKey && event.key === "Enter") {
-      console.log("Shift+Enter was pressed!")
-      const oldValue = jquery("#userInput").val()
-      jquery("#userInput").val(oldValue + "\n")
-      return event.preventDefault()
+      console.log("Shift+Enter was pressed!");
+      const oldValue = jquery("#userInput").val();
+      jquery("#userInput").val(oldValue + "\n");
+      return event.preventDefault();
     }
     if (event.key === "Enter") {
-      onSubmitUserPrompt()
-      return event.preventDefault()
+      onSubmitUserPrompt();
+      return event.preventDefault();
     }
     // console.log(e.keyCode)
     // console.log("user prompt change")
   }
   function onSubmitUserPrompt() {
-    console.log("submit user prompt")
-    const content = jquery("#userInput").val()
-    sendKeystroke("")
-    onSubmitPrompt(content)
+    console.log("submit user prompt");
+    const content = jquery("#userInput").val();
+    sendKeystroke("");
+    onSubmitPrompt(content);
   }
 </script>
 
 <div id="chatPromptContainer">
-  <ChatPromptWyswyg onChange={onWysywygEditorChange} />
   <div class="max-w-6xl mx-auto sticky bottom-0 z-10 p-3 sm:py-6">
     <!-- Input -->
+
     <div class="relative">
-      <textarea
-        id="chatPrompt"
-        class="hidden sm:p-4 pb-12 sm:pb-12 block w-full bg-gray-100 border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
-        placeholder="System prompt"
-      ></textarea>
-    </div>
-    <div class="relative">
-      <textarea
-        on:change={onUserPromptChange}
-        on:keyup={onUserPromptChange}
-        on:keydown={onUserPromptKeydown}
-        data-hs-textarea-auto-height
-        id="userInput"
-        class="p-3 sm:p-4 pb-12 sm:pb-12 block w-full bg-gray-100 border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
-        placeholder="Ask me anything..."
-      ></textarea>
+      <nav
+        class="flex gap-x-1"
+        aria-label="Tabs"
+        role="tablist"
+        aria-orientation="horizontal"
+      >
+        <button
+          type="button"
+          class="hs-tab-active:bg-gray-200 hs-tab-active:text-gray-800 hs-tab-active:hover:text-gray-800 dark:hs-tab-active:bg-neutral-700 dark:hs-tab-active:text-white py-3 px-4 inline-flex items-center gap-x-2 bg-transparent text-sm font-medium text-center text-gray-500 rounded-lg hover:text-blue-600 focus:outline-hidden focus:text-blue-600 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-500 dark:hover:text-neutral-400 dark:focus:text-neutral-400 active"
+          id="pills-on-gray-color-item-1"
+          aria-selected="true"
+          data-hs-tab="#pills-on-gray-color-1"
+          aria-controls="pills-on-gray-color-1"
+          role="tab"
+        >
+          User
+        </button>
+        <button
+          type="button"
+          class="hs-tab-active:bg-gray-200 hs-tab-active:text-gray-800 hs-tab-active:hover:text-gray-800 dark:hs-tab-active:bg-neutral-700 dark:hs-tab-active:text-white py-3 px-4 inline-flex items-center gap-x-2 bg-transparent text-sm font-medium text-center text-gray-500 rounded-lg hover:text-blue-600 focus:outline-hidden focus:text-blue-600 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-500 dark:hover:text-neutral-400 dark:focus:text-neutral-400"
+          id="pills-on-gray-color-item-2"
+          aria-selected="false"
+          data-hs-tab="#pills-on-gray-color-2"
+          aria-controls="pills-on-gray-color-2"
+          role="tab"
+        >
+          User Wyswyg
+        </button>
+        <button
+          type="button"
+          class="hs-tab-active:bg-gray-200 hs-tab-active:text-gray-800 hs-tab-active:hover:text-gray-800 dark:hs-tab-active:bg-neutral-700 dark:hs-tab-active:text-white py-3 px-4 inline-flex items-center gap-x-2 bg-transparent text-sm font-medium text-center text-gray-500 rounded-lg hover:text-blue-600 focus:outline-hidden focus:text-blue-600 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-500 dark:hover:text-neutral-400 dark:focus:text-neutral-400"
+          id="pills-on-gray-color-item-3"
+          aria-selected="false"
+          data-hs-tab="#pills-on-gray-color-3"
+          aria-controls="pills-on-gray-color-3"
+          role="tab"
+        >
+          System
+        </button>
+      </nav>
+
+      <div class="mt-3">
+        <div
+          id="pills-on-gray-color-1"
+          role="tabpanel"
+          aria-labelledby="pills-on-gray-color-item-1"
+        >
+          <textarea
+            on:change={onUserPromptChange}
+            on:keyup={onUserPromptChange}
+            on:keydown={onUserPromptKeydown}
+            data-hs-textarea-auto-height
+            id="userInput"
+            class="p-3 sm:p-4 pb-12 sm:pb-12 block w-full bg-gray-100 border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
+            placeholder="Ask me anything..."
+          ></textarea>
+        </div>
+        <div
+          id="pills-on-gray-color-2"
+          class="hidden"
+          role="tabpanel"
+          aria-labelledby="pills-on-gray-color-item-2"
+        >
+          <ChatPromptWyswyg onChange={onWysywygEditorChange} />
+        </div>
+        <div
+          id="pills-on-gray-color-3"
+          class="hidden"
+          role="tabpanel"
+          aria-labelledby="pills-on-gray-color-item-3"
+        >
+          <textarea
+            id="chatPrompt"
+            class="p-3 sm:p-4 pb-12 sm:pb-12 block w-full bg-gray-100 border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
+            placeholder="Add instruction..."
+          ></textarea>
+        </div>
+      </div>
 
       <!-- Toolbar -->
       <div
@@ -113,10 +175,10 @@
               type="button"
               title="Attach chat history to user prompt"
               on:click={() => {
-                attachChatHistoryToUserPrompt = !attachChatHistoryToUserPrompt
+                attachChatHistoryToUserPrompt = !attachChatHistoryToUserPrompt;
                 setChatConfig({
                   attachChatHistoryToUserPrompt,
-                })
+                });
               }}
               class="{attachChatHistoryToUserPrompt
                 ? 'active'
