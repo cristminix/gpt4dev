@@ -1,35 +1,35 @@
 <script lang="ts">
-  import CodeRenderer from "./CodeRenderer.svelte"
-  import SvelteMarkdown from "svelte-markdown"
+  import CodeRenderer from "./CodeRenderer.svelte";
+  import SvelteMarkdown from "svelte-markdown";
   import type {
     ChatMessageInterface,
     ConversationInterface,
-  } from "./chat-page/types"
+  } from "./chat-page/types";
 
-  export let conversation: ConversationInterface | null = null
-  export let chatMessages: ChatMessageInterface[] = []
-  export let onDeleteMessage: (id: string | number) => void
+  export let conversation: ConversationInterface | null = null;
+  export let chatMessages: ChatMessageInterface[] = [];
+  export let onDeleteMessage: (id: string | number) => void;
 
   async function deleteMessage(messageId: string | number) {
     // Implement message deletion logic here
-    console.log("Delete message with ID:", messageId)
-    onDeleteMessage(messageId)
+    console.log("Delete message with ID:", messageId);
+    onDeleteMessage(messageId);
   }
   function autoScroll() {
     setTimeout(() => {
-      const element = document.querySelector(".template-content")
+      const element = document.querySelector(".template-content");
       if (element) {
         window.scrollTo({
           top: element.scrollHeight + 200,
           behavior: "smooth", // Optional: smooth scrolling
-        })
+        });
       }
-    }, 1000)
+    }, 1000);
   }
-  $: autoScroll()
+  $: autoScroll();
 </script>
 
-<ul class="mt-16 space-y-5 conversation-list">
+<ul class="mt-6 space-y-5 conversation-list">
   <!-- Chat Bubble -->
   {#each chatMessages as message}
     {#if message.role === "user"}
