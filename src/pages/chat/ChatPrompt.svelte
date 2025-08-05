@@ -3,6 +3,7 @@
   import jquery from "jquery"
   import TurndownService from "turndown"
   import ChatPromptWyswyg from "./ChatPromptWyswyg.svelte"
+  import { cleanSurplusBlankLine } from "./chat-page/fn/cleanSurplusBlankLine";
   export let onSubmitPrompt: any
   export let setChatConfig: any
   let attachChatHistoryToUserPrompt = false
@@ -18,7 +19,7 @@
   function onWysywygEditorChange(html: string) {
     console.log({ html })
     // Convert HTML to markdown
-    const markdown = turndownService.turndown(html)
+    const markdown = cleanSurplusBlankLine( turndownService.turndown(html))
     console.log({ markdown })
     jquery("#userInput").val(markdown)
   }
