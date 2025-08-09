@@ -1,13 +1,39 @@
 <script lang="ts">
-  import { set } from "idb-keyval"
   import jquery from "jquery"
   import { writable } from "svelte/store"
-  const providerList = writable([])
-  const modelList = writable([])
+
+  // Definisikan interface untuk tipe data
+  interface Model {
+    model: string
+    label: string
+    group?: string
+    models?: Model[]
+    image?: number
+    video?: number
+    audio?: number
+  }
+
+  interface Provider {
+    name: string
+    label: string
+    auth?: boolean
+    image?: number
+    video?: number
+    audio?: number
+    active_by_default?: boolean
+  }
+
+  const providerList = writable<Provider[]>([])
+  const modelList = writable<Model[]>([])
   let firstTimer = 0
+
   import { getModelConfig } from "@/global/store/chat/getModelConfig"
   import { setModelConfig } from "@/global/store/chat/setModelConfig"
-  function doSetModelConfig(provider = null, model = null) {
+
+  function doSetModelConfig(
+    provider: string | null = null,
+    model: string | null = null
+  ) {
     const oldConfig = getModelConfig()
     // console.log({ oldConfig, firstTimer, provider, model })
     firstTimer++
@@ -19,39 +45,44 @@
     // console.log(typeof modelConfig.model)
     // if (!model && oldConfig.provider === provider) return
     if (modelConfig.model == "") {
-      console.log($modelList)
-      for (const model of $modelList) {
-        // console.log(model)
-        if (Array.isArray(model.models)) {
-          modelConfig.model = model.models[0].model
+      // console.log($modelList)
+      for (const m of $modelList) {
+        // console.log(m)
+        if (Array.isArray(m.models)) {
+          modelConfig.model = m.models[0].model
         } else {
-          modelConfig.model = model.model
+          modelConfig.model = m.model
         }
       }
     }
     // console.log(modelConfig)
     setModelConfig(modelConfig)
   }
+
   async function initProviderData() {
-    const providerListSet = await fetch("api/backend-api/v2/providers").then(
-      (r) => r.json()
-    )
+    const providerListSet: Provider[] = await fetch(
+      "api/backend-api/v2/providers"
+    ).then((r) => r.json())
     // console.log(providerListSet)
     providerList.update((o) => providerListSet)
   }
+
   async function initModelData(providerName: string) {
-    let modelListSet = await fetch(
+    let modelListSet: Model[] = await fetch(
       `api/backend-api/v2/models/${providerName}`
     ).then((r) => r.json())
-    modelListSet = modelListSet.sort((a, b) => a.label.localeCompare(b.label))
+    // modelListSet = modelListSet.sort((a, b) => a.label.localeCompare(b.label))
+    console.log({ modelListSet })
     modelList.update((o) => modelListSet)
     setTimeout(() => {
       doSetModelConfig(providerName)
     }, 256)
   }
+
   async function loadProviderList() {
     await initProviderData()
   }
+
   providerList.subscribe((o) => {
     const modelConfig = getModelConfig()
     const { provider } = modelConfig
@@ -59,37 +90,44 @@
       if (provider) {
         jquery("#provider").val(provider)
         jquery("#provider").trigger("change")
-        onProviderChange()
+        onProviderChange(provider)
       }
     }, 1000)
 
     // console.log(modelConfig)
   })
+
   modelList.subscribe((o) => {
     // console.log(o)
   })
-  async function onProviderChange(e: any) {
+
+  async function onProviderChange(providerName: string) {
     try {
-      const providerName = e.target.value
-      await initModelData(providerName)
+      if (providerName) {
+        await initModelData(providerName)
+      }
+      console.log({ providerName })
     } catch (error) {
       const modelConfig = getModelConfig()
       const { provider } = modelConfig
-      await initModelData(provider)
-    }
+      console.log({ provider })
 
-    // console.log({ provider })
+      if (provider) {
+        await initModelData(provider)
+      }
+    }
   }
+
   $: loadProviderList()
 
-  function isModelSelected(model, provider, index) {
+  function isModelSelected(model: string, provider: string | null) {
     const modelConfig = getModelConfig()
     if (
       (provider ? modelConfig.provider === provider : true) &&
       modelConfig.model === model
     )
       return true
-    return index === 0
+    return false
   }
 </script>
 
@@ -102,24 +140,31 @@
         <select
           name="model"
           id="model"
-          on:change={(e) => doSetModelConfig(null, e.target.value)}
+          on:change={(e) =>
+            doSetModelConfig(null, (e.target as HTMLSelectElement).value)}
           class="w-full py-3 px-4 pe-9 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
         >
           {#each $modelList as model, index}
             {#if Array.isArray(model.models)}
-              <option value="" disabled>{model.group}</option>
+              <option value="" disabled>--{model.group}--</option>
               {#each model.models as subModel, subIndex}
                 <option
                   value={subModel.model}
-                  selected={isModelSelected(model.model, null)}
-                  >{subModel.label}</option
+                  selected={isModelSelected(subModel.model, null)}
+                  >{subModel.label}
+                  {(subModel.image ?? 0) > 0 ? "📷" : ""}
+                  {(subModel.audio ?? 0) > 0 ? "🔊" : ""}
+                  {(subModel.video ?? 0) > 0 ? "📹" : ""}</option
                 >
               {/each}
             {:else}
               <option
                 value={model.model}
                 selected={isModelSelected(model.model, null)}
-                >{model.label}</option
+                >{model.label}
+                {(model.image ?? 0) > 0 ? "📷" : ""}
+                {(model.audio ?? 0) > 0 ? "🔊" : ""}
+                {(model.video ?? 0) > 0 ? "📹" : ""}</option
               >
             {/if}
           {/each}
@@ -131,7 +176,7 @@
         <select
           name="provider"
           id="provider"
-          on:change={onProviderChange}
+          on:change={(e: Event) => onProviderChange(e.target.value)}
           class="py-3 px-4 pe-9 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
         >
           {#each $providerList as provider}
@@ -139,8 +184,8 @@
               <option value={provider.name}
                 >{provider.label}
                 {provider.auth ? "🗝" : ""}
-                {provider.image > 0 ? "📷" : ""}
-                {provider.video > 0 ? "📹" : ""}</option
+                {(provider.image ?? 0) > 0 ? "📷" : ""}
+                {(provider.video ?? 0) > 0 ? "📹" : ""}</option
               >
             {/if}
           {/each}

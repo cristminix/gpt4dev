@@ -1,17 +1,26 @@
+export interface MessageTask {
+  status: string | boolean
+}
+
 export interface ChatMessageInterface {
-  id: number | string
   role: string
   content: string
+  id: string | number
   username: string
+  parentId?: string | number
   provider?: {
     model: string
     label: string
+    finish: {
+      reason: string
+    }
   }
 }
 
 export interface ConversationInterface {
   id: string
   title: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
+  createdAt: string
+  updatedAt: string
+  system: string
 }

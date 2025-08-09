@@ -30,9 +30,7 @@
       loadConversations()
     }, 32)
   }
-  function loadChat(conversation: any) {
-    loadChatCallback(conversation)
-  }
+
   function triggerWindowResize() {
     setTimeout(() => {
       jquery(window).trigger("resize")
