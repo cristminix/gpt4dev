@@ -5,16 +5,12 @@ export interface MessageTask {
 export interface ChatMessageInterface {
   role: string
   content: string
-  id: string | number
+  id: string
   username: string
-  parentId?: string | number
-  provider?: {
-    model: string
-    label: string
-    finish: {
-      reason: string
-    }
-  }
+  parentId?: string
+  groupId?: string
+  folderId?: string
+  collapsed?: boolean | number
 }
 
 export interface ConversationInterface {
@@ -22,5 +18,6 @@ export interface ConversationInterface {
   title: string
   createdAt: string
   updatedAt: string
-  system: string
+  systemMessage: string
+  enableSystemMessage: boolean | number
 }

@@ -6,10 +6,13 @@ import { stripMarkdown } from "./stripMarkdown"
 import { cleanQuotes } from "./cleanQuotes"
 import { createConversation } from "@/global/store/conversation/createConversation"
 import { updateConversation } from "@/global/store/conversation/updateConversation"
+import { v1 } from "uuid"
+import { createProviderUsername } from "@/global/store/conversation/createProviderUsername"
+import { createChatMessage } from "@/global/store/conversation/createChatMessage"
 
 export async function processDone(
   fullText: string,
-  id: string | number,
+  id: string,
   tempConversation: Writable<any[]>,
   conversation: Writable<ConversationInterface | null>,
   userPrompt: Writable<string>,
@@ -30,8 +33,7 @@ export async function processDone(
   $chatMessages: ChatMessageInterface[],
   $messageTasks: Record<string, any>
 ) {
-  const taskId = typeof id === "number" ? id.toString() : id
-  const task = getMessageTask(taskId)
+  const task = getMessageTask(id)
   if (task) {
     if (task.status === "onProcess") {
       setTimeout(async () => {
@@ -59,52 +61,56 @@ export async function processDone(
           newConversation.title = title
           chatMessagesData = chatMessagesData.slice(1)
         }
-        chatMessagesData.push({
+        let groupId = v1()
+        const userMessage: ChatMessageInterface = {
           role: "user",
           content: $userPrompt,
-          username: "bob",
+          username: "lalisa",
           id,
-        })
-        chatMessagesData.push({
+          groupId,
+          parentId: newConversation.id,
+        }
+        const assistantMessage: ChatMessageInterface = {
           role: "assistant",
           content: fullText,
           id: createMessageId(),
           parentId: id,
-          provider: {
-            model: $model,
-            label: $provider,
-            finish: { reason: "stop" },
-          },
-        })
+          groupId,
+          username: `${$provider}:${$model}`,
+        }
+        chatMessagesData.push(userMessage)
+        chatMessagesData.push(assistantMessage)
 
         console.log("saving to storage")
+        // add system message to conversation
+        // add option enable or disable system message to conversation
+        // create conversation
+        // create user message
+        // create assistant message
+
         if (params?.id === "new") {
-          const [c, m] = await createConversation(
-            newConversation,
-            chatMessagesData
-          )
+          await createConversation(newConversation)
+
           if (routeApp) {
             routeApp.navigate(`/chat/${newConversation.id}`)
           }
         } else {
-          const [c, m] = await updateConversation(
-            newConversation,
-            chatMessagesData
-          )
-          chatMessages.update(() => m as ChatMessageInterface[])
-          console.log({ m })
+          // const [c, m] = await updateConversation(
+          //   newConversation,
+          //   chatMessagesData
+          // )
+          chatMessages.update(() => chatMessagesData)
+          console.log("conversation id is not new")
         }
+        await createChatMessage(userMessage, newConversation.id)
+        await createChatMessage(assistantMessage, newConversation.id)
         isProcessing.update(() => false)
       }, 512)
-      updateMessageTask(taskId, true)
+      updateMessageTask(id, true)
     } else {
-      console.log(
-        "Message already saved",
-        getMessageTask(taskId),
-        $messageTasks
-      )
+      console.log("Message already saved", getMessageTask(id), $messageTasks)
     }
   } else {
-    console.log(`No message task correspond to ${taskId}`)
+    console.log(`No message task correspond to ${id}`)
   }
 }

@@ -9,11 +9,11 @@
   export let prompt: string = "hi"
   export let model: string = "gpt-4:blackbox"
   export let isStreaming = false
-  export let onProcessingDone: (text: string, id: number | string) => void
+  export let onProcessingDone: (text: string, id: string) => void
   export let messages: ChatMessageInterface[] = []
   export let conversation_id: string
   export let provider: string
-  export let messageId: number | string
+  export let messageId: string
   let oldRequestDate: number = Date.now()
   const finalContent = writable("")
   let fullText = ""

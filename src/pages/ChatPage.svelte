@@ -82,7 +82,7 @@
     }
     return true
   }
-  function onProcessingDone(fullText: string, id: string | number) {
+  function onProcessingDone(fullText: string, id: string) {
     processDone(
       fullText,
       id,

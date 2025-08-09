@@ -1,12 +1,12 @@
 <script lang="ts">
   import type { ChatMessageInterface } from "./chat-page/types"
   import ChatStreaming from "./ChatStreaming.svelte"
-  export let onProcessingDone: (text: string, id: number | string) => void
+  export let onProcessingDone: (text: string, id: string) => void
   export let messages: ChatMessageInterface[]
   export let model: string
   export let conversation_id: string
   export let provider: string
-  export let messageId: string | number
+  export let messageId: string
 </script>
 
 <div class="mt-16 space-y-5">

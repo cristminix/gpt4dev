@@ -14,7 +14,8 @@ export function createNewChat(
     title: "New Conversation",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    system: "",
+    systemMessage: "",
+    enableSystemMessage: true,
   }
 
   setTimeout(() => {
