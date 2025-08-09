@@ -7,7 +7,7 @@ export async function createChatMessage(
   // Initialize with the correct type
 
   const messageResponse = await fetch(
-    `/llm/conversations/${conversationId}/messages`,
+    `/llm/messages/conversations/${conversationId}`,
     {
       method: "POST",
       headers: {
