@@ -1,7 +1,7 @@
 export async function deleteChatMessage(conversationId: string, id: string) {
   try {
     const response = await fetch(
-      `/llm/conversations/${conversationId}/messages/${id}`,
+      `/llm/messages/conversations/${conversationId}/${id}`,
       {
         method: "DELETE",
         headers: {

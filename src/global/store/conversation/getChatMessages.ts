@@ -1,7 +1,7 @@
 export async function getChatMessages(conversationId: string) {
   try {
     const response = await fetch(
-      `/llm/conversations/${conversationId}/messages`
+      `/llm/messages/conversations/${conversationId}`
     )
 
     // Periksa apakah response berhasil
