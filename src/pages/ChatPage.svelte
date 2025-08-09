@@ -119,7 +119,7 @@
       console.log($conversation)
     }
   }
-  function onDeleteMessage(id: string | number) {
+  function onDeleteMessage(id: string) {
     deleteMessageExternal(
       id,
       chatMessages,

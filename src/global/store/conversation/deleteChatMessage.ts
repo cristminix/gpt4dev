@@ -1,4 +1,4 @@
-export async function deleteChatMessage(conversationId: string, id: number) {
+export async function deleteChatMessage(conversationId: string, id: string) {
   try {
     const response = await fetch(
       `/llm/conversations/${conversationId}/messages/${id}`,

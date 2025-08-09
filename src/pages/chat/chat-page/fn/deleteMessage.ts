@@ -3,13 +3,13 @@ import type { Writable } from "svelte/store"
 import { deleteChatMessage } from "@/global/store/conversation/deleteChatMessage"
 
 export async function deleteMessage(
-  id: string | number,
+  id: string,
   chatMessages: Writable<ChatMessageInterface[]>,
   $chatMessages: ChatMessageInterface[],
   $conversation: ConversationInterface | null,
   deleteChatMessage: (
     conversationId: string,
-    messageId: number
+    messageId: string
   ) => Promise<void>,
   confirm: (message: string) => boolean,
   console: Console
@@ -22,10 +22,7 @@ export async function deleteMessage(
     chatMessages.update((o) => $chatMessages)
     if ($conversation) {
       // Convert id to number for API call if it's a string
-      const numericId = typeof id === "string" ? parseInt(id) : id
-      if (!isNaN(numericId)) {
-        await deleteChatMessage($conversation.id, numericId)
-      }
+      await deleteChatMessage($conversation.id, id)
     }
     console.log($chatMessages)
   }

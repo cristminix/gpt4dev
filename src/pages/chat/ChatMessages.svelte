@@ -1,32 +1,32 @@
 <script lang="ts">
-  import CodeRenderer from "./CodeRenderer.svelte";
-  import SvelteMarkdown from "svelte-markdown";
+  import CodeRenderer from "./CodeRenderer.svelte"
+  import SvelteMarkdown from "svelte-markdown"
   import type {
     ChatMessageInterface,
     ConversationInterface,
-  } from "./chat-page/types";
+  } from "./chat-page/types"
 
-  export let conversation: ConversationInterface | null = null;
-  export let chatMessages: ChatMessageInterface[] = [];
-  export let onDeleteMessage: (id: string | number) => void;
+  export let conversation: ConversationInterface | null = null
+  export let chatMessages: ChatMessageInterface[] = []
+  export let onDeleteMessage: (id: string) => void
 
-  async function deleteMessage(messageId: string | number) {
+  async function deleteMessage(messageId: string) {
     // Implement message deletion logic here
-    console.log("Delete message with ID:", messageId);
-    onDeleteMessage(messageId);
+    console.log("Delete message with ID:", messageId)
+    onDeleteMessage(messageId)
   }
   function autoScroll() {
     setTimeout(() => {
-      const element = document.querySelector(".template-content");
+      const element = document.querySelector(".template-content")
       if (element) {
         window.scrollTo({
           top: element.scrollHeight + 200,
           behavior: "smooth", // Optional: smooth scrolling
-        });
+        })
       }
-    }, 1000);
+    }, 1000)
   }
-  $: autoScroll();
+  $: autoScroll()
 </script>
 
 <ul class="mt-6 space-y-5 conversation-list">
@@ -94,13 +94,7 @@
         <div class="grow max-w-[90%] w-full space-y-3">
           <!-- Card -->
           <div class="model-info pt-1">
-            {#if message.provider}
-              <h4 class="text-xl font-semibold">
-                {message.provider.model}:{message.provider.label}
-              </h4>
-            {:else}
-              <h4 class="text-xl font-semibold">{message.username}</h4>
-            {/if}
+            <h4 class="text-xl font-semibold">{message.username}</h4>
           </div>
           <div class="space-y-3 inner-content">
             <SvelteMarkdown
