@@ -5,6 +5,7 @@ export async function createChatMessage(
   conversationId: string
 ) {
   // Initialize with the correct type
+  console.log(`Create message : ${conversationId}`, message)
 
   const messageResponse = await fetch(
     `/llm/messages/conversations/${conversationId}`,

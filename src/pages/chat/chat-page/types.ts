@@ -7,8 +7,8 @@ export interface ChatMessageInterface {
   content: string
   id: string
   username: string
-  parentId?: string
-  groupId?: string
+  parentId: string
+  groupId: string
   folderId?: string
   collapsed?: boolean | number
 }

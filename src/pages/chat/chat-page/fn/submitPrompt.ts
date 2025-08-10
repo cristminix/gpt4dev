@@ -89,6 +89,7 @@ export function submitPrompt(
   const modelConfig = getModelConfig()
   model.update(() => modelConfig.model)
   provider.update(() => modelConfig.provider)
+  // @ts-ignore
   promptMessages.update(() => messages)
   console.log("submit prompt", userMessageContent)
   console.log(modelConfig)

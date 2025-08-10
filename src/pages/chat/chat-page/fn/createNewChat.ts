@@ -29,6 +29,8 @@ export function createNewChat(
       content: "Ada yang bisa saya bantu ?",
       id: createMessageId(),
       username: "assistant",
+      parentId: newConversation.id,
+      groupId: ""
     },
   ])
 }

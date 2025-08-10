@@ -27,6 +27,7 @@
   } from "./chat/chat-page/types";
   import ChatMessagesWithGroup from "./chat/ChatMessagesWithGroup.svelte";
   import { getMessageGroups } from "@/global/store/conversation/getMessageGroups";
+  import { deletChatMessageGroupMesage } from "@/global/store/conversation/deletChatMessageGroupMesage";
   export let routeApp: RouteAppType;
   export let params: { id?: string } | null;
 
@@ -154,15 +155,14 @@
       }
     }
   }
-  function onDeleteMessage(id: string) {
+  async function onDeleteMessage(id: string, groupId: string) {
     deleteMessageExternal(
       id,
       chatMessages,
       $chatMessages,
       $conversation,
-      deleteChatMessage,
-      confirm,
-      console
+
+      groupId
     );
   }
   async function onRegenerateMessage(message: ChatMessageInterface) {

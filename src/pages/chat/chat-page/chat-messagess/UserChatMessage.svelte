@@ -25,7 +25,7 @@
       </div>
       <div class="px-2">
         <button
-          on:click={() => deleteMessage(message.id)}
+          on:click={() => deleteMessage(message.id, message.groupId)}
           aria-label="Delete message"
         >
           <i class="fa fa-trash"></i>

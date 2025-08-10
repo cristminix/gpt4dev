@@ -1,32 +1,32 @@
 <script lang="ts">
-  import CodeRenderer from "./CodeRenderer.svelte"
-  import SvelteMarkdown from "svelte-markdown"
+  import CodeRenderer from "./CodeRenderer.svelte";
+  import SvelteMarkdown from "svelte-markdown";
   import type {
     ChatMessageInterface,
     ConversationInterface,
-  } from "./chat-page/types"
+  } from "./chat-page/types";
 
-  export let conversation: ConversationInterface | null = null
-  export let chatMessages: ChatMessageInterface[] = []
-  export let onDeleteMessage: (id: string) => void
+  export let conversation: ConversationInterface | null = null;
+  export let chatMessages: ChatMessageInterface[] = [];
+  export let onDeleteMessage: (id: string, groupId: string) => void;
 
-  async function deleteMessage(messageId: string) {
+  async function deleteMessage(messageId: string, groupId: string) {
     // Implement message deletion logic here
-    console.log("Delete message with ID:", messageId)
-    onDeleteMessage(messageId)
+    console.log("Delete message with ID:", messageId);
+    onDeleteMessage(messageId, groupId);
   }
   function autoScroll() {
     setTimeout(() => {
-      const element = document.querySelector(".template-content")
+      const element = document.querySelector(".template-content");
       if (element) {
         window.scrollTo({
           top: element.scrollHeight + 200,
           behavior: "smooth", // Optional: smooth scrolling
-        })
+        });
       }
-    }, 1000)
+    }, 1000);
   }
-  $: autoScroll()
+  $: autoScroll();
 </script>
 
 <ul class="mt-6 space-y-5 conversation-list">
@@ -55,7 +55,7 @@
             </div>
             <div class="px-2">
               <button
-                on:click={() => deleteMessage(message.id)}
+                on:click={() => deleteMessage(message.id, message.groupId)}
                 aria-label="Delete message"
               >
                 <i class="fa fa-trash"></i>
@@ -156,7 +156,7 @@
                   Expand
                 </button>
                 <button
-                  on:click={() => deleteMessage(message.id)}
+                  on:click={() => deleteMessage(message.id, message.groupId)}
                   type="button"
                   class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
                   aria-label="Delete message"

@@ -90,16 +90,7 @@ export async function processDone(
 
           const newMessagesGroupIds = [...$messageGroupIds, groupId]
           messageGroupIds.update(() => newMessagesGroupIds)
-          if (routeApp) {
-            routeApp.navigate(`/chat/${newConversation.id}`)
-          }
-        } else {
-          // const [c, m] = await updateConversation(
-          //   newConversation,
-          //   chatMessagesData
-          // )
-          chatMessages.update(() => chatMessagesData)
-          console.log("conversation id is not new")
+
         }
         const userMessage: ChatMessageInterface = {
           role: "user",
@@ -119,8 +110,19 @@ export async function processDone(
         }
         chatMessagesData.push(userMessage)
         chatMessagesData.push(assistantMessage)
-        await createChatMessage(userMessage, newConversation.id)
-        await createChatMessage(assistantMessage, newConversation.id)
+
+
+        const uMsg = await createChatMessage(userMessage, newConversation.id)
+        const aMsg = await createChatMessage(assistantMessage, newConversation.id)
+        console.log({ uMsg, aMsg })
+        if (params?.id !== "new") {
+          chatMessages.update(() => chatMessagesData)
+          console.log("conversation id is not new")
+        } else {
+          if (routeApp) {
+            routeApp.navigate(`/chat/${newConversation.id}`)
+          }
+        }
         isProcessing.update(() => false)
       }, 512)
       updateMessageTask(id, true)

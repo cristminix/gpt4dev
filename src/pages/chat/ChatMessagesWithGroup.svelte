@@ -9,7 +9,7 @@
 
   export let conversation: ConversationInterface | null = null;
   export let chatMessages: ChatMessageInterface[] = [];
-  export let onDeleteMessage: (id: string) => void;
+  export let onDeleteMessage: (id: string, groupId: string) => void;
   export let messageGroupIds: string[] = [];
   export let messageGroupId: string = "";
   export let onRegenerateMessage;
@@ -45,10 +45,10 @@
       autoScroll();
     }, 1000);
   }
-  async function deleteMessage(messageId: string) {
+  async function deleteMessage(messageId: string, groupId: string) {
     // Implement message deletion logic here
     console.log("Delete message with ID:", messageId);
-    onDeleteMessage(messageId);
+    onDeleteMessage(messageId, groupId);
   }
   function autoScroll() {
     setTimeout(() => {
