@@ -1,3 +1,5 @@
+import type { ChatMessageInterface } from "./chat/chat-page/types";
+
 export type TIsSelectedFn = (id: string | number) => boolean
 export type TOnSelectFn = (id: string | number, path: string) => void
 export type TFolderFileCreationFn = (id: string | number, value: string, isFolder: boolean) => void
@@ -10,5 +12,9 @@ export type TFolderItem = {
   items?: TFolderItem[]
   isExpanded?: boolean
   path?: string
-  selected?:boolean
+  selected?: boolean
+}
+
+export interface GroupedChatMessagesInterface {
+  [key: string]: ChatMessageInterface[];
 }

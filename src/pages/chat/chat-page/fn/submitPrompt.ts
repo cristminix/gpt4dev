@@ -22,6 +22,7 @@ export function submitPrompt(
   $messageGroupId: string
 ) {
   const { attachChatHistoryToUserPrompt } = chatConfig
+  messageTasks.update(() => ({}));
 
   const id = createMessageId()
   messageId.update(() => id)
@@ -90,6 +91,7 @@ export function submitPrompt(
       ]
     }
   }
+
   console.log("onSubmitPrompt", userMessageContent, messages)
   // return
   userPrompt.update(() => userMessageContent)

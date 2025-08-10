@@ -15,6 +15,8 @@
     isRegenerate: boolean
   ) => void;
   export let messages: ChatMessageInterface[] = [];
+  export let regenerateMessages: ChatMessageInterface[] = [];
+
   export let conversation_id: string;
   export let provider: string;
   export let messageId: string;
@@ -74,7 +76,7 @@
         aspect_ratio: "16:9",
         conversation: null,
         model, // or 'gpt-3.5-turbo'
-        messages,
+        messages: isRegenerate ? regenerateMessages : messages,
         stream: true, // Enable streaming
         provider,
         id: messageId,

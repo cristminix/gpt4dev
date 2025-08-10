@@ -28,6 +28,11 @@
   import ChatMessagesWithGroup from "./chat/ChatMessagesWithGroup.svelte";
   import { getMessageGroups } from "@/global/store/conversation/getMessageGroups";
   import { deletChatMessageGroupMesage } from "@/global/store/conversation/deletChatMessageGroupMesage";
+  import type { GroupedChatMessagesInterface } from "./types";
+  import { createMessageId } from "./chat/chat-page/fn/createMessageId";
+  import { v1 } from "uuid";
+  import { createMessageGroup } from "@/global/store/conversation/createMessageGroup";
+  import { createChatMessage } from "@/global/store/conversation/createChatMessage";
   export let routeApp: RouteAppType;
   export let params: { id?: string } | null;
 
@@ -36,6 +41,7 @@
   const isProcessing = writable(false);
   const conversation = writable<ConversationInterface | null>(null);
   const chatMessages = writable<ChatMessageInterface[]>([]);
+  const regeneratePromptMessages = writable<ChatMessageInterface[]>([]);
   const promptMessages = writable<ChatMessageInterface[]>([]);
   const model = writable("");
   const provider = writable("");
@@ -44,6 +50,7 @@
   const messageGroupId = writable("");
   const messageGroupIds = writable<string[]>([]);
   const isRegenerate = writable(false);
+  const groupedChatMessages = writable<GroupedChatMessagesInterface>({});
 
   const messageTasks = writable<Record<string, MessageTask>>({});
   const chatConfig = writable({
@@ -63,6 +70,7 @@
   }
 
   function onSubmitPrompt(userMessageContent: string, systemMessage: string) {
+    isRegenerate.update(() => false);
     submitPrompt(
       userMessageContent,
       systemMessage,
@@ -99,34 +107,37 @@
       $messageGroupId,
       $messageGroupIds,
     });
-    processDone(
-      fullText,
-      id,
-      tempConversation,
-      conversation,
-      userPrompt,
-      model,
-      provider,
-      chatMessages,
-      isProcessing,
-      messageTasks,
-      params,
-      routeApp,
-      getMessageTask,
-      updateMessageTask,
-      shouldPerformTitleGeneration,
-      $conversation,
-      $userPrompt,
-      $model,
-      $provider,
-      $chatMessages,
-      $messageTasks,
-      messageGroupId,
-      $messageGroupId,
-      isRegenerate,
-      messageGroupIds,
-      $messageGroupIds
-    );
+    if (isRegenerate) {
+      processDoneRegenerate(fullText, id);
+    } else
+      processDone(
+        fullText,
+        id,
+        tempConversation,
+        conversation,
+        userPrompt,
+        model,
+        provider,
+        chatMessages,
+        isProcessing,
+        messageTasks,
+        params,
+        routeApp,
+        getMessageTask,
+        updateMessageTask,
+        shouldPerformTitleGeneration,
+        $conversation,
+        $userPrompt,
+        $model,
+        $provider,
+        $chatMessages,
+        $messageTasks,
+        messageGroupId,
+        $messageGroupId,
+        isRegenerate,
+        messageGroupIds,
+        $messageGroupIds
+      );
   }
   function createNewChat() {
     createNewChatExternal(conversation, chatMessages, jquery);
@@ -167,6 +178,149 @@
   }
   async function onRegenerateMessage(message: ChatMessageInterface) {
     console.log("regenerate message", { message });
+    let messageToResend: ChatMessageInterface = message;
+    // check if assistant message
+    if (message.role != "user") {
+      const [realMessage] = $chatMessages.filter(
+        (msg) => msg.id === message.parentId
+      );
+      messageToResend = realMessage;
+    }
+    if (messageToResend) {
+      console.log({ messageToResend });
+    }
+    let previousMessage = [];
+    for (const msg of $chatMessages.filter((msg) => msg.role !== "system")) {
+      previousMessage.push({ ...msg });
+    }
+    if ($messageGroupId.length > 0) {
+      previousMessage = [];
+      for (const msg of $groupedChatMessages[$messageGroupId]) {
+        previousMessage.push({ ...msg });
+      }
+    }
+
+    // console.log({ previousMessage });
+
+    // trim messages data
+    const msgIndex = previousMessage.findIndex(
+      (item) => item.id === messageToResend.id
+    );
+    if (msgIndex > -1) {
+      //@ts-ignore
+      const messagesInRange = [];
+      for (const msg of previousMessage.slice(0, msgIndex + 1)) {
+        messagesInRange.push({ ...msg });
+      }
+      const systemMessage = jquery("#chatPrompt").val();
+      let messagesToSendInConversation = [];
+      if (systemMessage.length > 0) {
+        messagesToSendInConversation.push({
+          role: "system",
+          content: systemMessage,
+          id: createMessageId(),
+          username: "system",
+        });
+      }
+      messagesToSendInConversation = [
+        ...messagesToSendInConversation,
+        ...messagesInRange,
+      ];
+      //@ts-ignore
+      regeneratePromptMessages.update(() => messagesToSendInConversation);
+
+      // create new message group
+      const newGroupId = v1();
+      // test append message with new groupId
+      const messagesToAppend = messagesInRange.map((msg) => {
+        const newMsg = msg;
+        msg.groupId = newGroupId;
+        return newMsg;
+      });
+
+      chatMessages.update((o) => {
+        const messages = [...o, ...messagesToAppend];
+        // console.log({ messages });
+        return messages;
+      });
+      messageGroupId.update(() => newGroupId);
+      console.log({
+        messagesInRange,
+        //   messagesToSendInConversation,
+        messagesToAppend,
+        //   chatMessages: $chatMessages,
+      });
+      // console.log("onSubmitPrompt", userMessageContent, messages);
+      // return
+      // const id = createMessageId()
+      // setTimeout(() => {
+      messageTasks.update(() => ({}));
+      messageId.update(() => messageToResend.id);
+      addMessageTask(messageToResend.id);
+
+      userPrompt.update(() => messageToResend.content);
+      const modelConfig = getModelConfig();
+      model.update(() => modelConfig.model);
+      provider.update(() => modelConfig.provider);
+      // @ts-ignore
+      regeneratePromptMessages.update(() => messagesToAppend);
+      console.log("submit prompt", messageToResend.content);
+      console.log(modelConfig);
+      isProcessing.update(() => false);
+      isRegenerate.update(() => true);
+      setTimeout(() => {
+        isProcessing.update(() => true);
+      }, 256);
+      // }, 1000);
+    }
+  }
+  async function processDoneRegenerate(fullText: string, id: string) {
+    console.log("processDoneRegenerate", fullText, id);
+    const task = getMessageTask(id);
+    if (task && $conversation) {
+      if (task.status === "onProcess") {
+        setTimeout(async () => {
+          const messageGroup = await createMessageGroup(
+            $messageGroupId,
+            //@ts-ignore
+            $conversation.id
+          );
+          console.log({ messageGroup });
+          const messages = $groupedChatMessages[$messageGroupId];
+          const userMessage: ChatMessageInterface =
+            messages[messages.length - 1];
+          const assistantMessage: ChatMessageInterface = {
+            role: "assistant",
+            content: fullText,
+            id: createMessageId(),
+            parentId: id,
+            groupId: $messageGroupId,
+            username: `${$model}:${$provider}`,
+          };
+          let chatMessagesData = [...$chatMessages] as any[];
+          for (const nMsg of messages) {
+            const uMsg = await createChatMessage(nMsg, $conversation.id);
+            console.log({ uMsg });
+          }
+
+          const aMsg = await createChatMessage(
+            assistantMessage,
+            $conversation.id
+          );
+          console.log({ aMsg });
+          chatMessagesData.push(assistantMessage);
+          chatMessages.update(() => chatMessagesData);
+          isProcessing.update(() => false);
+        }, 512);
+
+        updateMessageTask(id, true);
+      } else {
+        console.log("Message already saved", getMessageTask(id), $messageTasks);
+      }
+    } else {
+      console.log(`No message task correspond to ${id}`);
+    }
+    // isRegenerate.update(() => false);
   }
   function onChangeMessageGroupId(groupId: string) {
     messageGroupId.update(() => groupId);
@@ -178,6 +332,7 @@
   <ConversationWidget conversation={$conversation} {routeApp} />
   {#if $messageGroupIds.length > 0}
     <ChatMessagesWithGroup
+      {groupedChatMessages}
       conversation={$conversation}
       chatMessages={$chatMessages}
       messageGroupIds={$messageGroupIds}
@@ -201,6 +356,7 @@
       provider={$provider}
       conversation_id={$conversation ? $conversation.id : ""}
       messageId={$messageId}
+      regenerateMessages={$regeneratePromptMessages}
       isRegenerate={$isRegenerate}
     />
   {/if}

@@ -7,6 +7,7 @@
     isRegenerate: boolean
   ) => void;
   export let messages: ChatMessageInterface[];
+  export let regenerateMessages: ChatMessageInterface[];
   export let model: string;
   export let conversation_id: string;
   export let provider: string;
@@ -14,10 +15,11 @@
   export let isRegenerate: boolean;
 </script>
 
-<div class="mt-16 space-y-5">
+<div class="mt-6 space-y-5">
   <ChatStreaming
     {onProcessingDone}
     {messages}
+    {regenerateMessages}
     {model}
     {conversation_id}
     {provider}

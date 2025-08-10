@@ -6,6 +6,7 @@
   import UserChatMessage from "./chat-page/chat-messagess/UserChatMessage.svelte";
   import AssistantChatMessage from "./chat-page/chat-messagess/AssistantChatMessage.svelte";
   import { writable } from "svelte/store";
+  import type { GroupedChatMessagesInterface } from "../types";
 
   export let conversation: ConversationInterface | null = null;
   export let chatMessages: ChatMessageInterface[] = [];
@@ -14,10 +15,8 @@
   export let messageGroupId: string = "";
   export let onChangeGroupId;
   export let onRegenerateMessage;
-  interface GroupedChatMessagesInterface {
-    [key: string]: ChatMessageInterface[];
-  }
-  const groupedChatMessages = writable<GroupedChatMessagesInterface>({});
+
+  export let groupedChatMessages;
 
   // Fungsi untuk mengelompokkan pesan chat berdasarkan groupId
   function groupChatMessages(

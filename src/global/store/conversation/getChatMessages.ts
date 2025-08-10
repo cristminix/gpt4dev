@@ -16,13 +16,13 @@ export async function getChatMessages(conversationId: string) {
       chatMessages = responseMessage.data.map((item: any) => {
         // const { message, participant } = item
         const row = item
-        if (item.role === "assistant") {
-          const [model, label] = item.username.split(":")
-          row.provider = {
-            label,
-            model,
-          }
-        }
+        // if (item.role === "assistant") {
+        //   const [model, label] = item.username.split(":")
+        //   row.provider = {
+        //     label,
+        //     model,
+        //   }
+        // }
 
         return row
       })
