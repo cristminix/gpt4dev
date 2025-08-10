@@ -168,6 +168,9 @@
   async function onRegenerateMessage(message: ChatMessageInterface) {
     console.log("regenerate message", { message });
   }
+  function onChangeMessageGroupId(groupId: string) {
+    messageGroupId.update(() => groupId);
+  }
   $: if (params?.id) loadChat(params.id);
 </script>
 
@@ -179,6 +182,7 @@
       chatMessages={$chatMessages}
       messageGroupIds={$messageGroupIds}
       messageGroupId={$messageGroupId}
+      onChangeGroupId={onChangeMessageGroupId}
       {onDeleteMessage}
       {onRegenerateMessage}
     />

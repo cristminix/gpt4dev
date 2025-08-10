@@ -12,6 +12,7 @@
   export let onDeleteMessage: (id: string, groupId: string) => void;
   export let messageGroupIds: string[] = [];
   export let messageGroupId: string = "";
+  export let onChangeGroupId;
   export let onRegenerateMessage;
   interface GroupedChatMessagesInterface {
     [key: string]: ChatMessageInterface[];
@@ -64,7 +65,7 @@
   // Hapus pemanggilan autoScroll otomatis
 </script>
 
-<div class="">
+<div class="mt-3">
   <div class="relative">
     <!-- svelte-ignore a11y_no_noninteractive_element_to_interactive_role -->
     <nav
@@ -75,6 +76,9 @@
     >
       {#each Object.keys($groupedChatMessages) as groupId}
         <button
+          on:click={() => {
+            onChangeGroupId(groupId);
+          }}
           type="button"
           class={`hs-tab-active:bg-gray-200 hs-tab-active:text-gray-800 hs-tab-active:hover:text-gray-800 dark:hs-tab-active:bg-neutral-700 dark:hs-tab-active:text-white py-3 px-4 inline-flex items-center gap-x-2 bg-transparent text-sm font-medium text-center text-gray-500 rounded-lg hover:text-blue-600 focus:outline-hidden focus:text-blue-600 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-500 dark:hover:text-neutral-400 dark:focus:text-neutral-400 ${groupId == messageGroupId ? "active" : ""}`}
           aria-selected="true"

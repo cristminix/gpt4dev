@@ -39,7 +39,10 @@ export function submitPrompt(
   let isNewConversation = params?.id === "new"
   if (!isNewConversation) {
     previousMessages = $chatMessages.filter((msg) => msg.role !== "system")
-
+    if ($messageGroupId.length > 0) {
+      console.log("must filter previous messages")
+      previousMessages = previousMessages.filter(msg => msg.groupId === $messageGroupId)
+    }
     messages = [
       ...previousMessages.map((message) => ({
         role: message.role,
@@ -68,7 +71,10 @@ export function submitPrompt(
     let messageHistory = ""
     if (!isNewConversation) {
       previousMessages = $chatMessages.filter((msg) => msg.role !== "system")
-
+      if ($messageGroupId.length > 0) {
+        console.log("must filter previous messages")
+        previousMessages = previousMessages.filter(msg => msg.groupId === $messageGroupId)
+      }
       messageHistory = `[Chat History]`
       previousMessages.forEach((message) => {
         messageHistory += `\n${message.role}: ${message.content}`
@@ -85,6 +91,7 @@ export function submitPrompt(
     }
   }
   console.log("onSubmitPrompt", userMessageContent, messages)
+  // return
   userPrompt.update(() => userMessageContent)
   const modelConfig = getModelConfig()
   model.update(() => modelConfig.model)
