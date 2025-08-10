@@ -9,6 +9,7 @@ import { updateConversation } from "@/global/store/conversation/updateConversati
 import { v1 } from "uuid"
 import { createProviderUsername } from "@/global/store/conversation/createProviderUsername"
 import { createChatMessage } from "@/global/store/conversation/createChatMessage"
+import { createMessageGroup } from "@/global/store/conversation/createMessageGroup"
 
 export async function processDone(
   fullText: string,
@@ -31,7 +32,12 @@ export async function processDone(
   $model: string,
   $provider: string,
   $chatMessages: ChatMessageInterface[],
-  $messageTasks: Record<string, any>
+  $messageTasks: Record<string, any>,
+  messageGroupId: Writable<string>,
+  $messageGroupId: string,
+  isRegenerate: boolean,
+  messageGroupIds: Writable<string[]>,
+  $messageGroupIds: string[]
 ) {
   const task = getMessageTask(id)
   if (task) {
@@ -61,7 +67,40 @@ export async function processDone(
           newConversation.title = title
           chatMessagesData = chatMessagesData.slice(1)
         }
-        let groupId = v1()
+
+
+        console.log("saving to storage")
+        // add system message to conversation
+        // add option enable or disable system message to conversation
+        // create conversation
+        // create user message
+        // create assistant message
+        // GET LAST MESSAGE GROUPID
+        let groupId = $messageGroupId
+
+        if (params?.id === "new") {
+          await createConversation(newConversation)
+          // create message group with conversation id
+          // got groupId
+          groupId = v1()
+          const messageGroup = await createMessageGroup(groupId, newConversation.id)
+          console.log({ messageGroup })
+          // {groupId} = messageGroupId
+          messageGroupId.update(() => groupId)
+
+          const newMessagesGroupIds = [...$messageGroupIds, groupId]
+          messageGroupIds.update(() => newMessagesGroupIds)
+          if (routeApp) {
+            routeApp.navigate(`/chat/${newConversation.id}`)
+          }
+        } else {
+          // const [c, m] = await updateConversation(
+          //   newConversation,
+          //   chatMessagesData
+          // )
+          chatMessages.update(() => chatMessagesData)
+          console.log("conversation id is not new")
+        }
         const userMessage: ChatMessageInterface = {
           role: "user",
           content: $userPrompt,
@@ -76,32 +115,10 @@ export async function processDone(
           id: createMessageId(),
           parentId: id,
           groupId,
-          username: `${$provider}:${$model}`,
+          username: `${$model}:${$provider}`,
         }
         chatMessagesData.push(userMessage)
         chatMessagesData.push(assistantMessage)
-
-        console.log("saving to storage")
-        // add system message to conversation
-        // add option enable or disable system message to conversation
-        // create conversation
-        // create user message
-        // create assistant message
-
-        if (params?.id === "new") {
-          await createConversation(newConversation)
-
-          if (routeApp) {
-            routeApp.navigate(`/chat/${newConversation.id}`)
-          }
-        } else {
-          // const [c, m] = await updateConversation(
-          //   newConversation,
-          //   chatMessagesData
-          // )
-          chatMessages.update(() => chatMessagesData)
-          console.log("conversation id is not new")
-        }
         await createChatMessage(userMessage, newConversation.id)
         await createChatMessage(assistantMessage, newConversation.id)
         isProcessing.update(() => false)

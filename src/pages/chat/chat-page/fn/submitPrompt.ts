@@ -17,7 +17,9 @@ export function submitPrompt(
   params: { id?: string } | null,
   addMessageTask: (id: string) => void,
   getModelConfig: () => any,
-  $chatMessages: ChatMessageInterface[]
+  $chatMessages: ChatMessageInterface[],
+  messageGroupId: Writable<string>,
+  $messageGroupId: string
 ) {
   const { attachChatHistoryToUserPrompt } = chatConfig
 

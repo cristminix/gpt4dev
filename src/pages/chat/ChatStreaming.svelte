@@ -1,22 +1,28 @@
 <script lang="ts">
-  import UserMessage from "./UserMessage.svelte"
-  import AssistantMessage from "./AssistantMessage.svelte"
-  import { onMount } from "svelte"
-  import { autoScroll } from "./chat-page/fn/autoScroll"
-  import type { ChatMessageInterface } from "./chat-page/types"
-  export let onProcessingDone: (text: string, id: string) => void
-  export let messages: ChatMessageInterface[] = []
-  export let model: string = "gpt-4:blackbox"
-  export let conversation_id: string
-  export let provider: string
-  export let messageId: string
+  import UserMessage from "./UserMessage.svelte";
+  import AssistantMessage from "./AssistantMessage.svelte";
+  import { onMount } from "svelte";
+  import { autoScroll } from "./chat-page/fn/autoScroll";
+  import type { ChatMessageInterface } from "./chat-page/types";
 
-  let chatContainer
-  let filteredMessages = messages.filter((m) => m.role !== "system")
+  export let onProcessingDone: (
+    text: string,
+    id: string,
+    isRegenerate: boolean
+  ) => void;
+  export let messages: ChatMessageInterface[] = [];
+  export let model: string = "gpt-4:blackbox";
+  export let conversation_id: string;
+  export let provider: string;
+  export let messageId: string;
+  export let isRegenerate: boolean;
+
+  let chatContainer;
+  let filteredMessages = messages.filter((m) => m.role !== "system");
   onMount(() => {
-    chatContainer = document.querySelector("#chat-container")
-    autoScroll()
-  })
+    chatContainer = document.querySelector("#chat-container");
+    autoScroll();
+  });
 </script>
 
 <ul id="chat-container" class="mt-16 space-y-5 conversation-list">
@@ -32,6 +38,7 @@
       {conversation_id}
       {provider}
       {messageId}
+      {isRegenerate}
     />
   {/if}
 </ul>
