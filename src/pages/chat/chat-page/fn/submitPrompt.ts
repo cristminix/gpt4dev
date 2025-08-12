@@ -19,10 +19,12 @@ export function submitPrompt(
   getModelConfig: () => any,
   $chatMessages: ChatMessageInterface[],
   messageGroupId: Writable<string>,
-  $messageGroupId: string
+  $messageGroupId: string,
+  useLastMessageId: Writable<boolean>
 ) {
   const { attachChatHistoryToUserPrompt } = chatConfig
-  messageTasks.update(() => ({}));
+  messageTasks.update(() => ({}))
+  useLastMessageId.update(() => false)
 
   const id = createMessageId()
   messageId.update(() => id)
@@ -42,7 +44,9 @@ export function submitPrompt(
     previousMessages = $chatMessages.filter((msg) => msg.role !== "system")
     if ($messageGroupId.length > 0) {
       console.log("must filter previous messages")
-      previousMessages = previousMessages.filter(msg => msg.groupId === $messageGroupId)
+      previousMessages = previousMessages.filter(
+        (msg) => msg.groupId === $messageGroupId
+      )
     }
     messages = [
       ...previousMessages.map((message) => ({
@@ -74,7 +78,9 @@ export function submitPrompt(
       previousMessages = $chatMessages.filter((msg) => msg.role !== "system")
       if ($messageGroupId.length > 0) {
         console.log("must filter previous messages")
-        previousMessages = previousMessages.filter(msg => msg.groupId === $messageGroupId)
+        previousMessages = previousMessages.filter(
+          (msg) => msg.groupId === $messageGroupId
+        )
       }
       messageHistory = `[Chat History]`
       previousMessages.forEach((message) => {

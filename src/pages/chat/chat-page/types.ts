@@ -21,3 +21,8 @@ export interface ConversationInterface {
   systemMessage: string
   enableSystemMessage: boolean | number
 }
+export interface ReasoningResponse {
+  token?: string
+  status?: string
+  label?: string
+}

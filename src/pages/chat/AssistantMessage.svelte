@@ -1,69 +1,87 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import SvelteMarkdown from "svelte-markdown";
-  import { writable } from "svelte/store";
-  import CodeRendererStream from "./CodeRendererStream.svelte";
-  import { getProviderApiKey } from "@/global/store/auth/getProviderApiKey";
-  import type { ChatMessageInterface } from "./chat-page/types";
-  import { autoScroll } from "./chat-page/fn/autoScroll";
-  export let prompt: string = "hi";
-  export let model: string = "gpt-4:blackbox";
-  export let isStreaming = false;
+  import { onMount } from "svelte"
+  import SvelteMarkdown from "svelte-markdown"
+  import { writable } from "svelte/store"
+  import CodeRendererStream from "./CodeRendererStream.svelte"
+  import { getProviderApiKey } from "@/global/store/auth/getProviderApiKey"
+  import type { ChatMessageInterface } from "./chat-page/types"
+  import { autoScroll } from "./chat-page/fn/autoScroll"
+  import { completion } from "./chat-page/fn/completion"
+  export let prompt: string = "hi"
+  export let model: string = "gpt-4:blackbox"
+  export let isStreaming = false
   export let onProcessingDone: (
     text: string,
     id: string,
     isRegenerate: boolean
-  ) => void;
-  export let messages: ChatMessageInterface[] = [];
-  export let regenerateMessages: ChatMessageInterface[] = [];
+  ) => void
+  export let messages: ChatMessageInterface[] = []
+  export let regenerateMessages: ChatMessageInterface[] = []
 
-  export let conversation_id: string;
-  export let provider: string;
-  export let messageId: string;
-  export let isRegenerate: boolean;
+  export let conversation_id: string
+  export let provider: string
+  export let messageId: string
+  export let isRegenerate: boolean
 
-  let oldRequestDate: number = Date.now();
-  const finalContent = writable("");
-  let fullText = "";
+  let oldRequestDate: number = Date.now()
+  const finalContent = writable("")
+  let fullText = ""
 
   async function updateMessage(text: string): Promise<void> {
     setTimeout(() => {
-      finalContent.update(() => text);
-      autoScroll();
-    }, 256);
+      finalContent.update(() => text)
+      autoScroll()
+    }, 256)
   }
 
-  function finalizeMessage(): void {
+  function finalizeMessage(text: string): void {
     if (onProcessingDone) {
-      onProcessingDone(fullText, messageId, isRegenerate);
+      onProcessingDone(text, messageId, isRegenerate)
     }
-    oldRequestDate = Date.now();
+    oldRequestDate = Date.now()
   }
   interface ReasoningResponse {
-    token?: string;
-    status?: string;
-    label?: string;
+    token?: string
+    status?: string
+    label?: string
   }
 
   function getReasoningText(resp: ReasoningResponse): string {
-    if (resp.token) return resp.token;
-    if (resp.status) return resp.status;
-    if (resp.label) return resp.label;
-    return "";
+    if (resp.token) return resp.token
+    if (resp.status) return resp.status
+    if (resp.label) return resp.label
+    return ""
   }
 
   async function fetchOpenAIResponse(): Promise<void> {
-    const now = Date.now();
+    return await completion(
+      provider,
+      model,
+      isRegenerate ? regenerateMessages : messages,
+      messageId,
+      conversation_id,
+      finalizeMessage,
+      updateMessage,
+      //
+      (text: string) => {},
+      //
+      (text: string) => {},
+      //
+      (text: string) => {},
+      isRegenerate
+    )
+    /*
+    const now = Date.now()
     if (!oldRequestDate) {
-      oldRequestDate = now;
+      oldRequestDate = now
     }
-    const differenceInMilliseconds = now - oldRequestDate;
+    const differenceInMilliseconds = now - oldRequestDate
 
     await new Promise((resolve) =>
       setTimeout(resolve, 512 - differenceInMilliseconds)
-    );
-    const OPENAI_API_KEY = getProviderApiKey(provider);
-    fullText = "";
+    )
+    const OPENAI_API_KEY = getProviderApiKey(provider)
+    fullText = ""
     const response = await fetch("/api/backend-api/v2/conversation", {
       method: "POST",
       headers: {
@@ -83,68 +101,68 @@
         conversation_id,
         download_media: true,
       }),
-    });
+    })
     if (!response.ok) {
-      updateMessage("Error fetching response:" + response.statusText);
-      return;
+      updateMessage("Error fetching response:" + response.statusText)
+      return
     }
-    const reader = response.body?.getReader();
+    const reader = response.body?.getReader()
     if (!reader) {
-      updateMessage("Error: Unable to get response reader");
-      return;
+      updateMessage("Error: Unable to get response reader")
+      return
     }
-    let reasoningText = "";
+    let reasoningText = ""
     while (true) {
-      let buffer = "";
+      let buffer = ""
 
-      const { done, value } = await reader.read();
+      const { done, value } = await reader.read()
       if (done) {
-        finalizeMessage();
-        break;
+        finalizeMessage()
+        break
       }
 
-      buffer += new TextDecoder().decode(value);
+      buffer += new TextDecoder().decode(value)
 
       for (const line of buffer.split("\n")) {
         if (!line) {
-          continue;
+          continue
         }
-        let resp;
+        let resp
         try {
-          resp = JSON.parse(line);
+          resp = JSON.parse(line)
         } catch (error) {
           // Skip invalid JSON lines
-          continue;
+          continue
         }
         if (resp) {
           // console.log(resp)
 
           switch (resp.type) {
             case "log":
-              break;
+              break
             case "provider":
-              break;
+              break
             case "content":
-              fullText += resp.content;
+              fullText += resp.content
               // console.log(line)
-              updateMessage(fullText);
+              updateMessage(fullText)
 
-              break;
+              break
             case "finish":
-              const reason = resp.finish.reason;
-              finalizeMessage();
-              break;
+              const reason = resp.finish.reason
+              finalizeMessage()
+              break
 
             case "parameters":
-              break;
+              break
             case "error":
-              fullText = resp.message;
-              finalizeMessage();
-              break;
+              fullText = resp.message
+              finalizeMessage()
+              break
             case "preview":
-              updateMessage(resp.preview);
+              updateMessage(resp.preview)
 
-              break;
+              break
             case "conversation":
               try {
                 // const { message_history } = resp.conversation[provider]
@@ -153,27 +171,28 @@
                 // fullText = lastMessage
                 // finalizeMessage()
               } catch (error) {
-                console.error("Error accessing conversation data:", error);
+                console.error("Error accessing conversation data:", error)
               }
 
-              break;
+              break
             case "reasoning":
-              reasoningText += getReasoningText(resp);
-              updateMessage(reasoningText);
-              break;
+              reasoningText += getReasoningText(resp)
+              updateMessage(reasoningText)
+              break
           }
         } else {
-          alert("no response");
+          alert("no response")
         }
       }
     }
+      */
   }
-  onMount(() => {});
+  onMount(() => {})
   $: {
     if (isStreaming) {
-      fetchOpenAIResponse();
+      fetchOpenAIResponse()
     } else {
-      finalizeMessage();
+      finalizeMessage("")
     }
   }
 </script>

@@ -43,6 +43,12 @@ export async function processDone(
   if (task) {
     if (task.status === "onProcess") {
       setTimeout(async () => {
+        if (fullText.length === 0) {
+          isProcessing.update(() => false)
+          updateMessageTask(id, true)
+          alert("text is empty")
+          return
+        }
         tempConversation.update((o) => o.concat(fullText))
         const newConversation = { ...$conversation } as ConversationInterface
         let title = $userPrompt
@@ -68,7 +74,6 @@ export async function processDone(
           chatMessagesData = chatMessagesData.slice(1)
         }
 
-
         console.log("saving to storage")
         // add system message to conversation
         // add option enable or disable system message to conversation
@@ -83,14 +88,16 @@ export async function processDone(
           // create message group with conversation id
           // got groupId
           groupId = v1()
-          const messageGroup = await createMessageGroup(groupId, newConversation.id)
+          const messageGroup = await createMessageGroup(
+            groupId,
+            newConversation.id
+          )
           console.log({ messageGroup })
           // {groupId} = messageGroupId
           messageGroupId.update(() => groupId)
 
           const newMessagesGroupIds = [...$messageGroupIds, groupId]
           messageGroupIds.update(() => newMessagesGroupIds)
-
         }
         const userMessage: ChatMessageInterface = {
           role: "user",
@@ -111,9 +118,11 @@ export async function processDone(
         chatMessagesData.push(userMessage)
         chatMessagesData.push(assistantMessage)
 
-
         const uMsg = await createChatMessage(userMessage, newConversation.id)
-        const aMsg = await createChatMessage(assistantMessage, newConversation.id)
+        const aMsg = await createChatMessage(
+          assistantMessage,
+          newConversation.id
+        )
         console.log({ uMsg, aMsg })
         if (params?.id !== "new") {
           chatMessages.update(() => chatMessagesData)
