@@ -34,9 +34,10 @@
   import { createMessageGroup } from "@/global/store/conversation/createMessageGroup"
   import { createChatMessage } from "@/global/store/conversation/createChatMessage"
   import { updateChatMessage } from "@/global/store/conversation/updateChatMessage"
+  import Toasts from "@/components/Toasts.svelte"
   export let routeApp: RouteAppType
   export let params: { id?: string } | null
-
+  export let toasts: Toasts
   let modelImageGens = ["flux", "flux-dev", "sd-3.5-large"]
   const tempConversation = writable<any>([])
   const isProcessing = writable(false)
@@ -105,14 +106,15 @@
   function onProcessingDone(
     fullText: string,
     id: string,
-    isRegenerate: boolean
+    isRegenerate: boolean,
+    errorMessage: string
   ) {
     console.log({
       $messageGroupId,
       $messageGroupIds,
     })
     if (isRegenerate) {
-      processDoneRegenerate(fullText, id)
+      processDoneRegenerate(fullText, id, errorMessage)
     } else
       processDone(
         fullText,
@@ -140,7 +142,9 @@
         $messageGroupId,
         isRegenerate,
         messageGroupIds,
-        $messageGroupIds
+        $messageGroupIds,
+        toasts,
+        errorMessage
       )
   }
   function createNewChat() {
@@ -168,6 +172,7 @@
           messageGroupId.update(() => messageGroupIdsSet[0])
         }
       }
+      toasts.doToast("success", "Loaded")
     }
   }
   async function onDeleteMessage(id: string, groupId: string) {
@@ -302,7 +307,11 @@
       // }, 1000);
     }
   }
-  async function processDoneRegenerate(fullText: string, id: string) {
+  async function processDoneRegenerate(
+    fullText: string,
+    id: string,
+    errorMessage: string
+  ) {
     console.log("processDoneRegenerate", fullText, id)
     const task = getMessageTask(id)
 
@@ -312,7 +321,10 @@
           if (fullText.length === 0) {
             isProcessing.update(() => false)
             updateMessageTask(id, true)
-            alert("text is empty")
+            toasts.doToast(
+              "error",
+              errorMessage.length > 0 ? errorMessage : "text is empty"
+            )
             return
           }
           if (!$useLastMessageId) {

@@ -28,6 +28,9 @@ export async function completion(
   const llmCompletion = new LLMCompletion()
   llmCompletion.onFinalizeMessageCallback = onFinalizeTextCallback
   llmCompletion.onUpdateMessageCallback = onUpdateMessageCallback
+  llmCompletion.onReasoningCallback = onReasoningCallback
+  llmCompletion.onErroCallback = onErrorCallback
+  llmCompletion.onPreviewCallback = onPreviewCallback
   return await llmCompletion.completion(
     provider,
     model,

@@ -9,12 +9,15 @@
   import Sidebar from "./components/Sidebar.svelte"
   import Content from "./components/Content.svelte"
   import { onMount } from "svelte"
+  import type { RouteApp } from "./components/RouteApp.types"
+  import type Toasts from "./components/Toasts.svelte"
 
   // console.log("Parent component rendered")
   onMount(() => {})
 
   export let config: any = null
-  export let routeApp: any
+  export let routeApp: RouteApp
+  export let toasts: Toasts
 </script>
 
 <HEADER />

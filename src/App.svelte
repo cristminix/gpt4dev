@@ -9,20 +9,22 @@
   import NotFound from "./components/NotFound.svelte"
   import Contact from "./components/Contact.svelte"
   import RoutesApp from "./components/RoutesApp.svelte"
+  import type { RouteApp as RouteAppType } from "./components/RouteApp.types"
   import Template from "./Template.svelte"
   // import CoursePage from "./pages/course/CoursePage.svelte"
   // import CourseDisplayPage from "./pages/course/CourseDisplayPage.svelte"
   // import AddCoursePage from "./pages/course/AddCoursePage.svelte"
   import { onMount, type SvelteComponent } from "svelte"
   import ChatPage from "./pages/ChatPage.svelte"
+  import Toasts from "./components/Toasts.svelte"
   // import FileManagerPage from "./pages/FileManagerPage.svelte"
   // import DBExplorer from "./pages/db-explorer/DBExplorer.svelte"
   // import DBTableManager from "./pages/db-explorer/DBTableManager.svelte"
 
-  let routeApp: RoutesApp
+  let routeApp: RoutesApp | RouteAppType
   let queryString = writable<string | null>(null)
   let routeParams = writable<any>(null)
-
+  let toasts: Toasts
   interface RoutingMap {
     [key: string]: any
   }
@@ -93,14 +95,15 @@
   <Link {routeApp} to="/contact" isActive={page === Contact}>Contact Us</Link>
 </nav> -->
 
-<Template {routeApp} store={null}>
+<Template {routeApp} {toasts}>
   <RoutesApp bind:this={routeApp} {onRouteChange} />
+  <Toasts bind:this={toasts} />
   <svelte:component
     this={page}
     queryString={$queryString}
     params={$routeParams}
-    store={null}
     {routeApp}
     sourceParam={routeParams}
+    {toasts}
   />
 </Template>

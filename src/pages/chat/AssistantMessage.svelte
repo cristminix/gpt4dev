@@ -10,10 +10,12 @@
   export let prompt: string = "hi"
   export let model: string = "gpt-4:blackbox"
   export let isStreaming = false
+
   export let onProcessingDone: (
     text: string,
     id: string,
-    isRegenerate: boolean
+    isRegenerate: boolean,
+    errorMessage: string
   ) => void
   export let messages: ChatMessageInterface[] = []
   export let regenerateMessages: ChatMessageInterface[] = []
@@ -23,10 +25,7 @@
   export let messageId: string
   export let isRegenerate: boolean
 
-  let oldRequestDate: number = Date.now()
   const finalContent = writable("")
-  let fullText = ""
-
   async function updateMessage(text: string): Promise<void> {
     setTimeout(() => {
       finalContent.update(() => text)
@@ -34,23 +33,10 @@
     }, 256)
   }
 
-  function finalizeMessage(text: string): void {
+  function finalizeMessage(text: string, errorMessage = ""): void {
     if (onProcessingDone) {
-      onProcessingDone(text, messageId, isRegenerate)
+      onProcessingDone(text, messageId, isRegenerate, errorMessage)
     }
-    oldRequestDate = Date.now()
-  }
-  interface ReasoningResponse {
-    token?: string
-    status?: string
-    label?: string
-  }
-
-  function getReasoningText(resp: ReasoningResponse): string {
-    if (resp.token) return resp.token
-    if (resp.status) return resp.status
-    if (resp.label) return resp.label
-    return ""
   }
 
   async function fetchOpenAIResponse(): Promise<void> {
@@ -62,12 +48,14 @@
       conversation_id,
       finalizeMessage,
       updateMessage,
-      //
+      //reasoning callback
       (text: string) => {},
-      //
+      //preview callback
       (text: string) => {},
-      //
-      (text: string) => {},
+      //error callback
+      (text: string) => {
+        finalizeMessage("", text)
+      },
       isRegenerate
     )
     /*

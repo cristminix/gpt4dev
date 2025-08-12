@@ -10,6 +10,7 @@ import { v1 } from "uuid"
 import { createProviderUsername } from "@/global/store/conversation/createProviderUsername"
 import { createChatMessage } from "@/global/store/conversation/createChatMessage"
 import { createMessageGroup } from "@/global/store/conversation/createMessageGroup"
+import type Toasts from "@/components/Toasts.svelte"
 
 export async function processDone(
   fullText: string,
@@ -37,7 +38,9 @@ export async function processDone(
   $messageGroupId: string,
   isRegenerate: boolean,
   messageGroupIds: Writable<string[]>,
-  $messageGroupIds: string[]
+  $messageGroupIds: string[],
+  toasts: Toasts,
+  errorMessage: string
 ) {
   const task = getMessageTask(id)
   if (task) {
@@ -46,7 +49,11 @@ export async function processDone(
         if (fullText.length === 0) {
           isProcessing.update(() => false)
           updateMessageTask(id, true)
-          alert("text is empty")
+          toasts.doToast(
+            "error",
+            errorMessage.length > 0 ? errorMessage : "text is empty"
+          )
+
           return
         }
         tempConversation.update((o) => o.concat(fullText))

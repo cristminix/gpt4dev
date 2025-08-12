@@ -7,7 +7,6 @@
   import type { ConversationInterface } from "@/pages/chat/chat-page/types"
   export let routeApp: any
   const conversations = writable<ConversationInterface[]>([])
-  export let loadChatCallback: any
   let lastRoutePath = ""
   const HSAccordion = window.HSAccordion
 

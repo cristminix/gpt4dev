@@ -1,18 +1,19 @@
 <script lang="ts">
-  import type { ChatMessageInterface } from "./chat-page/types";
-  import ChatStreaming from "./ChatStreaming.svelte";
+  import type { ChatMessageInterface } from "./chat-page/types"
+  import ChatStreaming from "./ChatStreaming.svelte"
   export let onProcessingDone: (
     text: string,
     id: string,
-    isRegenerate: boolean
-  ) => void;
-  export let messages: ChatMessageInterface[];
-  export let regenerateMessages: ChatMessageInterface[];
-  export let model: string;
-  export let conversation_id: string;
-  export let provider: string;
-  export let messageId: string;
-  export let isRegenerate: boolean;
+    isRegenerate: boolean,
+    errorMessage: string
+  ) => void
+  export let messages: ChatMessageInterface[]
+  export let regenerateMessages: ChatMessageInterface[]
+  export let model: string
+  export let conversation_id: string
+  export let provider: string
+  export let messageId: string
+  export let isRegenerate: boolean
 </script>
 
 <div class="mt-6 space-y-5">

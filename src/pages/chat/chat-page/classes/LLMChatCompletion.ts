@@ -11,7 +11,10 @@ export class LLMCompletion {
   onFinalizeMessageCallback: (text: string) => void = (text: string) => {}
   onUpdateMessageCallback: (text: string) => void = (text: string) => {}
   onReasoningCallback: (text: string) => void = (text: string) => {}
-  onErroCallback: (text: string) => void = (text: string) => {}
+  onPreviewCallback: (text: string) => void = (text: string) => {}
+  onErroCallback: (text: string) => void = (text: string) => {
+    console.error(text)
+  }
   updateMessage(text: string) {
     // do update
     this.onUpdateMessageCallback(text)
@@ -130,10 +133,10 @@ export class LLMCompletion {
               break
             case "error":
               this.errorText = resp.message
-              this.finalizeMessage(true)
+              this.onErroCallback(this.errorText)
               break
             case "preview":
-              this.updateMessage(resp.preview)
+              this.onPreviewCallback(resp.preview)
 
               break
             case "conversation":
