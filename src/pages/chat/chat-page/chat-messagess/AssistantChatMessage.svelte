@@ -39,6 +39,9 @@
           (item) => item === messageGroupId
         )
         groupIndex = currentGroupIndex - 1
+        if (groupIndex < 0) {
+          return
+        }
         groupPageNumber = groupIndex + 1
 
         const prevGroupId = foundGroupId[groupIndex]
@@ -69,6 +72,9 @@
           (item) => item === messageGroupId
         )
         groupIndex = currentGroupIndex + 1
+        if (groupIndex >= foundGroupId.length) {
+          return
+        }
         const nextGroupId = foundGroupId[groupIndex]
         console.log({ nextGroupId })
         onChangeGroupId(nextGroupId)
@@ -122,56 +128,60 @@
     <div>
       <div class="sm:flex sm:justify-between">
         <div class="py-2 px-3 inline-flex items-center gap-x-2">
-          <div class="pager">
-            <button
-              on:click={navigatePreviousAnswer}
-              aria-label="Previous message"
-              class="self-center p-1 hover:bg-black/5 dark:hover:bg-white/5 dark:hover:text-white hover:text-black rounded-md transition"
-              ><svg
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2.5"
-                class="size-3.5"
-                ><path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M15.75 19.5 8.25 12l7.5-7.5"
-                ></path></svg
-              ></button
-            >
-            {#if userMessage}
-              <ul class="hidden">
-                {#each foundGroupId as groupId}
-                  <li class={groupId === messageGroupId ? "text-red-300" : ""}>
-                    {groupId}
-                  </li>
-                {/each}
-              </ul>
-              {groupPageNumber}/{foundGroupId.length}
-            {/if}
-            <button
-              on:click={navigateNextAnswer}
-              class="self-center p-1 hover:bg-black/5 dark:hover:bg-white/5 dark:hover:text-white hover:text-black rounded-md transition"
-              aria-label="Next message"
-              ><svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                aria-hidden="true"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2.5"
-                class="size-3.5"
-                ><path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="m8.25 4.5 7.5 7.5-7.5 7.5"
-                ></path></svg
-              ></button
-            >
-          </div>
+          {#if foundGroupId.length > 1}
+            <div class="pager">
+              <button
+                on:click={navigatePreviousAnswer}
+                aria-label="Previous message"
+                class="self-center p-1 hover:bg-black/5 dark:hover:bg-white/5 dark:hover:text-white hover:text-black rounded-md transition"
+                ><svg
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  class="size-3.5"
+                  ><path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M15.75 19.5 8.25 12l7.5-7.5"
+                  ></path></svg
+                ></button
+              >
+              {#if userMessage}
+                <ul class="hidden">
+                  {#each foundGroupId as groupId}
+                    <li
+                      class={groupId === messageGroupId ? "text-red-300" : ""}
+                    >
+                      {groupId}
+                    </li>
+                  {/each}
+                </ul>
+                {groupPageNumber}/{foundGroupId.length}
+              {/if}
+              <button
+                on:click={navigateNextAnswer}
+                class="self-center p-1 hover:bg-black/5 dark:hover:bg-white/5 dark:hover:text-white hover:text-black rounded-md transition"
+                aria-label="Next message"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  class="size-3.5"
+                  ><path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="m8.25 4.5 7.5 7.5-7.5 7.5"
+                  ></path></svg
+                ></button
+              >
+            </div>
+          {/if}
           <button
             type="button"
             class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
