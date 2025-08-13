@@ -91,15 +91,15 @@
     onDeleteMessage(messageId, groupId)
   }
   function autoScroll() {
-    setTimeout(() => {
-      const element = document.querySelector(".template-content")
-      if (element) {
-        window.scrollTo({
-          top: element.scrollHeight + 200,
-          behavior: "smooth", // Optional: smooth scrolling
-        })
-      }
-    }, 1000)
+    // setTimeout(() => {
+    //   const element = document.querySelector(".template-content")
+    //   if (element) {
+    //     window.scrollTo({
+    //       top: element.scrollHeight + 200,
+    //       behavior: "smooth", // Optional: smooth scrolling
+    //     })
+    //   }
+    // }, 1000)
   }
   // Hapus pemanggilan autoScroll otomatis
 </script>
@@ -108,7 +108,7 @@
   <div class="relative">
     <!-- svelte-ignore a11y_no_noninteractive_element_to_interactive_role -->
     <nav
-      class="flex gap-x-1 max-w-6xl py-2 px-4 mx-auto"
+      class="flex gap-x-1 max-w-6xl py-2 px-4 mx-auto hidden"
       aria-label="Tabs"
       role="tablist"
       aria-orientation="horizontal"
