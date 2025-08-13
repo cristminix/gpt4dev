@@ -51,11 +51,12 @@
   function findGroupIdByMessageId(messageId: string) {
     let foundGroupIds: string[] = []
     for (const groupId of messageGroupIds) {
-      for (const message of groupedChatMessages[groupId]) {
-        if (message.parentId === messageId) {
-          if (!foundGroupIds.includes(groupId)) foundGroupIds.push(groupId)
+      if (Array.isArray(groupedChatMessages[groupId]))
+        for (const message of groupedChatMessages[groupId]) {
+          if (message.parentId === messageId) {
+            if (!foundGroupIds.includes(groupId)) foundGroupIds.push(groupId)
+          }
         }
-      }
     }
     return foundGroupIds
   }
