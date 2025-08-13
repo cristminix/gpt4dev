@@ -10,7 +10,9 @@ export class LLMCompletion {
   apiKey: string = ""
   onFinalizeMessageCallback: (text: string) => void = (text: string) => {}
   onUpdateMessageCallback: (text: string) => void = (text: string) => {}
-  onReasoningCallback: (text: string) => void = (text: string) => {}
+  onReasoningCallback: (text: string, token: string) => void = (
+    text: string
+  ) => {}
   onPreviewCallback: (text: string) => void = (text: string) => {}
   onErroCallback: (text: string) => void = (text: string) => {
     console.error(text)
@@ -58,6 +60,7 @@ export class LLMCompletion {
     )
     // const OPENAI_API_KEY = getProviderApiKey(provider)
     this.fullText = ""
+    this.reasoningText = ""
     const response = await fetch(this.apiUrl, {
       method: "POST",
       headers: {
@@ -111,7 +114,7 @@ export class LLMCompletion {
           continue
         }
         if (resp) {
-          console.log(resp)
+          // console.log(resp)
 
           switch (resp.type) {
             case "log":
@@ -152,8 +155,9 @@ export class LLMCompletion {
 
               break
             case "reasoning":
-              this.reasoningText += this.getReasoningText(resp)
-              this.updateMessage(reasoningText)
+              const token = this.getReasoningText(resp)
+              this.reasoningText += token
+              this.onReasoningCallback(this.reasoningText, token)
               break
           }
         } else {

@@ -49,9 +49,14 @@
       finalizeMessage,
       updateMessage,
       //reasoning callback
-      (text: string) => {},
+      (fullText: string, token: string) => {
+        console.log(`Reasoning callback ${fullText} ${token}`)
+        updateMessage(fullText)
+      },
       //preview callback
-      (text: string) => {},
+      (text: string) => {
+        updateMessage(text)
+      },
       //error callback
       (text: string) => {
         finalizeMessage("", text)

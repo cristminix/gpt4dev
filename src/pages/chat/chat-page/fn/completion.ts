@@ -10,7 +10,7 @@ export async function completion(
   conversationId: string,
   onFinalizeTextCallback: (text: string) => void,
   onUpdateMessageCallback: (text: string) => void,
-  onReasoningCallback: (text: string) => void,
+  onReasoningCallback: (text: string, token: string) => void,
   onPreviewCallback: (text: string) => void,
   onErrorCallback: (text: string) => void,
   isRegenerate: boolean

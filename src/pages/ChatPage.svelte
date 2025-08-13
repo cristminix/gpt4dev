@@ -325,6 +325,8 @@
               "error",
               errorMessage.length > 0 ? errorMessage : "text is empty"
             )
+            jquery("#userInput").val($userPrompt)
+
             return
           }
           if (!$useLastMessageId) {

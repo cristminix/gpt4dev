@@ -11,7 +11,7 @@ import { createProviderUsername } from "@/global/store/conversation/createProvid
 import { createChatMessage } from "@/global/store/conversation/createChatMessage"
 import { createMessageGroup } from "@/global/store/conversation/createMessageGroup"
 import type Toasts from "@/components/Toasts.svelte"
-
+import jquery from "jquery"
 export async function processDone(
   fullText: string,
   id: string,
@@ -53,7 +53,7 @@ export async function processDone(
             "error",
             errorMessage.length > 0 ? errorMessage : "text is empty"
           )
-
+          jquery("#userInput").val($userPrompt)
           return
         }
         tempConversation.update((o) => o.concat(fullText))

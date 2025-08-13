@@ -11,6 +11,7 @@ export interface ChatMessageInterface {
   groupId: string
   folderId?: string
   collapsed?: boolean | number
+  replyCount?: number
 }
 
 export interface ConversationInterface {

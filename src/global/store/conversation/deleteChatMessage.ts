@@ -22,6 +22,6 @@ export async function deleteChatMessage(conversationId: string, id: string) {
     return responseMessage.success
   } catch (error) {
     console.error("Error deleting chat message:", error)
-    throw error // Melempar error kembali agar dapat ditangani oleh pemanggil fungsi
+    // throw error // Melempar error kembali agar dapat ditangani oleh pemanggil fungsi
   }
 }

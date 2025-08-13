@@ -32,7 +32,7 @@
     @apply px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500
   }
   .inner-content table > tbody > tr > td{
-    @apply px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-400 text-left
+    @apply px-6 py-4  text-sm font-medium text-gray-800 dark:text-neutral-400 text-left
   }
   .inner-content table > tbody {
     @apply divide-y divide-gray-200 dark:divide-neutral-700
@@ -64,3 +64,59 @@
   line-height: .5m;
 }
 
+ :where(hr):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
+    border-color: var(--tw-prose-hr);
+    border-top-width: 1;
+    margin-top: .25em !important;
+    margin-bottom: .25em !important;
+    display: none;
+  }
+  .conversation-list .conversation-item .inner-content {
+    :where(img):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
+        margin-top: 2em;
+        margin-bottom: 2em;
+        @apply w-full;
+    }
+}
+
+.conversation-list .conversation-item .inner-content {
+    :where(thead th):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
+        padding: 1em;
+        vertical-align: middle !important;
+    }
+}
+
+.conversation-list .conversation-item .inner-content {
+    :where(tbody td:first-child, tfoot td:first-child):not(:where([class~="not-prose"],[class~="not-prose"] *))
+ {
+        padding-inline-start: 1em;
+    }
+}
+
+.conversation-list .conversation-item .inner-content {
+    :where(p):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
+        margin-top: 0em;
+        margin-bottom: 0em;
+    }
+}
+
+.conversation-list .conversation-item .inner-content {
+    :where(li):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
+        margin-top: 0em; 
+        margin-bottom: 0em;
+    }
+}
+
+.conversation-list .conversation-item .inner-content {
+    :where(ul ul, ul ol, ol ul, ol ol):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
+        margin-top: 0em;
+        margin-bottom: 0em;
+    }
+}
+.conversation-list .conversation-item .inner-content {
+    :where(h3):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
+      
+        margin-top: 0em;
+        margin-bottom: 0em;
+    }
+}

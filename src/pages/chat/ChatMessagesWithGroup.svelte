@@ -5,19 +5,27 @@
   } from "./chat-page/types"
   import UserChatMessage from "./chat-page/chat-messagess/UserChatMessage.svelte"
   import AssistantChatMessage from "./chat-page/chat-messagess/AssistantChatMessage.svelte"
-  import { writable } from "svelte/store"
+  import { writable, type Writable } from "svelte/store"
   import type { GroupedChatMessagesInterface } from "../types"
+  import {
+    messageId,
+    messageParentId,
+    previousMessage,
+  } from "../../global/store/conversation/messageStore"
 
   export let conversation: ConversationInterface | null = null
   export let chatMessages: ChatMessageInterface[] = []
   export let onDeleteMessage: (id: string, groupId: string) => void
   export let messageGroupIds: string[] = []
   export let messageGroupId: string = ""
-  export let onChangeGroupId
+  export let onChangeGroupId: (groupId: string) => void
   export let onRegenerateMessage
 
   export let groupedChatMessages
 
+  // Objek untuk menyimpan referensi komponen asisten dengan key berupa message.id
+  // Ini memungkinkan akses langsung ke komponen berdasarkan ID pesan
+  let assistantMessages: Record<string, any> = {}
   // Fungsi untuk mengelompokkan pesan chat berdasarkan groupId
   function groupChatMessages(
     messages: ChatMessageInterface[]
@@ -34,7 +42,39 @@
     console.log({ grouped })
     return grouped
   }
+  function onClickChangeGroupId(groupId: string) {
+    onChangeGroupId(groupId)
+    // Contoh akses ke referensi komponen berdasarkan message ID
+    Object.keys(assistantMessages).map((messageId) => {
+      const componentRef = assistantMessages[messageId]
+      if (componentRef) {
+        componentRef.updateAnswerInfo(groupId)
+        // console.log(
+        //   `Component reference for message ${messageId}:`,
+        //   componentRef
+        // )
+        // Anda dapat memanggil metode pada komponen jika tersedia
+        // componentRef.someMethod()
+      }
+    })
+  }
 
+  // Fungsi untuk mendapatkan referensi komponen berdasarkan message ID
+  function getAssistantComponent(messageId: string): any {
+    return assistantMessages[messageId]
+  }
+
+  // Fungsi untuk memanggil metode pada komponen asisten berdasarkan message ID
+  function callAssistantMethod(
+    messageId: string,
+    methodName: string,
+    ...args: any[]
+  ) {
+    const component = assistantMessages[messageId]
+    if (component && typeof component[methodName] === "function") {
+      return component[methodName](...args)
+    }
+  }
   // Memperbarui groupedChatMessages ketika chatMessages berubah
   $: {
     groupedChatMessages.set(groupChatMessages(chatMessages))
@@ -73,10 +113,10 @@
       role="tablist"
       aria-orientation="horizontal"
     >
-      {#each Object.keys($groupedChatMessages) as groupId, index}
+      {#each messageGroupIds as groupId, index}
         <button
           on:click={() => {
-            onChangeGroupId(groupId)
+            onClickChangeGroupId(groupId)
           }}
           type="button"
           class={`hs-tab-active:bg-gray-200 hs-tab-active:text-gray-800 hs-tab-active:hover:text-gray-800 dark:hs-tab-active:bg-neutral-700 dark:hs-tab-active:text-white py-3 px-4 inline-flex items-center gap-x-2 bg-transparent text-sm font-medium text-center text-gray-500 rounded-lg hover:text-blue-600 focus:outline-hidden focus:text-blue-600 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-500 dark:hover:text-neutral-400 dark:focus:text-neutral-400 ${groupId == messageGroupId ? "active" : ""}`}
@@ -101,11 +141,24 @@
           <ul class="mt-6 space-y-5 conversation-list">
             <!-- Chat Bubble -->
             {#if $groupedChatMessages[groupId]}
-              {#each $groupedChatMessages[groupId] as message}
+              {#each $groupedChatMessages[groupId] as message, index}
+                <!-- store message.id -->
+                <!-- store message.parentId -->
+                <!-- store previouseMessage=message -->
+
                 {#if message.role === "user"}
                   <UserChatMessage {deleteMessage} {message} />
                 {:else}
                   <AssistantChatMessage
+                    bind:this={assistantMessages[message.id]}
+                    groupedChatMessages={$groupedChatMessages}
+                    {messageGroupId}
+                    {onChangeGroupId}
+                    {messageGroupIds}
+                    userMessage={message.parentId ===
+                    $groupedChatMessages[groupId][index - 1]?.id
+                      ? $groupedChatMessages[groupId][index - 1]
+                      : null}
                     {deleteMessage}
                     {message}
                     regenerateMessage={onRegenerateMessage}
