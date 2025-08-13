@@ -108,7 +108,7 @@
   <div class="relative">
     <!-- svelte-ignore a11y_no_noninteractive_element_to_interactive_role -->
     <nav
-      class="flex gap-x-1 max-w-6xl py-2 px-4 mx-auto hidden"
+      class="flex gap-x-1 max-w-6xl py-2 px-4 mx-auto"
       aria-label="Tabs"
       role="tablist"
       aria-orientation="horizontal"
