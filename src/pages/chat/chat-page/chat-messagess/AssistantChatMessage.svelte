@@ -16,10 +16,11 @@
   let groupIndex = 0
   let groupPageNumber = 1
   export function updateAnswerInfo(groupId: string) {
-    console.log("Update answer info")
+    // console.log("Update answer info")
     if (userMessage) {
       foundGroupId = findGroupIdByMessageId(userMessage.id)
-      console.log({ foundGroupId })
+      if (!foundGroupId.includes(groupId)) return
+      // console.log({ foundGroupId })
       if (foundGroupId.length > 0) {
         const currentGroupIndex = foundGroupId.findIndex(
           (item) => item === groupId
@@ -33,7 +34,7 @@
   function navigatePreviousAnswer() {
     if (userMessage) {
       foundGroupId = findGroupIdByMessageId(userMessage.id)
-      console.log({ foundGroupId })
+      // console.log({ foundGroupId })
       if (foundGroupId.length > 0) {
         const currentGroupIndex = foundGroupId.findIndex(
           (item) => item === messageGroupId
@@ -45,7 +46,7 @@
         groupPageNumber = groupIndex + 1
 
         const prevGroupId = foundGroupId[groupIndex]
-        console.log({ prevGroupId })
+        // console.log({ prevGroupId })
         onChangeGroupId(prevGroupId)
         // updateAnswerInfo(prevGroupId)
       }
@@ -66,7 +67,7 @@
   function navigateNextAnswer() {
     if (userMessage) {
       foundGroupId = findGroupIdByMessageId(userMessage.id)
-      console.log({ foundGroupId })
+      // console.log({ foundGroupId })
       if (foundGroupId.length > 0) {
         const currentGroupIndex = foundGroupId.findIndex(
           (item) => item === messageGroupId
@@ -76,7 +77,7 @@
           return
         }
         const nextGroupId = foundGroupId[groupIndex]
-        console.log({ nextGroupId })
+        // console.log({ nextGroupId })
         onChangeGroupId(nextGroupId)
 
         groupPageNumber = groupIndex + 1
