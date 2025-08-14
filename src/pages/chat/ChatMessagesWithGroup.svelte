@@ -5,13 +5,7 @@
   } from "./chat-page/types"
   import UserChatMessage from "./chat-page/chat-messagess/UserChatMessage.svelte"
   import AssistantChatMessage from "./chat-page/chat-messagess/AssistantChatMessage.svelte"
-  import { writable, type Writable } from "svelte/store"
   import type { GroupedChatMessagesInterface } from "../types"
-  import {
-    messageId,
-    messageParentId,
-    previousMessage,
-  } from "../../global/store/conversation/messageStore"
 
   export let conversation: ConversationInterface | null = null
   export let chatMessages: ChatMessageInterface[] = []
@@ -22,6 +16,7 @@
   export let onRegenerateMessage
 
   export let groupedChatMessages
+  export let showChatMessagesPager: boolean
 
   // Objek untuk menyimpan referensi komponen asisten dengan key berupa message.id
   // Ini memungkinkan akses langsung ke komponen berdasarkan ID pesan
@@ -106,11 +101,15 @@
   // Hapus pemanggilan autoScroll otomatis
 </script>
 
+<!-- {showChatMessagesPager} -->
 <div class="mt-3">
   <div class="relative">
     <!-- svelte-ignore a11y_no_noninteractive_element_to_interactive_role -->
+    <!-- <div>{showChatMessagesPager ? "H" : "S"}</div> -->
     <nav
-      class="flex gap-x-1 max-w-6xl py-2 px-4 mx-auto"
+      class="flex gap-x-1 max-w-6xl py-2 px-4 mx-auto {showChatMessagesPager
+        ? ''
+        : 'hidden'}"
       aria-label="Tabs"
       role="tablist"
       aria-orientation="horizontal"

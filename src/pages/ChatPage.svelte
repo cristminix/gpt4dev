@@ -56,7 +56,7 @@
   const isRegenerate = writable(false)
   const useLastMessageId = writable(false)
   const groupedChatMessages = writable<GroupedChatMessagesInterface>({})
-
+  const showChatMessagesPager = writable(false)
   const messageTasks = writable<Record<string, MessageTask>>({})
   const chatConfig = writable({
     attachChatHistoryToUserPrompt: false,
@@ -400,6 +400,11 @@
   function onChangeMessageGroupId(groupId: string) {
     messageGroupId.update(() => groupId)
   }
+  function toggleChatMessagePager() {
+    const showOrHide = !$showChatMessagesPager
+    // console.log({ showOrHide })
+    showChatMessagesPager.update(() => showOrHide)
+  }
   onMount(() => {
     // chatMessages.subscribe((newChatMessages) => {})
   })
@@ -407,9 +412,15 @@
 </script>
 
 <div class="py-10 lg:py-14">
-  <ConversationWidget conversation={$conversation} {routeApp} />
+  <ConversationWidget
+    conversation={$conversation}
+    {routeApp}
+    {toggleChatMessagePager}
+    showChatMessagesPager={$showChatMessagesPager}
+  />
   {#if $messageGroupIds.length > 0}
     <ChatMessagesWithGroup
+      showChatMessagesPager={$showChatMessagesPager}
       {groupedChatMessages}
       conversation={$conversation}
       chatMessages={$chatMessages}
