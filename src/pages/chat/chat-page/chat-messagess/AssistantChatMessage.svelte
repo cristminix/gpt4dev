@@ -14,7 +14,7 @@
   let foundGroupId: string[] = []
   let answerMessageId: Record<string, string[]> = {}
   let groupIndex = 0
-  let groupPageNumber = 1
+  let answerPageNumber = 1
 
   // Fungsi utilitas untuk mendapatkan data grup
   function getGroupData() {
@@ -27,49 +27,158 @@
   }
 
   export function updateAnswerInfo(groupId: string) {
-    // console.log("Update answer info")
-    if (!getGroupData()) return
-    if (!foundGroupId.includes(groupId)) return
-    // console.log({ foundGroupId })
-    const currentGroupIndex = foundGroupId.findIndex((item) => item === groupId)
-    groupIndex = currentGroupIndex
-    groupPageNumber = groupIndex + 1
+    setTimeout(() => {
+      console.log("Update answer info")
+
+      if (!userMessage) return
+      if (!getGroupData()) return
+      if (!foundGroupId.includes(groupId)) return
+      // console.log({ foundGroupId })
+      const currentGroupIndex = foundGroupId.findIndex(
+        (item) => item === groupId
+      )
+      // groupIndex = currentGroupIndex
+      let nextGroupIdSearch = messageGroupId
+      let foundCurrentGroupIndex = false
+      let groupIndexCursor = 0
+
+      const currentMessageId = message.id
+
+      for (const groupId of messageGroupIds) {
+        const groupedChatMessage = groupedChatMessages[groupId]
+        for (const msg of groupedChatMessage) {
+          if (msg.role === "assistant") {
+            if (msg.parentId === userMessage.id) {
+              if (msg.id === currentMessageId) {
+                if (groupIndexCursor === currentGroupIndex) {
+                  foundCurrentGroupIndex = true
+                  nextGroupIdSearch = groupId
+                }
+              }
+            }
+          }
+          if (foundCurrentGroupIndex) {
+            break
+          }
+        }
+        if (foundCurrentGroupIndex) {
+          break
+        }
+        groupIndexCursor += 1
+      }
+      // const currentGroupId = foundGroupId[groupIndexCursor]
+      groupIndex = groupIndexCursor
+      answerPageNumber =
+        answerMessageId[userMessage.id].findIndex(
+          (id) => id === currentMessageId
+        ) + 1
+    }, 512)
   }
 
   function navigatePreviousAnswer() {
+    if (!userMessage) return
+
     if (!getGroupData()) return
     // console.log({ foundGroupId })
     const currentGroupIndex = foundGroupId.findIndex(
       (item) => item === messageGroupId
     )
-    groupIndex = currentGroupIndex - 1
-    if (groupIndex < 0) {
-      return
+    let prevGroupIdSearch = messageGroupId
+    let foundPrevGroupIndex = false
+    let groupIndexCursor = messageGroupIds.length - 1
+    let prevMessageId = ""
+    const currentMessageId = message.id
+    for (const groupId of [...messageGroupIds].reverse()) {
+      const groupedChatMessage = groupedChatMessages[groupId]
+      for (const msg of groupedChatMessage) {
+        if (msg.role === "assistant") {
+          if (msg.parentId === userMessage.id) {
+            if (msg.id !== currentMessageId) {
+              console.log({ groupIndexCursor, currentGroupIndex })
+              if (groupIndexCursor < currentGroupIndex) {
+                foundPrevGroupIndex = true
+                prevGroupIdSearch = groupId
+                prevMessageId = msg.id
+              }
+            }
+          }
+        }
+        if (foundPrevGroupIndex) {
+          break
+        }
+      }
+      if (foundPrevGroupIndex) {
+        break
+      }
+      groupIndexCursor -= 1
     }
-    groupPageNumber = groupIndex + 1
+    const prevGroupId = foundGroupId[groupIndexCursor]
 
-    const prevGroupId = foundGroupId[groupIndex]
-    // console.log({ prevGroupId })
+    console.log({
+      groupIndexCursor,
+      foundPrevGroupIndex,
+      prevGroupId,
+      prevMessageId,
+    })
+    if (!foundPrevGroupIndex) return
+    answerPageNumber =
+      answerMessageId[userMessage.id].findIndex((id) => id === prevMessageId) +
+      1
+
+    groupIndex = groupIndexCursor
     onChangeGroupId(prevGroupId)
-    // updateAnswerInfo(prevGroupId)
     scrollToEl()
   }
 
   function navigateNextAnswer() {
+    if (!userMessage) return
     if (!getGroupData()) return
     // console.log({ foundGroupId })
+
     const currentGroupIndex = foundGroupId.findIndex(
       (item) => item === messageGroupId
     )
-    groupIndex = currentGroupIndex + 1
-    if (groupIndex >= answerMessageId[userMessage!.id].length) {
-      return
+    let nextGroupIdSearch = messageGroupId
+    let foundNextGroupIndex = false
+    let groupIndexCursor = 0
+    let nextMessageId = ""
+    const currentMessageId = message.id
+    for (const groupId of messageGroupIds) {
+      const groupedChatMessage = groupedChatMessages[groupId]
+      for (const msg of groupedChatMessage) {
+        if (msg.role === "assistant") {
+          if (msg.parentId === userMessage.id) {
+            if (msg.id !== currentMessageId) {
+              if (groupIndexCursor > currentGroupIndex) {
+                foundNextGroupIndex = true
+                nextGroupIdSearch = groupId
+                nextMessageId = msg.id
+              }
+            }
+          }
+        }
+        if (foundNextGroupIndex) {
+          break
+        }
+      }
+      if (foundNextGroupIndex) {
+        break
+      }
+      groupIndexCursor += 1
     }
-    const nextGroupId = foundGroupId[groupIndex]
-    // console.log({ nextGroupId })
+    if (!foundNextGroupIndex) return
+    const nextGroupId = foundGroupId[groupIndexCursor]
+    answerPageNumber =
+      answerMessageId[userMessage.id].findIndex((id) => id === nextMessageId) +
+      1
+    console.log({
+      groupIndexCursor,
+      foundNextGroupIndex,
+      nextGroupId,
+      nextMessageId,
+    })
+    groupIndex = groupIndexCursor
     onChangeGroupId(nextGroupId)
-
-    groupPageNumber = groupIndex + 1
     scrollToEl()
   }
   function findGroupIdByMessageId(
@@ -192,17 +301,15 @@
                   >
                   {#if userMessage}
                     <ul class="hidden">
-                      {#each foundGroupId as groupId}
+                      {#each answerMessageId[userMessage.id] as messageId}
                         <li
-                          class={groupId === messageGroupId
-                            ? "text-red-300"
-                            : ""}
+                          class={messageId === message.id ? "text-red-300" : ""}
                         >
-                          {groupId}
+                          {messageId}
                         </li>
                       {/each}
                     </ul>
-                    {groupPageNumber}/{answerMessageId[userMessage!.id].length}
+                    {answerPageNumber}/{answerMessageId[userMessage.id].length}
                   {/if}
                   <button
                     on:click={navigateNextAnswer}
