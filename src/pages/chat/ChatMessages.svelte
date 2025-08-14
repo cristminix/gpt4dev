@@ -9,6 +9,7 @@
   export let conversation: ConversationInterface | null = null
   export let chatMessages: ChatMessageInterface[] = []
   export let onDeleteMessage: (id: string, groupId: string) => void
+  export let onRegenerateMessage: (message: ChatMessageInterface) => void
 
   async function deleteMessage(messageId: string, groupId: string) {
     // Implement message deletion logic here
@@ -133,6 +134,7 @@
                 </button>
                 <button
                   type="button"
+                  on:click={(e) => onRegenerateMessage(message)}
                   class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
                   aria-label="Refresh"
                 >

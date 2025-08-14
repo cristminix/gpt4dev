@@ -435,6 +435,7 @@
       conversation={$conversation}
       chatMessages={$chatMessages}
       {onDeleteMessage}
+      {onRegenerateMessage}
     />
   {/if}
   {#if $isProcessing}

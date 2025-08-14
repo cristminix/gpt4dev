@@ -13,7 +13,7 @@
   export let messageGroupIds: string[] = []
   export let messageGroupId: string = ""
   export let onChangeGroupId: (groupId: string) => void
-  export let onRegenerateMessage
+  export let onRegenerateMessage: (message: ChatMessageInterface) => void
 
   export let groupedChatMessages
   export let showChatMessagesPager: boolean
@@ -54,24 +54,9 @@
     })
   }
 
-  // Fungsi untuk mendapatkan referensi komponen berdasarkan message ID
-  function getAssistantComponent(messageId: string): any {
-    return assistantMessages[messageId]
-  }
-
-  // Fungsi untuk memanggil metode pada komponen asisten berdasarkan message ID
-  function callAssistantMethod(
-    messageId: string,
-    methodName: string,
-    ...args: any[]
-  ) {
-    const component = assistantMessages[messageId]
-    if (component && typeof component[methodName] === "function") {
-      return component[methodName](...args)
-    }
-  }
   // Memperbarui groupedChatMessages ketika chatMessages berubah
   $: {
+    // assistantMessages = {}
     setTimeout(() => {
       // groupedChatMessages.update(() => {})
       groupedChatMessages.set(groupChatMessages(chatMessages))

@@ -4,7 +4,7 @@
   import type { ChatMessageInterface } from "../types"
 
   export let deleteMessage
-  export let regenerateMessage
+  export let regenerateMessage: (message: ChatMessageInterface) => void
   export let message: ChatMessageInterface
   export let userMessage: ChatMessageInterface | null
   export let groupedChatMessages: Record<string, ChatMessageInterface[]>
@@ -28,7 +28,7 @@
 
   export function updateAnswerInfo(groupId: string) {
     setTimeout(() => {
-      console.log("Update answer info")
+      console.log(`Update answer info ${groupId}`)
 
       if (!userMessage) return
       if (!getGroupData()) return
@@ -41,7 +41,6 @@
       let nextGroupIdSearch = messageGroupId
       let foundCurrentGroupIndex = false
       let groupIndexCursor = 0
-
       const currentMessageId = message.id
 
       for (const groupId of messageGroupIds) {
@@ -86,22 +85,30 @@
     let prevGroupIdSearch = messageGroupId
     let foundPrevGroupIndex = false
     let groupIndexCursor = messageGroupIds.length - 1
-    let prevMessageId = ""
-    const currentMessageId = message.id
+    const answerIds = answerMessageId[userMessage.id]
+    const currentAnswerIndex = answerPageNumber - 1
+    const prevAnswerIndex = currentAnswerIndex - 1
+    const currentAnswerMessageId = answerIds[currentAnswerIndex]
+    const prevAnswerMessageId = answerIds[prevAnswerIndex]
+    const prevAnswerPageNumber = answerPageNumber - 1
+
+    console.log({
+      answerIds,
+      currentAnswerIndex,
+      currentAnswerMessageId,
+      prevAnswerMessageId,
+    })
+    // return
     for (const groupId of [...messageGroupIds].reverse()) {
       const groupedChatMessage = groupedChatMessages[groupId]
       for (const msg of groupedChatMessage) {
-        if (msg.role === "assistant") {
-          if (msg.parentId === userMessage.id) {
-            if (msg.id !== currentMessageId) {
-              console.log({ groupIndexCursor, currentGroupIndex })
-              if (groupIndexCursor < currentGroupIndex) {
-                foundPrevGroupIndex = true
-                prevGroupIdSearch = groupId
-                prevMessageId = msg.id
-              }
-            }
-          }
+        if (msg.role === "assistant" && msg.id === prevAnswerMessageId) {
+          console.log({
+            groupIndexCursor,
+            currentGroupIndex,
+          })
+          foundPrevGroupIndex = true
+          prevGroupIdSearch = groupId
         }
         if (foundPrevGroupIndex) {
           break
@@ -112,18 +119,15 @@
       }
       groupIndexCursor -= 1
     }
-    const prevGroupId = foundGroupId[groupIndexCursor]
+    const prevGroupId = messageGroupIds[groupIndexCursor]
 
     console.log({
       groupIndexCursor,
       foundPrevGroupIndex,
       prevGroupId,
-      prevMessageId,
     })
     if (!foundPrevGroupIndex) return
-    answerPageNumber =
-      answerMessageId[userMessage.id].findIndex((id) => id === prevMessageId) +
-      1
+    answerPageNumber = prevAnswerPageNumber
 
     groupIndex = groupIndexCursor
     onChangeGroupId(prevGroupId)
@@ -143,19 +147,28 @@
     let groupIndexCursor = 0
     let nextMessageId = ""
     const currentMessageId = message.id
+
+    const answerIds = answerMessageId[userMessage.id]
+    const currentAnswerIndex = answerPageNumber - 1
+    const nextAnswerIndex = currentAnswerIndex + 1
+    const currentAnswerMessageId = answerIds[currentAnswerIndex]
+    const nextAnswerMessageId = answerIds[nextAnswerIndex]
+    const nextAnswerPageNumber = answerPageNumber + 1
+
+    console.log({
+      currentAnswerIndex,
+      nextAnswerIndex,
+      currentAnswerMessageId,
+      nextAnswerMessageId,
+      nextAnswerPageNumber,
+    })
+
     for (const groupId of messageGroupIds) {
       const groupedChatMessage = groupedChatMessages[groupId]
       for (const msg of groupedChatMessage) {
-        if (msg.role === "assistant") {
-          if (msg.parentId === userMessage.id) {
-            if (msg.id !== currentMessageId) {
-              if (groupIndexCursor > currentGroupIndex) {
-                foundNextGroupIndex = true
-                nextGroupIdSearch = groupId
-                nextMessageId = msg.id
-              }
-            }
-          }
+        if (msg.role === "assistant" && msg.id === nextAnswerMessageId) {
+          foundNextGroupIndex = true
+          nextGroupIdSearch = groupId
         }
         if (foundNextGroupIndex) {
           break
@@ -167,10 +180,8 @@
       groupIndexCursor += 1
     }
     if (!foundNextGroupIndex) return
-    const nextGroupId = foundGroupId[groupIndexCursor]
-    answerPageNumber =
-      answerMessageId[userMessage.id].findIndex((id) => id === nextMessageId) +
-      1
+    const nextGroupId = messageGroupIds[groupIndexCursor]
+    answerPageNumber = nextAnswerPageNumber
     console.log({
       groupIndexCursor,
       foundNextGroupIndex,
@@ -336,6 +347,7 @@
           {/if}
           <button
             type="button"
+            on:click={(e) => console.log("Copy")}
             class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
             aria-label="Copy message"
           >
@@ -356,7 +368,10 @@
             <i class="fa fa-play"></i>
           </button>
           <button
-            on:click={() => regenerateMessage(message)}
+            on:click={() => {
+              console.log("regenerate")
+              regenerateMessage(message)
+            }}
             type="button"
             class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
             aria-label="Refresh"
