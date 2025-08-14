@@ -128,3 +128,31 @@
         margin-bottom: .25em;
     }
 }
+@layer utilities {
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  .animate-blink {
+    animation: blink 1s infinite;
+  }
+}
+
+.conversation-list .conversation-item .inner-content {
+    :where(pre):not(:where([class~="not-prose"],[class~="not-prose"] *))
+ {
+        color: var(--tw-prose-pre-code);
+        background-color: transparent;
+        overflow-x: auto;
+        /* font-weight: 400; */
+        font-size: 14px !important;
+        /* line-height: auto; */
+        margin-top: 1.7142857em;
+        margin-bottom: 1.7142857em;
+        border-radius: 0;
+        padding-top: 0;
+        padding-inline-end: 0;
+        padding-bottom: 0;
+        padding-inline-start: 0;
+    }
+}

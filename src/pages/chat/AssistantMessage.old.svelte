@@ -1,14 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte"
+  import SvelteMarkdown from "svelte-markdown"
   import { writable } from "svelte/store"
+  import CodeRendererStream from "./CodeRendererStream.svelte"
+  import { getProviderApiKey } from "@/global/store/auth/getProviderApiKey"
   import type { ChatMessageInterface } from "./chat-page/types"
   import { autoScroll } from "./chat-page/fn/autoScroll"
   import { completion } from "./chat-page/fn/completion"
-  import ReactAdapter from "../demo/ReactAdapter.svelte"
-  import { AnimatedMarkdown } from "flowtoken"
-  //@ts-ignore
-  import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism"
-
   export let prompt: string = "hi"
   export let model: string = "gpt-4:blackbox"
   export let isStreaming = false
@@ -31,7 +29,7 @@
   async function updateMessage(text: string): Promise<void> {
     setTimeout(() => {
       finalContent.update(() => text)
-      autoScroll()
+      // autoScroll()
       console.log("do autoscroll")
     }, 256)
   }
@@ -227,14 +225,9 @@
     <!-- Card -->
     <div class="space-y-3 inner-content mb-3">
       {#if $finalContent.length > 0}
-        <ReactAdapter
-          el={AnimatedMarkdown}
-          content={$finalContent}
-          animation="fadeIn"
-          animationDuration="0.5s"
-          animationTimingFunction="ease-in-out"
-          codeStyle={dracula}
-          sep="word"
+        <SvelteMarkdown
+          source={$finalContent}
+          renderers={{ code: CodeRendererStream }}
         />
       {/if}
     </div>

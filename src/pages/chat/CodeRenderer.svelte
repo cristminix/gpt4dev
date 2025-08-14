@@ -2,10 +2,10 @@
   export let lang = ""
   export let text = ""
 
-  import hljs from "highlight.js"
   import jquery from "jquery"
   import svelte from "highlight.svelte"
   import "highlight.js/styles/github-dark.css"
+  import hljs from "highlight.js"
 
   hljs.registerLanguage("svelte", svelte)
 

@@ -28,6 +28,7 @@ module.exports = {
       opacity: {
         '60': '0.6',
       },
+
       animation: {
         'zoom-gradient': 'zoom_gradient 6s infinite alternate',
         'blink': 'blink 1s infinite',

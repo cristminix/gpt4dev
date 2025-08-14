@@ -17,6 +17,7 @@
   import { onMount, type SvelteComponent } from "svelte"
   import ChatPage from "./pages/ChatPage.svelte"
   import Toasts from "./components/Toasts.svelte"
+  import Demo from "./pages/Demo.svelte"
   // import FileManagerPage from "./pages/FileManagerPage.svelte"
   // import DBExplorer from "./pages/db-explorer/DBExplorer.svelte"
   // import DBTableManager from "./pages/db-explorer/DBTableManager.svelte"
@@ -34,6 +35,7 @@
     "/about": About,
     "/chat/:id": ChatPage,
     "/contact/page/:page": Contact,
+    "/demo": Demo,
     // "/course": CoursePage,
     // "/course/display/:id/:slug": CourseDisplayPage,
     // "/course/add/:slug": AddCoursePage,

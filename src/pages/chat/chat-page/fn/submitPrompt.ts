@@ -106,7 +106,7 @@ export function submitPrompt(
   provider.update(() => modelConfig.provider)
   // @ts-ignore
   promptMessages.update(() => messages)
-  console.log("submit prompt", userMessageContent)
+  // console.log("submit prompt", userMessageContent)
   console.log(modelConfig)
   isProcessing.update(() => false)
   setTimeout(() => {
