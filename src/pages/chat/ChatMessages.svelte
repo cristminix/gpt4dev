@@ -1,32 +1,34 @@
 <script lang="ts">
-  import CodeRenderer from "./CodeRenderer.svelte";
-  import SvelteMarkdown from "svelte-markdown";
+  import CodeRenderer from "./CodeRenderer.svelte"
+  import SvelteMarkdown from "svelte-markdown"
   import type {
     ChatMessageInterface,
     ConversationInterface,
-  } from "./chat-page/types";
+  } from "./chat-page/types"
 
-  export let conversation: ConversationInterface | null = null;
-  export let chatMessages: ChatMessageInterface[] = [];
-  export let onDeleteMessage: (id: string, groupId: string) => void;
+  export let conversation: ConversationInterface | null = null
+  export let chatMessages: ChatMessageInterface[] = []
+  export let onDeleteMessage: (id: string, groupId: string) => void
 
   async function deleteMessage(messageId: string, groupId: string) {
     // Implement message deletion logic here
-    console.log("Delete message with ID:", messageId);
-    onDeleteMessage(messageId, groupId);
+    console.log("Delete message with ID:", messageId)
+    onDeleteMessage(messageId, groupId)
   }
   function autoScroll() {
-    setTimeout(() => {
-      const element = document.querySelector(".template-content");
-      if (element) {
-        window.scrollTo({
-          top: element.scrollHeight + 200,
-          behavior: "smooth", // Optional: smooth scrolling
-        });
-      }
-    }, 1000);
+    console.log("do autoscroll")
+
+    // setTimeout(() => {
+    //   const element = document.querySelector(".template-content");
+    //   if (element) {
+    //     window.scrollTo({
+    //       top: element.scrollHeight + 200,
+    //       behavior: "smooth", // Optional: smooth scrolling
+    //     });
+    //   }
+    // }, 1000);
   }
-  $: autoScroll();
+  $: autoScroll()
 </script>
 
 <ul class="mt-6 space-y-5 conversation-list">

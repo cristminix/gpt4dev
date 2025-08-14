@@ -116,7 +116,15 @@
 .conversation-list .conversation-item .inner-content {
     :where(h3):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
       
-        margin-top: 0em;
-        margin-bottom: 0em;
+        margin-top: .25em;
+        margin-bottom: .25em;
+    }
+}
+
+.conversation-list .conversation-item .inner-content {
+    :where(h2):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
+        
+        margin-top: .25em;
+        margin-bottom: .25em;
     }
 }

@@ -29,7 +29,8 @@
   async function updateMessage(text: string): Promise<void> {
     setTimeout(() => {
       finalContent.update(() => text)
-      autoScroll()
+      // autoScroll()
+      console.log("do autoscroll")
     }, 256)
   }
 

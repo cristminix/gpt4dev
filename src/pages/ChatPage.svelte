@@ -35,6 +35,7 @@
   import { createChatMessage } from "@/global/store/conversation/createChatMessage"
   import { updateChatMessage } from "@/global/store/conversation/updateChatMessage"
   import Toasts from "@/components/Toasts.svelte"
+  import { onMount } from "svelte"
   export let routeApp: RouteAppType
   export let params: { id?: string } | null
   export let toasts: Toasts
@@ -153,13 +154,20 @@
 
   async function loadChat(id: string) {
     await loadChatExternal(id, conversation, chatMessages, createNewChat)
-
+    messageGroupIds.update(() => [])
     // Handle document title update
     if ($conversation) {
       document.title = $conversation.title
       console.log($conversation)
+      await updateMessageGroupMessages()
 
       // load message groups
+      // await updateMessageGroupMessages()
+      // toasts.doToast("success", "Loaded")
+    }
+  }
+  async function updateMessageGroupMessages() {
+    if ($conversation) {
       const messageGroups = await getMessageGroups($conversation.id)
       console.log({ messageGroups })
       if (messageGroups.length > 0) {
@@ -172,7 +180,6 @@
           messageGroupId.update(() => messageGroupIdsSet[0])
         }
       }
-      toasts.doToast("success", "Loaded")
     }
   }
   async function onDeleteMessage(id: string, groupId: string) {
@@ -378,6 +385,7 @@
           }
           chatMessages.update(() => chatMessagesData)
           isProcessing.update(() => false)
+          await updateMessageGroupMessages()
         }, 512)
 
         updateMessageTask(id, true)
@@ -392,6 +400,9 @@
   function onChangeMessageGroupId(groupId: string) {
     messageGroupId.update(() => groupId)
   }
+  onMount(() => {
+    // chatMessages.subscribe((newChatMessages) => {})
+  })
   $: if (params?.id) loadChat(params.id)
 </script>
 

@@ -77,13 +77,15 @@
   }
   // Memperbarui groupedChatMessages ketika chatMessages berubah
   $: {
-    groupedChatMessages.set(groupChatMessages(chatMessages))
     setTimeout(() => {
+      // groupedChatMessages.update(() => {})
+      groupedChatMessages.set(groupChatMessages(chatMessages))
+
       console.log("HSTabs.autoInit()")
       //@ts-ignore
       HSTabs.autoInit()
-      autoScroll()
-    }, 1000)
+      // autoScroll()
+    }, 256)
   }
   async function deleteMessage(messageId: string, groupId: string) {
     // Implement message deletion logic here

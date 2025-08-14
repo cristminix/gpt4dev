@@ -7,81 +7,119 @@
   export let regenerateMessage
   export let message: ChatMessageInterface
   export let userMessage: ChatMessageInterface | null
-  export let groupedChatMessages: any
+  export let groupedChatMessages: Record<string, ChatMessageInterface[]>
   export let messageGroupIds: string[] = []
   export let messageGroupId: string = ""
-  export let onChangeGroupId: any
-  //@ts-ignore
+  export let onChangeGroupId: (groupId: string) => void
   let foundGroupId: string[] = []
+  let answerMessageId: Record<string, string[]> = {}
   let groupIndex = 0
   let groupPageNumber = 1
+
+  // Fungsi utilitas untuk mendapatkan data grup
+  function getGroupData() {
+    if (!userMessage) return false
+    const [a, g] = findGroupIdByMessageId(userMessage.id)
+    foundGroupId = g
+    answerMessageId = a
+    // console.log({ foundGroupId })
+    return foundGroupId.length > 0
+  }
+
   export function updateAnswerInfo(groupId: string) {
     // console.log("Update answer info")
-    if (userMessage) {
-      foundGroupId = findGroupIdByMessageId(userMessage.id)
-      if (!foundGroupId.includes(groupId)) return
-      // console.log({ foundGroupId })
-      if (foundGroupId.length > 0) {
-        const currentGroupIndex = foundGroupId.findIndex(
-          (item) => item === groupId
-        )
-        groupIndex = currentGroupIndex
-
-        groupPageNumber = groupIndex + 1
-      }
-    }
+    if (!getGroupData()) return
+    if (!foundGroupId.includes(groupId)) return
+    // console.log({ foundGroupId })
+    const currentGroupIndex = foundGroupId.findIndex((item) => item === groupId)
+    groupIndex = currentGroupIndex
+    groupPageNumber = groupIndex + 1
   }
+
   function navigatePreviousAnswer() {
-    if (userMessage) {
-      foundGroupId = findGroupIdByMessageId(userMessage.id)
-      // console.log({ foundGroupId })
-      if (foundGroupId.length > 0) {
-        const currentGroupIndex = foundGroupId.findIndex(
-          (item) => item === messageGroupId
-        )
-        groupIndex = currentGroupIndex - 1
-        if (groupIndex < 0) {
-          return
-        }
-        groupPageNumber = groupIndex + 1
-
-        const prevGroupId = foundGroupId[groupIndex]
-        // console.log({ prevGroupId })
-        onChangeGroupId(prevGroupId)
-        // updateAnswerInfo(prevGroupId)
-      }
+    if (!getGroupData()) return
+    // console.log({ foundGroupId })
+    const currentGroupIndex = foundGroupId.findIndex(
+      (item) => item === messageGroupId
+    )
+    groupIndex = currentGroupIndex - 1
+    if (groupIndex < 0) {
+      return
     }
+    groupPageNumber = groupIndex + 1
+
+    const prevGroupId = foundGroupId[groupIndex]
+    // console.log({ prevGroupId })
+    onChangeGroupId(prevGroupId)
+    // updateAnswerInfo(prevGroupId)
+    scrollToEl()
   }
-  function findGroupIdByMessageId(messageId: string) {
+
+  function navigateNextAnswer() {
+    if (!getGroupData()) return
+    // console.log({ foundGroupId })
+    const currentGroupIndex = foundGroupId.findIndex(
+      (item) => item === messageGroupId
+    )
+    groupIndex = currentGroupIndex + 1
+    if (groupIndex >= answerMessageId[userMessage!.id].length) {
+      return
+    }
+    const nextGroupId = foundGroupId[groupIndex]
+    // console.log({ nextGroupId })
+    onChangeGroupId(nextGroupId)
+
+    groupPageNumber = groupIndex + 1
+    scrollToEl()
+  }
+  function findGroupIdByMessageId(
+    messageId: string
+  ): [Record<string, string[]>, string[]] {
     let foundGroupIds: string[] = []
+    let answerMessageIds: Record<string, string[]> = {}
     for (const groupId of messageGroupIds) {
       if (Array.isArray(groupedChatMessages[groupId]))
         for (const message of groupedChatMessages[groupId]) {
           if (message.parentId === messageId) {
+            if (!Array.isArray(answerMessageIds[messageId])) {
+              answerMessageIds[messageId] = []
+            }
+            if (!answerMessageIds[messageId].includes(message.id)) {
+              answerMessageIds[messageId].push(message.id)
+            }
             if (!foundGroupIds.includes(groupId)) foundGroupIds.push(groupId)
           }
         }
     }
-    return foundGroupIds
+    // console.log()
+    return [answerMessageIds, foundGroupIds]
   }
-  function navigateNextAnswer() {
-    if (userMessage) {
-      foundGroupId = findGroupIdByMessageId(userMessage.id)
-      // console.log({ foundGroupId })
-      if (foundGroupId.length > 0) {
-        const currentGroupIndex = foundGroupId.findIndex(
-          (item) => item === messageGroupId
-        )
-        groupIndex = currentGroupIndex + 1
-        if (groupIndex >= foundGroupId.length) {
-          return
-        }
-        const nextGroupId = foundGroupId[groupIndex]
-        // console.log({ nextGroupId })
-        onChangeGroupId(nextGroupId)
 
-        groupPageNumber = groupIndex + 1
-      }
+  function scrollToEl() {
+    const els = document.querySelectorAll(
+      `.answer-pager.message-id-${userMessage?.id}`
+    )
+    if (els.length > 0) {
+      setTimeout(() => {
+        const visibleElements = Array.from(els).filter((element) => {
+          // Check if element is visible (multiple methods)
+          const style = window.getComputedStyle(element)
+          const htmlElement = element as HTMLElement
+          return (
+            htmlElement.offsetParent !== null &&
+            style.display !== "none" &&
+            style.visibility !== "hidden"
+          )
+        })
+
+        // Scroll to the first visible element (or any specific one)
+        if (visibleElements.length > 0) {
+          visibleElements[0].scrollIntoView({
+            // behavior: "smooth",
+            block: "center",
+          })
+        }
+      }, 128)
     }
   }
   $: updateAnswerInfo(messageGroupId)
@@ -129,59 +167,65 @@
     <div>
       <div class="sm:flex sm:justify-between">
         <div class="py-2 px-3 inline-flex items-center gap-x-2">
-          {#if foundGroupId.length > 1}
-            <div class="pager">
-              <button
-                on:click={navigatePreviousAnswer}
-                aria-label="Previous message"
-                class="self-center p-1 hover:bg-black/5 dark:hover:bg-white/5 dark:hover:text-white hover:text-black rounded-md transition"
-                ><svg
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  class="size-3.5"
-                  ><path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M15.75 19.5 8.25 12l7.5-7.5"
-                  ></path></svg
-                ></button
-              >
-              {#if userMessage}
-                <ul class="hidden">
-                  {#each foundGroupId as groupId}
-                    <li
-                      class={groupId === messageGroupId ? "text-red-300" : ""}
-                    >
-                      {groupId}
-                    </li>
-                  {/each}
-                </ul>
-                {groupPageNumber}/{foundGroupId.length}
+          {#if userMessage}
+            {#if answerMessageId[userMessage!.id]}
+              {#if answerMessageId[userMessage!.id].length > 1}
+                <div class="pager answer-pager message-id-{userMessage?.id}">
+                  <button
+                    on:click={navigatePreviousAnswer}
+                    aria-label="Previous message"
+                    class="self-center p-1 hover:bg-black/5 dark:hover:bg-white/5 dark:hover:text-white hover:text-black rounded-md transition"
+                    ><svg
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                      class="size-3.5"
+                      ><path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M15.75 19.5 8.25 12l7.5-7.5"
+                      ></path></svg
+                    ></button
+                  >
+                  {#if userMessage}
+                    <ul class="hidden">
+                      {#each foundGroupId as groupId}
+                        <li
+                          class={groupId === messageGroupId
+                            ? "text-red-300"
+                            : ""}
+                        >
+                          {groupId}
+                        </li>
+                      {/each}
+                    </ul>
+                    {groupPageNumber}/{answerMessageId[userMessage!.id].length}
+                  {/if}
+                  <button
+                    on:click={navigateNextAnswer}
+                    class="self-center p-1 hover:bg-black/5 dark:hover:bg-white/5 dark:hover:text-white hover:text-black rounded-md transition"
+                    aria-label="Next message"
+                    ><svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      aria-hidden="true"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                      class="size-3.5"
+                      ><path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="m8.25 4.5 7.5 7.5-7.5 7.5"
+                      ></path></svg
+                    ></button
+                  >
+                </div>
               {/if}
-              <button
-                on:click={navigateNextAnswer}
-                class="self-center p-1 hover:bg-black/5 dark:hover:bg-white/5 dark:hover:text-white hover:text-black rounded-md transition"
-                aria-label="Next message"
-                ><svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  aria-hidden="true"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  class="size-3.5"
-                  ><path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="m8.25 4.5 7.5 7.5-7.5 7.5"
-                  ></path></svg
-                ></button
-              >
-            </div>
+            {/if}
           {/if}
           <button
             type="button"
