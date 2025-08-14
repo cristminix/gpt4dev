@@ -2,6 +2,10 @@
   import CodeRenderer from "../../CodeRenderer.svelte"
   import SvelteMarkdown from "svelte-markdown"
   import type { ChatMessageInterface } from "../types"
+  import ReactAdapter from "@/pages/demo/ReactAdapter.svelte"
+  import { AnimatedMarkdown } from "flowtoken"
+  //@ts-ignore
+  import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism"
 
   export let deleteMessage
   export let regenerateMessage: (message: ChatMessageInterface) => void
@@ -276,9 +280,14 @@
       <h4 class="text-xl font-semibold">{message.username}</h4>
     </div>
     <div class="space-y-3 inner-content">
-      <SvelteMarkdown
-        source={message.content}
-        renderers={{ code: CodeRenderer }}
+      <ReactAdapter
+        el={AnimatedMarkdown}
+        content={message.content}
+        animation="fadeIn"
+        animationDuration="0.5s"
+        animationTimingFunction="ease-in-out"
+        codeStyle={dracula}
+        sep="word"
       />
     </div>
     <!-- End Card -->
