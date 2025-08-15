@@ -7,6 +7,7 @@
   export let conversation: ConversationInterface | null = null
   export let routeApp: RouteApp
   export let toggleChatMessagePager: () => void
+  export let reloadChat: () => void
   export let showChatMessagesPager: boolean
   let editMode = false
   async function onDeleteConversation(id: string) {
@@ -84,6 +85,16 @@
         </div>
 
         <div class="mt-1 sm:mt-0">
+          <button
+            on:click={() => {
+              reloadChat()
+            }}
+            type="button"
+            class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+          >
+            <i class="fa fa-refresh"></i>
+            Reload
+          </button>
           <button
             on:click={() => {
               toggleChatMessagePager()

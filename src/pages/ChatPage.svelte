@@ -262,11 +262,15 @@
   onMount(() => {
     // chatMessages.subscribe((newChatMessages) => {})
   })
+  function reloadChat() {
+    if (params?.id) loadChat(params.id)
+  }
   $: if (params?.id) loadChat(params.id)
 </script>
 
 <div class="py-10 lg:py-14">
   <ConversationWidget
+    {reloadChat}
     conversation={$conversation}
     {routeApp}
     {toggleChatMessagePager}

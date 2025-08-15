@@ -175,6 +175,7 @@
       trendingScore: 0,
     },
         */
+        //@ts-ignore
         models = models.map((m: any) => {
           return {
             audio: false,
@@ -190,6 +191,7 @@
         break
     }
     console.log({ p, providerName, instance })
+    //@ts-ignore
     return models
   }
   async function initModelData(providerName: string) {
