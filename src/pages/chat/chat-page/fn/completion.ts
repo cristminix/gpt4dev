@@ -53,15 +53,24 @@ export async function completion(
       case "DeepInfra":
         instance = new DeepInfra()
         break
+      case "HuggingFace":
+        instance = new HuggingFace({ apiKey: getProviderApiKey(providerName) })
+        break
     }
     console.log({ provider, instance, model })
     let fullText = ""
     let reasoningText = ""
-    const stream = await instance.chat.completions.create({
-      model,
-      messages,
-      stream: true,
-    })
+    let stream
+    try {
+      stream = await instance.chat.completions.create({
+        model,
+        messages,
+        stream: true,
+      })
+    } catch (error) {
+      onErrorCallback("Error" + error)
+      return
+    }
 
     try {
       for await (const chunk of stream) {

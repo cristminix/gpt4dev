@@ -155,6 +155,39 @@
       case "DeepInfra":
         instance = new DeepInfra()
         break
+      case "HuggingFace":
+        instance = new HuggingFace()
+        models = await instance.models.list()
+        /*
+        {
+      _id: "621ffdc136468d709f181172",
+      id: "turing-usp/FinBertPTBR",
+      inferenceProviderMapping: [
+        {
+          _id: "68515aeb5dc4c5c1055386dd",
+          provider: "hf-inference",
+          providerId: "turing-usp/FinBertPTBR",
+          status: "live",
+          task: "text-classification",
+          type: "single-model",
+        },
+      ],
+      trendingScore: 0,
+    },
+        */
+        models = models.map((m: any) => {
+          return {
+            audio: false,
+            count: null,
+            default: true,
+            image: false,
+            label: m.id,
+            model: m.id,
+            video: false,
+            vision: false,
+          }
+        })
+        break
     }
     console.log({ p, providerName, instance })
     return models
