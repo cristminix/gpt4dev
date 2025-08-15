@@ -1,10 +1,12 @@
 <script lang="ts">
-  import CodeRenderer from "./CodeRenderer.svelte"
-  import SvelteMarkdown from "svelte-markdown"
+  //@ts-ignore
+  import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism"
   import type {
     ChatMessageInterface,
     ConversationInterface,
   } from "./chat-page/types"
+  import ReactAdapter from "../demo/ReactAdapter.svelte"
+  import { AnimatedMarkdown } from "flowtoken"
 
   export let conversation: ConversationInterface | null = null
   export let chatMessages: ChatMessageInterface[] = []
@@ -100,9 +102,14 @@
             <h4 class="text-xl font-semibold">{message.username}</h4>
           </div>
           <div class="space-y-3 inner-content">
-            <SvelteMarkdown
-              source={message.content}
-              renderers={{ code: CodeRenderer }}
+            <ReactAdapter
+              el={AnimatedMarkdown}
+              content={message.content}
+              animation="fadeIn"
+              animationDuration="0.5s"
+              animationTimingFunction="ease-in-out"
+              codeStyle={dracula}
+              sep="word"
             />
           </div>
           <!-- End Card -->

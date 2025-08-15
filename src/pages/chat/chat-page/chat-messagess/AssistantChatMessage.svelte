@@ -1,6 +1,4 @@
 <script lang="ts">
-  import CodeRenderer from "../../CodeRenderer.svelte"
-  import SvelteMarkdown from "svelte-markdown"
   import type { ChatMessageInterface } from "../types"
   import ReactAdapter from "@/pages/demo/ReactAdapter.svelte"
   import { AnimatedMarkdown } from "flowtoken"
@@ -288,6 +286,7 @@
         animationTimingFunction="ease-in-out"
         codeStyle={dracula}
         sep="word"
+        imgHeight={"100%"}
       />
     </div>
     <!-- End Card -->

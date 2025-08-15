@@ -1,7 +1,16 @@
 <script lang="ts">
   import jquery from "jquery"
   import { writable } from "svelte/store"
-
+  import {
+    Client,
+    CorsProxyManager,
+    Custom,
+    PollinationsAI,
+    DeepInfra,
+    Together,
+    Puter,
+    HuggingFace,
+  } from "@/pages/chat/chat-page/classes/cors-proxy-manager/CorsProxyManager"
   // Definisikan interface untuk tipe data
   interface Model {
     model: string
@@ -26,7 +35,14 @@
   const providerList = writable<Provider[]>([])
   const modelList = writable<Model[]>([])
   let firstTimer = 0
-
+  const liveProviderList = [
+    "PollinationsAI",
+    "Puter",
+    "Together",
+    "DeepInfra",
+    "HuggingFace",
+  ]
+  const liveProviderLabes = liveProviderList.map((p) => `${p}-Live`)
   import { getModelConfig } from "@/global/store/chat/getModelConfig"
   import { setModelConfig } from "@/global/store/chat/setModelConfig"
 
@@ -58,19 +74,97 @@
     // console.log(modelConfig)
     setModelConfig(modelConfig)
   }
-
+  function addLiveProvider() {
+    const list = []
+    let i = 0
+    for (const p of liveProviderList) {
+      list.push({
+        active_by_default: false,
+        audio: 0,
+        auth: true,
+        hf_space: false,
+        image: 0,
+        label: liveProviderLabes[i],
+        login_url: "",
+        name: liveProviderLabes[i],
+        nodriver: false,
+        parent: null,
+        video: 0,
+        vision: false,
+      })
+      i += 1
+    }
+    return list
+  }
   async function initProviderData() {
     const providerListSet: Provider[] = await fetch(
       "api/backend-api/v2/providers"
     ).then((r) => r.json())
     // console.log(providerListSet)
-    providerList.update((o) => providerListSet)
+    providerList.update((o) => [...providerListSet, ...addLiveProvider()])
   }
-
+  async function getLiveProviderModels(p: string) {
+    const providerName = p.replace(/-Live$/, "")
+    // const idx = liveProviderList.findIndex
+    let instance: any
+    let models: []
+    switch (providerName) {
+      case "PollinationsAI":
+        instance = new PollinationsAI()
+        /*
+        {
+  "aliases": "gpt-5-nano",
+  "audio": false,
+  "community": false,
+  "description": "OpenAI GPT-5 Nano",
+  "input_modalities": [
+   "text",
+   "image"
+  ],
+  "name": "gpt-5-nano",
+  "output_modalities": [
+   "text"
+  ],
+  "provider": "azure",
+  "tier": "anonymous",
+  "tools": true,
+  "vision": true
+ },
+        */
+        const srcModels = instance.availableModels
+        //@ts-ignore
+        models = srcModels.map((m: any) => {
+          return {
+            audio: m.audio,
+            count: null,
+            default: true,
+            image: m.input_modalities.includes("image"),
+            label: `${m.name} ${m.aliases ? `(${m.aliases})` : ""}`,
+            model: m.name,
+            video: false,
+            vision: m.vision,
+          }
+        })
+        break
+      case "Together":
+        instance = new Together()
+        break
+      case "Puter":
+        instance = new Puter()
+        break
+      case "DeepInfra":
+        instance = new DeepInfra()
+        break
+    }
+    console.log({ p, providerName, instance })
+    return models
+  }
   async function initModelData(providerName: string) {
-    let modelListSet: Model[] = await fetch(
-      `api/backend-api/v2/models/${providerName}`
-    ).then((r) => r.json())
+    let modelListSet: Model[] = providerName.match(/Live$/)
+      ? await getLiveProviderModels(providerName)
+      : await fetch(`api/backend-api/v2/models/${providerName}`).then((r) =>
+          r.json()
+        )
     // modelListSet = modelListSet.sort((a, b) => a.label.localeCompare(b.label))
     console.log({ modelListSet })
     modelList.update((o) => modelListSet)
