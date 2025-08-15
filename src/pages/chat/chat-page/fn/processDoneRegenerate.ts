@@ -88,15 +88,30 @@ export async function processDoneRegenerate(
             assistantMessage,
             $conversation.id
           )
+          console.log({ aMsg })
+          //  $chatMessages.findIndex((item) => item.id === id)
 
-          const filtered = chatMessagesData.filter((msg) => msg.id === aMsg.id)
-          if (filtered.length > 0) {
-            filtered[0] = aMsg
+          const aMsgIndex = chatMessagesData.findIndex(
+            (msg) => msg.id === aMsg.id
+          )
+          console.log({ aMsgIndex }, chatMessagesData[aMsgIndex])
+          if (aMsgIndex !== -1) {
+            chatMessagesData[aMsgIndex] = {
+              ...chatMessagesData[aMsgIndex],
+              ...aMsg,
+            }
           }
+
+          // const filtered = chatMessagesData.filter((msg) => msg.id === aMsg.id)
+          // if (filtered.length > 0) {
+          //   filtered[0] = aMsg
+          // }
         }
         chatMessages.update(() => chatMessagesData)
         isProcessing.update(() => false)
-        await updateMessageGroupMessages()
+        // setTimeout(() => {
+        updateMessageGroupMessages()
+        // }, 512)
       }, 512)
 
       updateMessageTask(id, true)

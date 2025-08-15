@@ -9,9 +9,9 @@
     <div class="me-5 lg:me-0 lg:hidden flex items-center">
       <!-- Logo -->
       <a
-        class="flex-none rounded-md text-xl inline-block font-semibold focus:outline-hidden focus:opacity-80"
+        class="flex-none rounded-md text-xl inline-block font-semibold focus:outline-hidden focus:opacity-80 hidden"
         href="#"
-        aria-label="Preline"
+        aria-label="Preline SM"
       >
         <svg
           class="w-28 h-auto"

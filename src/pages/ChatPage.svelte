@@ -63,6 +63,8 @@
   const chatConfig = writable({
     attachChatHistoryToUserPrompt: false,
   })
+  let chatMessageWithGroupRef: ChatMessagesWithGroup | null = null
+
   function setChatConfig(config: any) {
     chatConfig.update((o: any) => ({ ...o, ...config }))
   }
@@ -101,7 +103,7 @@
   }
 
   function shouldPerformTitleGeneration() {
-    if (modelImageGens.includes($model)) {
+    if (modelImageGens.includes($model) || $provider.match(/-Live$/)) {
       return false
     }
     return true
@@ -264,11 +266,16 @@
   })
   function reloadChat() {
     if (params?.id) loadChat(params.id)
+    setTimeout(() => {
+      if ($messageGroupId.length > 0 && chatMessageWithGroupRef) {
+        chatMessageWithGroupRef.onClickChangeGroupId($messageGroupId)
+      }
+    }, 1000)
   }
   $: if (params?.id) loadChat(params.id)
 </script>
 
-<div class="py-10 lg:py-14">
+<div class="py-8 lg:py-14">
   <ConversationWidget
     {reloadChat}
     conversation={$conversation}
@@ -278,6 +285,7 @@
   />
   {#if $messageGroupIds.length > 0}
     <ChatMessagesWithGroup
+      bind:this={chatMessageWithGroupRef}
       showChatMessagesPager={$showChatMessagesPager}
       {groupedChatMessages}
       conversation={$conversation}

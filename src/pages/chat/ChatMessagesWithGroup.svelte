@@ -37,7 +37,7 @@
     console.log({ grouped })
     return grouped
   }
-  function onClickChangeGroupId(groupId: string) {
+  export function onClickChangeGroupId(groupId: string) {
     onChangeGroupId(groupId)
     // Contoh akses ke referensi komponen berdasarkan message ID
     Object.keys(assistantMessages).map((messageId) => {
@@ -92,7 +92,7 @@
     <!-- svelte-ignore a11y_no_noninteractive_element_to_interactive_role -->
     <!-- <div>{showChatMessagesPager ? "H" : "S"}</div> -->
     <nav
-      class="flex gap-x-1 max-w-6xl py-2 px-4 mx-auto {showChatMessagesPager
+      class="chat-messages-groups-pager nice-scrollbar flex overflow-x-auto gap-x-1 max-w-6xl py-2 px-4 mx-auto {showChatMessagesPager
         ? ''
         : 'hidden'}"
       aria-label="Tabs"

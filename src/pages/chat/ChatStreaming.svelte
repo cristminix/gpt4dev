@@ -25,6 +25,7 @@
     // console.log({isRegenerate})
     filteredMessages = regenerateMessages.filter((m) => m.role !== "system")
   }
+
   onMount(() => {
     chatContainer = document.querySelector("#chat-container")
     autoScroll()

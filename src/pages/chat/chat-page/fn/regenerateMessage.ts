@@ -82,8 +82,9 @@ export async function onRegenerateMessage(
     }
     const systemMessage: string = jquery("#chatPrompt").val()
     let messagesToSendInConversation: ChatMessageInterface[] = []
+    const systemMessages = []
     if (systemMessage.length > 0) {
-      messagesToSendInConversation.push({
+      systemMessages.push({
         role: "system",
         content: systemMessage,
         id: createMessageId(),
@@ -92,20 +93,22 @@ export async function onRegenerateMessage(
         groupId: "",
       })
     }
-    messagesToSendInConversation = [
-      ...messagesToSendInConversation,
-      ...messagesInRange,
-    ]
+    messagesToSendInConversation = [...systemMessages, ...messagesInRange]
+    console.log({ messagesToSendInConversation })
+    // regeneratePromptMessages.update(()=>[])
     //@ts-ignore
-    regeneratePromptMessages.update(() => messagesToSendInConversation)
+    // regeneratePromptMessages.update(() => messagesToSendInConversation)
     const newGroupId = v1()
     // test append message with new groupId
-    const messagesToAppend = messagesInRange.map((msg) => {
-      const newMsg = { ...msg }
+    const messagesToAppend = [
+      ...systemMessages,
+      ...messagesInRange.map((msg) => {
+        const newMsg = { ...msg }
 
-      if (!useSameProviderAndModel) newMsg.groupId = newGroupId
-      return newMsg
-    })
+        if (!useSameProviderAndModel) newMsg.groupId = newGroupId
+        return newMsg
+      }),
+    ]
 
     if (!useSameProviderAndModel) {
       // create new message group

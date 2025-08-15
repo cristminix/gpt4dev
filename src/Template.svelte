@@ -21,7 +21,7 @@
 </script>
 
 <HEADER />
-<Logo />
+<!-- <Logo /> -->
 <Dropdown />
 <Breadcrumb />
 <Sidebar {routeApp} />
