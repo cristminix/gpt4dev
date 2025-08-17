@@ -103,6 +103,7 @@
   }
 
   function shouldPerformTitleGeneration() {
+    return false
     if (modelImageGens.includes($model) || $provider.match(/-Live$/)) {
       return false
     }
@@ -304,13 +305,13 @@
       {onRegenerateMessage}
     />
   {/if}
-  {#if $isProcessing}
+  {#if $isProcessing && $conversation}
     <TempChatMessages
       {onProcessingDone}
       messages={$promptMessages}
       model={$model}
       provider={$provider}
-      conversation_id={$conversation ? $conversation.id : ""}
+      conversation={$conversation}
       messageId={$messageId}
       regenerateMessages={$regeneratePromptMessages}
       isRegenerate={$isRegenerate}

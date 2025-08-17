@@ -1,5 +1,5 @@
 import { getProviderApiKey } from "@/global/store/auth/getProviderApiKey"
-import type { ChatMessageInterface } from "../types"
+import type { ChatMessageInterface, ConversationInterface } from "../types"
 import { LLMCompletion } from "../classes/LLMChatCompletion"
 import {
   Client,
@@ -16,7 +16,7 @@ export async function completion(
   model: string,
   messages: ChatMessageInterface[],
   messageId: string,
-  conversationId: string,
+  conversation: ConversationInterface,
   onFinalizeTextCallback: (text: string) => void,
   onUpdateMessageCallback: (text: string) => void,
   onReasoningCallback: (text: string, token: string) => void,
@@ -61,10 +61,41 @@ export async function completion(
     let fullText = ""
     let reasoningText = ""
     let stream
+    //@ts-ignore
+    let systemMessages: any[] = []
+    let processedMessages = messages
+      .filter((m) => m.role !== "system")
+      .map((m) => {
+        return {
+          role: m.role,
+          content: m.content,
+        }
+      })
+    const COMBINE_SYSTEM_MESSAGE_TO_LAST_USER_MESSAGE = false
+    if (COMBINE_SYSTEM_MESSAGE_TO_LAST_USER_MESSAGE) {
+      systemMessages = messages
+        .filter((m) => m.role === "system" && m.content.length > 0)
+        .map((m) => {
+          return {
+            role: m.role,
+            content: m.content,
+          }
+        })
+
+      let lastMessage = processedMessages[processedMessages.length - 1]
+      if (lastMessage.role === "user") {
+        if (typeof lastMessage.content === "string") {
+          if (systemMessages.length > 0) {
+            lastMessage.content = `System: ${systemMessages[0].content}\n${lastMessage.content}`
+          }
+        }
+      }
+    }
+
     try {
       stream = await instance.chat.completions.create({
         model,
-        messages,
+        messages: [...systemMessages, ...processedMessages],
         stream: true,
       })
     } catch (error) {
@@ -114,7 +145,7 @@ export async function completion(
       model,
       messages,
       messageId,
-      conversationId,
+      conversation,
       isRegenerate
     )
   }

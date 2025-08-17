@@ -1,4 +1,8 @@
-import { type ChatMessageInterface, type ReasoningResponse } from "../types"
+import {
+  type ChatMessageInterface,
+  type ConversationInterface,
+  type ReasoningResponse,
+} from "../types"
 export class LLMCompletion {
   lastRequestDate = Date.now()
   fullText = ""
@@ -45,7 +49,7 @@ export class LLMCompletion {
     model: string,
     messages: ChatMessageInterface[],
     messageId: string,
-    conversationId: string,
+    conversation: ConversationInterface,
     isRegenerate: boolean
   ) {
     let oldRequestDate = this.lastRequestDate
@@ -71,13 +75,13 @@ export class LLMCompletion {
         action: "next",
         api_key: this.apiKey,
         aspect_ratio: "16:9",
-        conversation: null,
         model, // or 'gpt-3.5-turbo'
         messages: messages,
         stream: true, // Enable streaming
         provider,
         id: messageId,
-        conversation_id: conversationId,
+        conversation_id: conversation.id,
+        conversation,
         download_media: true,
       }),
     })

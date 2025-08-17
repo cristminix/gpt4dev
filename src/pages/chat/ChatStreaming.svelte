@@ -3,7 +3,10 @@
   import AssistantMessage from "./AssistantMessage.svelte"
   import { onMount } from "svelte"
   import { autoScroll } from "./chat-page/fn/autoScroll"
-  import type { ChatMessageInterface } from "./chat-page/types"
+  import type {
+    ChatMessageInterface,
+    ConversationInterface,
+  } from "./chat-page/types"
 
   export let onProcessingDone: (
     text: string,
@@ -13,7 +16,7 @@
   ) => void
   export let messages: ChatMessageInterface[] = []
   export let model: string = "gpt-4:blackbox"
-  export let conversation_id: string
+  export let conversation: ConversationInterface
   export let provider: string
   export let messageId: string
   export let isRegenerate: boolean
@@ -45,7 +48,7 @@
       {regenerateMessages}
       {messages}
       {model}
-      {conversation_id}
+      {conversation}
       {provider}
       {messageId}
       {isRegenerate}

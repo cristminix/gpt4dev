@@ -1,7 +1,10 @@
 <script lang="ts">
   import { onMount } from "svelte"
   import { writable } from "svelte/store"
-  import type { ChatMessageInterface } from "./chat-page/types"
+  import type {
+    ChatMessageInterface,
+    ConversationInterface,
+  } from "./chat-page/types"
   import { autoScroll } from "./chat-page/fn/autoScroll"
   import { completion } from "./chat-page/fn/completion"
   import ReactAdapter from "../demo/ReactAdapter.svelte"
@@ -22,7 +25,7 @@
   export let messages: ChatMessageInterface[] = []
   export let regenerateMessages: ChatMessageInterface[] = []
 
-  export let conversation_id: string
+  export let conversation: ConversationInterface
   export let provider: string
   export let messageId: string
   export let isRegenerate: boolean
@@ -48,7 +51,7 @@
       model,
       isRegenerate ? regenerateMessages : messages,
       messageId,
-      conversation_id,
+      conversation,
       finalizeMessage,
       updateMessage,
       //reasoning callback

@@ -1,5 +1,8 @@
 <script lang="ts">
-  import type { ChatMessageInterface } from "./chat-page/types"
+  import type {
+    ChatMessageInterface,
+    ConversationInterface,
+  } from "./chat-page/types"
   import ChatStreaming from "./ChatStreaming.svelte"
   export let onProcessingDone: (
     text: string,
@@ -10,7 +13,8 @@
   export let messages: ChatMessageInterface[]
   export let regenerateMessages: ChatMessageInterface[]
   export let model: string
-  export let conversation_id: string
+  export let conversation: ConversationInterface
+
   export let provider: string
   export let messageId: string
   export let isRegenerate: boolean
@@ -22,7 +26,7 @@
     {messages}
     {regenerateMessages}
     {model}
-    {conversation_id}
+    {conversation}
     {provider}
     {messageId}
     {isRegenerate}

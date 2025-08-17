@@ -33,18 +33,33 @@
       if (!reader) throw new Error("Failed to get stream reader")
 
       const decoder = new TextDecoder()
+      let buffer = ""
+      let lastUpdateTime = 0
+      const minUpdateInterval = 16 // ~60fps
 
       while (true) {
         const { done, value } = await reader.read()
 
         if (done) {
+          // Flush any remaining buffer
+          if (buffer) {
+            message.update((o) => o + buffer)
+          }
           isStreaming = false
           break
         }
 
-        // Decode the chunk and append to message
+        // Decode the chunk and append to buffer
         const chunk = decoder.decode(value, { stream: true })
-        message.update((o) => o + chunk)
+        buffer += chunk
+
+        // Throttle updates to make animation smoother
+        const now = Date.now()
+        if (now - lastUpdateTime >= minUpdateInterval) {
+          message.update((o) => o + buffer)
+          buffer = ""
+          lastUpdateTime = now
+        }
       }
     } catch (error) {
       console.error("Error:", error)
