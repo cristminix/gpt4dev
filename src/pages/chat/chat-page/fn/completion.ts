@@ -96,11 +96,14 @@ export async function completion(
     }
 
     try {
-      stream = await instance.chat.completions.create({
-        model,
-        messages: [...systemMessages, ...processedMessages],
-        stream: true,
-      })
+      stream = await instance.chat.completions.create(
+        {
+          model,
+          messages: [...systemMessages, ...processedMessages],
+          stream: true,
+        },
+        { signal: abortController.signal }
+      )
     } catch (error) {
       onErrorCallback("Error" + error)
       return

@@ -85,7 +85,7 @@ export class Client {
   get chat() {
     return {
       completions: {
-        create: async (params: any) => {
+        create: async (params: any, requestOption: any = {}) => {
           let modelId = params.model || this.defaultModel
           if (this.modelAliases[modelId]) {
             modelId = this.modelAliases[modelId]
@@ -98,6 +98,7 @@ export class Client {
             method: "POST",
             headers: this.extraHeaders,
             body: JSON.stringify(params),
+            ...requestOption,
           }
           const response = await fetch(this.apiEndpoint, requestOptions)
           if (params.stream) {

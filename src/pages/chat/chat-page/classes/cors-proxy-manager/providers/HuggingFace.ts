@@ -19682,7 +19682,7 @@ class HuggingFace extends Client {
   get chat() {
     return {
       completions: {
-        create: async (params: any) => {
+        create: async (params: any, requestOption: any = {}) => {
           let { model, ...options } = params
 
           if (!model) {
@@ -19723,6 +19723,7 @@ class HuggingFace extends Client {
               model,
               ...options,
             }),
+            ...requestOption,
           }
           const response = await fetch(
             `${apiBase}/chat/completions`,
