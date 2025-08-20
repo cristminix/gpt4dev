@@ -1,74 +1,76 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import jquery from "jquery";
-  import TurndownService from "turndown";
-  import ChatPromptWyswyg from "./ChatPromptWyswyg.svelte";
-  import { cleanSurplusBlankLine } from "./chat-page/fn/cleanSurplusBlankLine";
-  import ChatPromptToolbox from "./ChatPromptToolbox.svelte";
-  export let onSubmitPrompt: any;
-  export let setChatConfig: any;
-  let attachChatHistoryToUserPrompt = false;
+  import { onMount } from "svelte"
+  import jquery from "jquery"
+  import TurndownService from "turndown"
+  import ChatPromptWyswyg from "./ChatPromptWyswyg.svelte"
+  import { cleanSurplusBlankLine } from "./chat-page/fn/cleanSurplusBlankLine"
+  import ChatPromptToolbox from "./ChatPromptToolbox.svelte"
+  export let onSubmitPrompt: any
+  export let setChatConfig: any
+  export let onStopGeneration: () => void
+  export let isProcessing: boolean
+  let attachChatHistoryToUserPrompt = false
 
   // Initialize turndown service
-  const turndownService = new TurndownService();
-  let systemMessage = "";
+  const turndownService = new TurndownService()
+  let systemMessage = ""
   onMount(() => {
     //@ts-ignore
-    HSTextareaAutoHeight.autoInit();
-  });
+    HSTextareaAutoHeight.autoInit()
+  })
 
   function onWysywygEditorChange(html: string) {
-    console.log({ html });
+    console.log({ html })
     // Convert HTML to markdown
-    const markdown = cleanSurplusBlankLine(turndownService.turndown(html));
-    console.log({ markdown });
-    jquery("#userInput").val(markdown);
+    const markdown = cleanSurplusBlankLine(turndownService.turndown(html))
+    console.log({ markdown })
+    jquery("#userInput").val(markdown)
   }
   function onUserPromptChange() {
     // console.log("user prompt change")
   }
   function sendKeystroke(text: string) {
-    const textarea = document.getElementById("userInput");
+    const textarea = document.getElementById("userInput")
     if (textarea && textarea instanceof HTMLTextAreaElement) {
-      textarea.focus(); // Memfokuskan textarea
+      textarea.focus() // Memfokuskan textarea
 
       // Menambahkan teks ke textarea
-      textarea.value = text;
+      textarea.value = text
 
       // Membuat dan memicu event 'input' untuk memperbarui interaksi pengguna
       const event = new Event("input", {
         bubbles: true,
         cancelable: true,
-      });
-      textarea.dispatchEvent(event);
+      })
+      textarea.dispatchEvent(event)
     }
   }
   function onUserPromptKeydown(event: KeyboardEvent) {
     if (event.shiftKey && event.key === "Enter") {
-      console.log("Shift+Enter was pressed!");
-      const oldValue = jquery("#userInput").val();
-      jquery("#userInput").val(oldValue + "\n");
-      return event.preventDefault();
+      console.log("Shift+Enter was pressed!")
+      const oldValue = jquery("#userInput").val()
+      jquery("#userInput").val(oldValue + "\n")
+      return event.preventDefault()
     }
     if (event.key === "Enter") {
-      onSubmitUserPrompt();
-      return event.preventDefault();
+      onSubmitUserPrompt()
+      return event.preventDefault()
     }
     // console.log(e.keyCode)
     // console.log("user prompt change")
   }
   function onSubmitUserPrompt() {
-    console.log("submit user prompt");
-    const content = jquery("#userInput").val();
-    sendKeystroke("");
-    onSubmitPrompt(content, systemMessage);
+    console.log("submit user prompt")
+    const content = jquery("#userInput").val()
+    sendKeystroke("")
+    onSubmitPrompt(content, systemMessage)
   }
   $: {
     setTimeout(() => {
-      console.log("HSTabs.autoInit()");
+      console.log("HSTabs.autoInit()")
       //@ts-ignore
-      HSTabs.autoInit();
-    }, 1000);
+      HSTabs.autoInit()
+    }, 1000)
   }
 </script>
 
@@ -208,10 +210,10 @@
               type="button"
               title="Attach chat history to user prompt"
               on:click={() => {
-                attachChatHistoryToUserPrompt = !attachChatHistoryToUserPrompt;
+                attachChatHistoryToUserPrompt = !attachChatHistoryToUserPrompt
                 setChatConfig({
                   attachChatHistoryToUserPrompt,
-                });
+                })
               }}
               class="{attachChatHistoryToUserPrompt
                 ? 'active'
@@ -321,15 +323,29 @@
             >
               <i class="fa-solid fa-rotate"></i>
             </button>
-            <!-- Send Button -->
+            <!-- Stop Button -->
+
             <!-- svelte-ignore a11y_consider_explicit_label -->
-            <button
-              on:click={onSubmitUserPrompt}
-              type="button"
-              class="inline-flex shrink-0 justify-center items-center size-8 rounded-lg text-white bg-blue-600 hover:bg-blue-500 focus:z-10 focus:outline-hidden focus:bg-blue-500"
-            >
-              <i class="fa fa-paper-plane"></i>
-            </button>
+            {#if isProcessing}
+              <button
+                on:click={onStopGeneration}
+                type="button"
+                class="inline-flex shrink-0 justify-center items-center size-8 rounded-lg text-white bg-blue-600 hover:bg-blue-500 focus:z-10 focus:outline-hidden focus:bg-blue-500"
+              >
+                <i class="fa fa-stop"></i>
+              </button>
+            {:else}
+              <!-- Send Button -->
+
+              <!-- svelte-ignore a11y_consider_explicit_label -->
+              <button
+                on:click={onSubmitUserPrompt}
+                type="button"
+                class="inline-flex shrink-0 justify-center items-center size-8 rounded-lg text-white bg-blue-600 hover:bg-blue-500 focus:z-10 focus:outline-hidden focus:bg-blue-500"
+              >
+                <i class="fa fa-paper-plane"></i>
+              </button>
+            {/if}
             <!-- <button type="button" class=" hidden inline-flex shrink-0 justify-center items-center size-8 rounded-lg text-white bg-blue-600 hover:bg-blue-500 focus:z-10 focus:outline-hidden focus:bg-blue-500">
                 <svg class="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                   <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471-.47 1.178Z" />

@@ -8,6 +8,7 @@
     text: string,
     id: string,
     isRegenerate: boolean,
+    hasError: boolean,
     errorMessage: string
   ) => void
   export let messages: ChatMessageInterface[]
@@ -18,10 +19,18 @@
   export let provider: string
   export let messageId: string
   export let isRegenerate: boolean
+
+  let chatStreaming: ChatStreaming
+  export function abortCompletion() {
+    if (chatStreaming) {
+      chatStreaming.abortCompletion()
+    }
+  }
 </script>
 
 <div class="mt-6 space-y-5">
   <ChatStreaming
+    bind:this={chatStreaming}
     {onProcessingDone}
     {messages}
     {regenerateMessages}

@@ -9,7 +9,6 @@ import type { Writable } from "svelte/store"
 export async function processDoneRegenerate(
   fullText: string,
   id: string,
-  errorMessage: string,
   getMessageTask: (id: string) => any,
   $conversation: any,
   useLastMessageId: Writable<boolean>,
@@ -31,7 +30,10 @@ export async function processDoneRegenerate(
   updateMessageTask: (id: string, status: boolean) => void,
   $messageTasks: Record<string, any>,
   toasts: any,
-  $userPrompt: string
+  $userPrompt: string,
+  hasError: boolean,
+  errorMessage: string,
+  reloadChat: () => void
 ) {
   // console.log("processDoneRegenerate", fullText, id)
   const task = getMessageTask(id)
@@ -47,7 +49,7 @@ export async function processDoneRegenerate(
             errorMessage.length > 0 ? errorMessage : "text is empty"
           )
           jquery("#userInput").val($userPrompt)
-
+          reloadChat()
           return
         }
         if (!$useLastMessageId) {

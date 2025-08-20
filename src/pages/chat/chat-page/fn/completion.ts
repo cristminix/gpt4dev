@@ -11,6 +11,8 @@ import {
   Puter,
   HuggingFace,
 } from "@/pages/chat/chat-page/classes/cors-proxy-manager/CorsProxyManager"
+import { ApiAirforce } from "./parser/ApiAirforce"
+import { LMArenaBeta } from "./parser/LMArenaBeta"
 export async function completion(
   provider: string,
   model: string,
@@ -22,8 +24,9 @@ export async function completion(
   onReasoningCallback: (text: string, token: string) => void,
   onPreviewCallback: (text: string) => void,
   onErrorCallback: (text: string) => void,
-  isRegenerate: boolean
-) {
+  isRegenerate: boolean,
+  abortController: AbortController
+): Promise<void> {
   const llmCompletion = new LLMCompletion()
 
   const liveProviders = [
@@ -34,7 +37,7 @@ export async function completion(
     "HuggingFace",
   ]
   const liveProviderLabes = liveProviders.map((p) => `${p}-Live`)
-
+  let firsTimer = 0
   if (liveProviderLabes.includes(provider)) {
     // const apiUrl = "/api/backend-api/v2/conversation"
     let instance: any
@@ -135,12 +138,34 @@ export async function completion(
     // throw new Error("")
     // return
   } else {
-    llmCompletion.onFinalizeMessageCallback = onFinalizeTextCallback
-    llmCompletion.onUpdateMessageCallback = onUpdateMessageCallback
-    llmCompletion.onReasoningCallback = onReasoningCallback
+    llmCompletion.onFinalizeMessageCallback = (text: string) => {
+      // if (provider === "ApiAirforce") {
+      //   text = ApiAirforce(text, model)
+      // } else if (provider === "LMArenaBeta") {
+      //   text = LMArenaBeta(text, model)
+      // }
+      onFinalizeTextCallback(text)
+    }
+    llmCompletion.onUpdateMessageCallback = (text: string) => {
+      onUpdateMessageCallback(text)
+    }
+    if (firsTimer === 0) {
+      onUpdateMessageCallback(`loading`)
+      firsTimer = 1
+    }
+    llmCompletion.onReasoningCallback = (text: string, token: string) => {
+      onReasoningCallback(text, token)
+      if (firsTimer === 1) {
+        onUpdateMessageCallback("")
+        firsTimer += 1
+      }
+    }
     llmCompletion.onErroCallback = onErrorCallback
     llmCompletion.onPreviewCallback = onPreviewCallback
-    return await llmCompletion.completion(
+
+    llmCompletion.abortController = abortController
+
+    await llmCompletion.completion(
       provider,
       model,
       messages,

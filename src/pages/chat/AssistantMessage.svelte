@@ -1,14 +1,16 @@
 <script lang="ts">
-  import { onMount } from "svelte"
+  import { onMount, onDestroy } from "svelte"
   import { writable } from "svelte/store"
   import type {
     ChatMessageInterface,
     ConversationInterface,
   } from "./chat-page/types"
   import { autoScroll } from "./chat-page/fn/autoScroll"
+  import { autoScrollReasoning } from "./chat-page/fn/autoScrollReasoning"
   import { completion } from "./chat-page/fn/completion"
   import ReactAdapter from "../demo/ReactAdapter.svelte"
   import { AnimatedMarkdown } from "flowtoken"
+  import LoadingIndicator from "../../components/ux/LoadingIndicator.svelte"
   //@ts-ignore
   import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism"
 
@@ -20,6 +22,8 @@
     text: string,
     id: string,
     isRegenerate: boolean,
+    hasError: boolean,
+
     errorMessage: string
   ) => void
   export let messages: ChatMessageInterface[] = []
@@ -30,22 +34,109 @@
   export let messageId: string
   export let isRegenerate: boolean
 
+  // Store for abort handler
+
   const finalContent = writable("")
-  async function updateMessage(text: string): Promise<void> {
-    setTimeout(() => {
-      finalContent.update(() => text)
-      autoScroll()
-      console.log("do autoscroll")
-    }, 256)
+  const reasoningContent = writable("")
+  const reasoning = writable(false)
+  const dotAnimation = writable("")
+  const isProcessing = writable(false)
+
+  // Inisialisasi autoscroll untuk reasoning content
+  let autoScrollManager: ReturnType<typeof autoScrollReasoning> | null = null
+
+  onMount(() => {})
+
+  onDestroy(() => {})
+
+  // Efek untuk animasi titik saat dalam keadaan reasoning
+  let dotInterval: number | null = null
+  $: if ($reasoning) {
+    // Mulai animasi titik
+    dotInterval = window.setInterval(() => {
+      dotAnimation.update((dots) => {
+        if (dots.length >= 3) return ""
+        return dots + "."
+      })
+    }, 500)
+  } else {
+    // Hentikan animasi titik
+    if (dotInterval) {
+      clearInterval(dotInterval)
+      dotInterval = null
+    }
+    // Reset teks animasi
+    dotAnimation.set("")
   }
 
-  function finalizeMessage(text: string, errorMessage = ""): void {
-    if (onProcessingDone) {
-      onProcessingDone(text, messageId, isRegenerate, errorMessage)
+  // Debounce function
+  let debounceTimer: number | null = null
+  function debounce(func: () => void, delay: number) {
+    return () => {
+      if (debounceTimer) {
+        clearTimeout(debounceTimer)
+      }
+      debounceTimer = window.setTimeout(func, delay)
     }
   }
 
-  async function fetchOpenAIResponse(): Promise<void> {
+  async function updateMessage(text: string): Promise<void> {
+    isProcessing.set(true)
+    setTimeout(() => {
+      reasoning.update(() => false)
+
+      finalContent.update(() => text)
+      autoScroll()
+    }, 256)
+    const debouncedUpdate = debounce(() => {
+      console.log("do autoscroll")
+    }, 256)
+    debouncedUpdate()
+  }
+  async function updateReasoningMessage(
+    text: string,
+    token: string
+  ): Promise<void> {
+    if (!$reasoning) reasoning.update(() => true)
+
+    const debouncedUpdate = debounce(() => {
+      if (!autoScrollManager) {
+        autoScrollManager = autoScrollReasoning(
+          ".reasoning-content",
+          ".reasoning-content>.inner-content"
+        )
+        autoScrollManager.initAutoScroll()
+      }
+      reasoningContent.update(() => text)
+      // Perbarui scroll secara langsung
+      if (autoScrollManager) {
+        autoScrollManager.updateScroll()
+      }
+    }, 256)
+    debouncedUpdate()
+  }
+  function finalizeMessage(
+    text: string,
+    hasError = false,
+    errorMessage = ""
+  ): void {
+    isProcessing.set(false)
+    if (autoScrollManager) {
+      autoScrollManager.cleanup()
+      autoScrollManager = null
+    }
+    if (onProcessingDone) {
+      onProcessingDone(text, messageId, isRegenerate, hasError, errorMessage)
+    }
+  }
+
+  // Function to abort the completion process
+  const abortController = new AbortController()
+  export function abortCompletion(): void {
+    abortController.abort()
+  }
+
+  async function fetchLLMCompletions(): Promise<void> {
     return await completion(
       provider,
       model,
@@ -55,9 +146,9 @@
       finalizeMessage,
       updateMessage,
       //reasoning callback
-      (fullText: string, token: string) => {
-        console.log(`Reasoning callback ${fullText} ${token}`)
-        updateMessage(fullText)
+      (text: string, token: string) => {
+        // console.log(`Reasoning callback ${text} ${token}`)
+        updateReasoningMessage(text, token)
       },
       //preview callback
       (text: string) => {
@@ -65,9 +156,10 @@
       },
       //error callback
       (text: string) => {
-        finalizeMessage("", text)
+        finalizeMessage("", true, text)
       },
-      isRegenerate
+      isRegenerate,
+      abortController
     )
     /*
     const now = Date.now()
@@ -189,7 +281,7 @@
   onMount(() => {})
   $: {
     if (isStreaming) {
-      fetchOpenAIResponse()
+      fetchLLMCompletions()
     } else {
       finalizeMessage("")
     }
@@ -229,16 +321,42 @@
     </div>
     <!-- Card -->
     <div class="space-y-3 inner-content mb-3">
+      {#if $reasoning}
+        <div class="flex flex-col gap-2 max-h-48 reasoning-container">
+          <div class="reasoning-info">
+            <i class="fa fa-spin fa-spinner"></i>
+            <span class="ml-2">Thinking {$dotAnimation}</span>
+          </div>
+          <div class="reasoning-content nice-scrollbar overflow-y-auto">
+            <div class="inner-content">
+              <ReactAdapter
+                el={AnimatedMarkdown}
+                content={$reasoningContent}
+                animation="fadeIn"
+                animationDuration="0.5s"
+                animationTimingFunction="ease-in-out"
+                codeStyle={dracula}
+                sep="word"
+              />
+            </div>
+          </div>
+        </div>
+      {/if}
       {#if $finalContent.length > 0}
-        <ReactAdapter
-          el={AnimatedMarkdown}
-          content={$finalContent}
-          animation="fadeIn"
-          animationDuration="0.5s"
-          animationTimingFunction="ease-in-out"
-          codeStyle={dracula}
-          sep="word"
-        />
+        {#if $finalContent === "loading"}
+          <LoadingIndicator />
+        {:else}
+          <ReactAdapter
+            class="inner-content"
+            el={AnimatedMarkdown}
+            content={$finalContent}
+            animation="fadeIn"
+            animationDuration="0.5s"
+            animationTimingFunction="ease-in-out"
+            codeStyle={dracula}
+            sep="word"
+          />
+        {/if}
       {/if}
     </div>
     <!-- End Card -->

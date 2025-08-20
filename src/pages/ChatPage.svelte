@@ -64,7 +64,7 @@
     attachChatHistoryToUserPrompt: false,
   })
   let chatMessageWithGroupRef: ChatMessagesWithGroup | null = null
-
+  let tempChatMessagesRef: TempChatMessages
   function setChatConfig(config: any) {
     chatConfig.update((o: any) => ({ ...o, ...config }))
   }
@@ -113,6 +113,7 @@
     fullText: string,
     id: string,
     isRegenerate: boolean,
+    hasError: boolean,
     errorMessage: string
   ) {
     console.log({
@@ -120,7 +121,7 @@
       $messageGroupIds,
     })
     if (isRegenerate) {
-      processDoneRegenerate(fullText, id, errorMessage)
+      processDoneRegenerate(fullText, id, hasError, errorMessage)
     } else
       processDone(
         fullText,
@@ -150,6 +151,7 @@
         messageGroupIds,
         $messageGroupIds,
         toasts,
+        hasError,
         errorMessage
       )
   }
@@ -224,12 +226,12 @@
   async function processDoneRegenerate(
     fullText: string,
     id: string,
+    hasError: boolean,
     errorMessage: string
   ) {
     processDoneRegenerateExternal(
       fullText,
       id,
-      errorMessage,
       getMessageTask,
       $conversation,
       useLastMessageId,
@@ -251,7 +253,10 @@
       updateMessageTask,
       $messageTasks,
       toasts,
-      $userPrompt
+      $userPrompt,
+      hasError,
+      errorMessage,
+      reloadChat
     )
   }
   function onChangeMessageGroupId(groupId: string) {
@@ -261,6 +266,11 @@
     const showOrHide = !$showChatMessagesPager
     // console.log({ showOrHide })
     showChatMessagesPager.update(() => showOrHide)
+  }
+  function stopGeneration() {
+    if (tempChatMessagesRef) {
+      tempChatMessagesRef.abortCompletion()
+    }
   }
   onMount(() => {
     // chatMessages.subscribe((newChatMessages) => {})
@@ -307,6 +317,7 @@
   {/if}
   {#if $isProcessing && $conversation}
     <TempChatMessages
+      bind:this={tempChatMessagesRef}
       {onProcessingDone}
       messages={$promptMessages}
       model={$model}
@@ -317,5 +328,10 @@
       isRegenerate={$isRegenerate}
     />
   {/if}
-  <ChatPrompt {onSubmitPrompt} {setChatConfig} />
+  <ChatPrompt
+    isProcessing={$isProcessing}
+    {onSubmitPrompt}
+    {setChatConfig}
+    onStopGeneration={stopGeneration}
+  />
 </div>

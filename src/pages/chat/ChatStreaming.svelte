@@ -12,6 +12,8 @@
     text: string,
     id: string,
     isRegenerate: boolean,
+    hasError: boolean,
+
     errorMessage: string
   ) => void
   export let messages: ChatMessageInterface[] = []
@@ -23,6 +25,7 @@
   export let regenerateMessages: ChatMessageInterface[]
 
   let chatContainer
+  let assistantMessage: AssistantMessage
   let filteredMessages = messages.filter((m) => m.role !== "system")
   if (isRegenerate) {
     // console.log({isRegenerate})
@@ -33,6 +36,11 @@
     chatContainer = document.querySelector("#chat-container")
     autoScroll()
   })
+  export function abortCompletion() {
+    if (assistantMessage) {
+      assistantMessage.abortCompletion()
+    }
+  }
 </script>
 
 <ul id="chat-container" class=" space-y-5 conversation-list">
@@ -43,6 +51,7 @@
       />
     {/if}
     <AssistantMessage
+      bind:this={assistantMessage}
       {onProcessingDone}
       isStreaming={true}
       {regenerateMessages}

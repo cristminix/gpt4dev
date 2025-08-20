@@ -375,6 +375,7 @@
           >
             <i class="fa fa-play"></i>
           </button>
+
           <button
             on:click={() => {
               console.log("regenerate")

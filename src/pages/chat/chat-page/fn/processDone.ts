@@ -40,6 +40,7 @@ export async function processDone(
   messageGroupIds: Writable<string[]>,
   $messageGroupIds: string[],
   toasts: Toasts,
+  hasError: boolean,
   errorMessage: string
 ) {
   const task = getMessageTask(id)
