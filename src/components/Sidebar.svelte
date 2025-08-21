@@ -5,13 +5,15 @@
   import { writable } from "svelte/store"
   import { getConversations } from "@/global/store/conversation/getConversations"
   import type { ConversationInterface } from "@/pages/chat/chat-page/types"
+  import { getCurrentUser } from "@/global/store/auth/getCurrentUser"
   export let routeApp: any
   const conversations = writable<ConversationInterface[]>([])
   let lastRoutePath = ""
   const HSAccordion = window.HSAccordion
 
   async function loadConversations() {
-    const conversationList = await getConversations()
+    const currentUser = await getCurrentUser()
+    const conversationList = await getConversations(currentUser.id)
     conversations.update(() => conversationList)
 
     setTimeout(() => {

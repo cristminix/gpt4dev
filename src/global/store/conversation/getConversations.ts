@@ -1,6 +1,6 @@
-export async function getConversations() {
+export async function getConversations(userId: number) {
   try {
-    const response = await fetch("/llm/conversations")
+    const response = await fetch(`/llm/conversations/users/${userId}`)
 
     // Periksa apakah response berhasil
     if (!response.ok) {
