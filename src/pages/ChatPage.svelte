@@ -281,9 +281,10 @@
   function onChatBuffer(data: any) {
     if (!tempChatMessagesRef) return
     const { text, t, complete, params } = data
-    console.log({ text, t, complete, params })
-    if ($messageGroupId) {
-      console.log($groupedChatMessages[$messageGroupId])
+    // console.log({ text, t, complete, params })
+    if ($messageGroupId.length > 0) {
+      console.log({ messageGroupId: $messageGroupId })
+      if (!Array.isArray($groupedChatMessages[$messageGroupId])) return
       if (tempMode === 0) {
         // INITIAL
         // append user message
