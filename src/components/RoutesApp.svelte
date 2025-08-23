@@ -10,6 +10,7 @@
   const queryString = writable<string | null>("")
   const manager = new TabManager()
   let tab: SimulatedTab
+  let firstTime = true
   export const setUrl = (targetUrl: string) => {
     idb.set(tab.id, targetUrl)
     savedUrl.update((o) => targetUrl)
@@ -69,7 +70,11 @@
     const [path, queryString] = getRoute(value)
     lastPath.update((o) => path)
     lastQueryString.update((o) => queryString)
-    document.location.hash = `${value}`
+    if (!firstTime) {
+      document.location.hash = `${value}`
+    }
+    firstTime = false
+
     onRouteChange(path, queryString)
   })
 
@@ -91,9 +96,10 @@
   }
   onMount(() => {
     tab = manager.add(document.location.href)
-
+    console.log({ tab, href: document.location.href })
     const loadLastUrl = async () => {
-      const lastUrl = await idb.get(tab.id)
+      const lastUrl = document.location.hash.replace("#", "") // await idb.get(tab.id)
+      console.log({ lastUrl })
       if (lastUrl) setRoute(lastUrl as string)
     }
     loadLastUrl()
