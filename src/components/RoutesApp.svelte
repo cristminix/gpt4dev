@@ -2,14 +2,16 @@
   import { writable } from "svelte/store"
   import * as idb from "idb-keyval"
   import { onMount } from "svelte"
-
+  import { TabManager, type SimulatedTab } from "../global/classes/TabManager"
   const savedUrl = writable("")
   const lastPath = writable("")
   const lastQueryString = writable<string | null>(null)
   const pathname = writable("")
   const queryString = writable<string | null>("")
+  const manager = new TabManager()
+  let tab: SimulatedTab
   export const setUrl = (targetUrl: string) => {
-    idb.set("route.url", targetUrl)
+    idb.set(tab.id, targetUrl)
     savedUrl.update((o) => targetUrl)
     const [path, _queryString] = getRoute(targetUrl)
     pathname.update((o) => path)
@@ -80,16 +82,18 @@
     routeChangesTimer = setInterval(async () => {
       // console.log(`route changes watcher is running ${routeChangesClock}`)
       routeChangesClock += 1
-      const lastUrl = await idb.get("route.url")
+      const lastUrl = await idb.get(tab.id)
       if (lastUrl && lastUrl != $savedUrl) setRoute(lastUrl as string)
     }, routeChangesTimeout)
   }
   export const navigate = (newUrl: string) => {
-    idb.set("route.url", newUrl)
+    idb.set(tab.id, newUrl)
   }
   onMount(() => {
+    tab = manager.add(document.location.href)
+
     const loadLastUrl = async () => {
-      const lastUrl = await idb.get("route.url")
+      const lastUrl = await idb.get(tab.id)
       if (lastUrl) setRoute(lastUrl as string)
     }
     loadLastUrl()

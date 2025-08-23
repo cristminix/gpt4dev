@@ -108,7 +108,7 @@
     token: string
   ): Promise<void> {
     if (!$reasoning) reasoning.update(() => true)
-
+    processOnChatBuffer(text, "reasoning", false)
     const debouncedUpdate = debounce(() => {
       if (!autoScrollManager) {
         autoScrollManager = autoScrollReasoning(

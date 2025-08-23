@@ -11,7 +11,7 @@
 </script>
 
 <a
-  href={to}
+  href={"#" + to}
   {title}
   on:click={onNavigate}
   class={`${isActive ? "active" : ""} ${className}`}><slot /></a
