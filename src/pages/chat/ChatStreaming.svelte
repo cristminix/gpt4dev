@@ -23,7 +23,7 @@
   export let messageId: string
   export let isRegenerate: boolean
   export let regenerateMessages: ChatMessageInterface[]
-
+  export let onChatBuffer
   let chatContainer
   let assistantMessage: AssistantMessage
   let filteredMessages = messages.filter((m) => m.role !== "system")
@@ -41,6 +41,9 @@
       assistantMessage.abortCompletion()
     }
   }
+  export function getUserMessage() {
+    return filteredMessages[filteredMessages.length - 1]
+  }
 </script>
 
 <ul id="chat-container" class=" space-y-5 conversation-list">
@@ -53,6 +56,7 @@
     <AssistantMessage
       bind:this={assistantMessage}
       {onProcessingDone}
+      {onChatBuffer}
       isStreaming={true}
       {regenerateMessages}
       {messages}

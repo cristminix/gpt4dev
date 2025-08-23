@@ -7,6 +7,7 @@
   import "flowtoken/dist/styles.css"
   // import { dark } from "react-syntax-highlighter/dist/esm/styles/hljs"
   import "highlight.js/styles/github-dark.css"
+  //@ts-ignore
   import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism"
   import hljs from "highlight.js"
   import svelte from "highlight.svelte"
@@ -66,7 +67,6 @@
       isStreaming = false
     }
   }
-  $: handleSubmit()
 </script>
 
 <ul id="chat-container" class=" space-y-5 conversation-list">

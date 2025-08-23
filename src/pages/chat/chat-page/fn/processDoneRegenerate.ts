@@ -114,7 +114,7 @@ export async function processDoneRegenerate(
         // setTimeout(() => {
         updateMessageGroupMessages()
         // }, 512)
-      }, 512)
+      }, 25)
 
       updateMessageTask(id, true)
     } else {

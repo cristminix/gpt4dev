@@ -141,7 +141,7 @@ export async function processDone(
           }
         }
         isProcessing.update(() => false)
-      }, 512)
+      }, 25)
       updateMessageTask(id, true)
     } else {
       console.log("Message already saved", getMessageTask(id), $messageTasks)

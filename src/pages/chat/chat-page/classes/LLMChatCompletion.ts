@@ -67,16 +67,16 @@ export class LLMCompletion {
     conversation: ConversationInterface,
     isRegenerate: boolean
   ) {
-    let oldRequestDate = this.lastRequestDate
-    const now = Date.now()
-    if (!oldRequestDate) {
-      oldRequestDate = now
-    }
-    const differenceInMilliseconds = now - oldRequestDate
+    // let oldRequestDate = this.lastRequestDate
+    // const now = Date.now()
+    // if (!oldRequestDate) {
+    //   oldRequestDate = now
+    // }
+    // const differenceInMilliseconds = now - oldRequestDate
 
-    await new Promise((resolve) =>
-      setTimeout(resolve, 512 - differenceInMilliseconds)
-    )
+    // await new Promise((resolve) =>
+    //   setTimeout(resolve, 512 - differenceInMilliseconds)
+    // )
     // const OPENAI_API_KEY = getProviderApiKey(provider)
     this.fullText = ""
     this.reasoningText = ""

@@ -1,7 +1,7 @@
 // mockChatStream.ts
 export function mockChatStream(
   input: string,
-  delayBetweenChunks: number = 10
+  delayBetweenChunks: number = 50
 ): Promise<Response> {
   // Example responses based on input
   const responses: Record<string, string> = {

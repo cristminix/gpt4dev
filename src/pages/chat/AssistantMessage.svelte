@@ -33,7 +33,7 @@
   export let provider: string
   export let messageId: string
   export let isRegenerate: boolean
-
+  export let onChatBuffer: (data: any) => void
   // Store for abort handler
 
   const finalContent = writable("")
@@ -48,7 +48,20 @@
   onMount(() => {})
 
   onDestroy(() => {})
-
+  function processOnChatBuffer(
+    text: string,
+    t: string,
+    complete: boolean,
+    params?: any
+  ) {
+    const data = {
+      text,
+      t,
+      complete,
+      params,
+    }
+    onChatBuffer(data)
+  }
   // Efek untuk animasi titik saat dalam keadaan reasoning
   let dotInterval: number | null = null
   $: if ($reasoning) {
@@ -81,6 +94,7 @@
   }
 
   async function updateMessage(text: string): Promise<void> {
+    processOnChatBuffer(text, "update", false)
     isProcessing.set(true)
     setTimeout(() => {
       reasoning.update(() => false)
@@ -88,10 +102,6 @@
       finalContent.update(() => text)
       autoScroll()
     }, 256)
-    const debouncedUpdate = debounce(() => {
-      console.log("do autoscroll")
-    }, 256)
-    debouncedUpdate()
   }
   async function updateReasoningMessage(
     text: string,
@@ -125,6 +135,13 @@
       autoScrollManager.cleanup()
       autoScrollManager = null
     }
+    processOnChatBuffer(text, "finish", true, {
+      messageId,
+      isRegenerate,
+      hasError,
+      errorMessage,
+    })
+
     if (onProcessingDone) {
       onProcessingDone(text, messageId, isRegenerate, hasError, errorMessage)
     }
@@ -329,7 +346,7 @@
           </div>
           <div class="reasoning-content nice-scrollbar overflow-y-auto">
             <div class="inner-content">
-              <ReactAdapter
+              <!-- <ReactAdapter
                 el={AnimatedMarkdown}
                 content={$reasoningContent}
                 animation="fadeIn"
@@ -337,7 +354,7 @@
                 animationTimingFunction="ease-in-out"
                 codeStyle={dracula}
                 sep="word"
-              />
+              /> -->
             </div>
           </div>
         </div>

@@ -111,5 +111,5 @@ export function submitPrompt(
   isProcessing.update(() => false)
   setTimeout(() => {
     isProcessing.update(() => true)
-  }, 256)
+  }, 25)
 }

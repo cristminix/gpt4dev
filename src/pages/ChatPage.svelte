@@ -275,6 +275,51 @@
   onMount(() => {
     // chatMessages.subscribe((newChatMessages) => {})
   })
+  let tempMode = 0
+  let assistantMessagePtr: ChatMessageInterface | null = null
+  const tempChatMessageCls = writable("")
+  function onChatBuffer(data: any) {
+    if (!tempChatMessagesRef) return
+    const { text, t, complete, params } = data
+    console.log({ text, t, complete, params })
+    if ($messageGroupId) {
+      console.log($groupedChatMessages[$messageGroupId])
+      if (tempMode === 0) {
+        // INITIAL
+        // append user message
+        const userMessage = tempChatMessagesRef.getUserMessage()
+        if (userMessage) $groupedChatMessages[$messageGroupId].push(userMessage)
+        console.log({ userMessage })
+        assistantMessagePtr = {
+          role: "assistant",
+          username: `${$model}:${$provider}`,
+          content: "",
+          id: $messageId, // Membuat ID unik untuk pesan
+          parentId: userMessage?.id || "", // Menggunakan ID pesan pengguna sebagai parentId
+          groupId: $messageGroupId, // Menggunakan groupId saat ini
+        }
+        // append assistant message
+        if (assistantMessagePtr) {
+          $groupedChatMessages[$messageGroupId].push(assistantMessagePtr)
+        }
+
+        // update groupedChatMessages
+        groupedChatMessages.update(() => $groupedChatMessages)
+        tempChatMessageCls.update(() => "hidden")
+        tempMode = 1
+      } else if (tempMode === 1) {
+        // UPDATE
+        if (assistantMessagePtr) assistantMessagePtr.content = text
+        groupedChatMessages.update(() => $groupedChatMessages)
+      }
+    }
+    if (complete) {
+      tempMode = 0
+      setTimeout(() => {
+        tempChatMessageCls.update(() => "")
+      }, 3000)
+    }
+  }
   function reloadChat() {
     if (params?.id) loadChat(params.id)
     setTimeout(() => {
@@ -317,7 +362,9 @@
   {/if}
   {#if $isProcessing && $conversation}
     <TempChatMessages
+      className={$tempChatMessageCls}
       bind:this={tempChatMessagesRef}
+      {onChatBuffer}
       {onProcessingDone}
       messages={$promptMessages}
       model={$model}

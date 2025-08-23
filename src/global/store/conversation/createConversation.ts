@@ -2,10 +2,11 @@ import type {
   ChatMessageInterface,
   ConversationInterface,
 } from "@/pages/chat/chat-page/types"
-import { createProviderUsername } from "./createProviderUsername"
+import { getCurrentUser } from "../auth/getCurrentUser"
 
 export async function createConversation(conversation: ConversationInterface) {
   console.log(`Create conversation with ID: ${conversation.id}`, conversation)
+  const currentUser = await getCurrentUser()
   const response = await fetch("/llm/conversations", {
     method: "POST",
     headers: {
@@ -17,6 +18,7 @@ export async function createConversation(conversation: ConversationInterface) {
       created_at: conversation.createdAt || new Date().getTime(),
       updated_at: conversation.updatedAt || new Date().getTime(),
       folder_id: "default",
+      user_id: currentUser.id,
     }),
   })
   if (!response.ok) {
