@@ -1,9 +1,7 @@
 <script lang="ts">
   import type { ChatMessageInterface } from "../types"
-  import ReactAdapter from "@/pages/demo/ReactAdapter.svelte"
-  import { AnimatedMarkdown } from "flowtoken"
-  //@ts-ignore
-  import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism"
+
+  import ContentRenderer from "./ContentRenderer.svelte"
 
   export let deleteMessage
   export let regenerateMessage: (message: ChatMessageInterface) => void
@@ -278,16 +276,7 @@
       <h4 class="text-xl font-semibold">{message.username}</h4>
     </div>
     <div class="space-y-3 inner-content">
-      <ReactAdapter
-        el={AnimatedMarkdown}
-        content={message.content}
-        animation="fadeIn"
-        animationDuration="0.5s"
-        animationTimingFunction="ease-in-out"
-        codeStyle={dracula}
-        sep="word"
-        imgHeight={"100%"}
-      />
+      <ContentRenderer content={message.content} />
     </div>
     <!-- End Card -->
 

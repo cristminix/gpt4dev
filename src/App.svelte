@@ -86,7 +86,7 @@
     }
     queryString.update((o) => _queryString)
     try {
-      // if (routeApp) routeApp.triggerRouteChange(path, _queryString)
+      if (routeApp) routeApp.triggerRouteChange(path, _queryString)
     } catch (error) {}
   }
 </script>

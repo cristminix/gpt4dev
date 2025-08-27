@@ -11,7 +11,7 @@ export async function updateConversationTitle(conversation: any) {
     },
     body: JSON.stringify({
       title: conversation.title,
-      updated_at: conversation.updatedAt || new Date().getTime(),
+      updated_at: conversation.updatedAt || new Date(),
     }),
   })
   if (!response.ok) {

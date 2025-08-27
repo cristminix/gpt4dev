@@ -279,6 +279,7 @@
   let assistantMessagePtr: ChatMessageInterface | null = null
   const tempChatMessageCls = writable("")
   function onChatBuffer(data: any) {
+    return
     if (!tempChatMessagesRef) return
     const { text, t, complete, params } = data
     // console.log({ text, t, complete, params })

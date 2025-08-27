@@ -15,8 +15,8 @@ export async function createConversation(conversation: ConversationInterface) {
     body: JSON.stringify({
       id: conversation.id,
       title: conversation.title,
-      created_at: conversation.createdAt || new Date().getTime(),
-      updated_at: conversation.updatedAt || new Date().getTime(),
+      created_at: new Date(),
+      updated_at: new Date(),
       folder_id: "default",
       user_id: currentUser.id,
     }),

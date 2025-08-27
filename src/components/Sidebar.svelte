@@ -42,7 +42,10 @@
       const [path, queryString] = routeApp.getRoute()
       if (path.startsWith("/chat")) {
         for (const elem of jquery(`.conversation-item-button`)) {
-          if (jquery(elem).attr("href") === path) {
+          if (
+            jquery(elem).attr("href") === path ||
+            jquery(elem).attr("href") === `#${path}`
+          ) {
             jquery(elem).addClass("active")
             // break
           } else {
@@ -92,6 +95,7 @@
         lastRoutePath = routeApp.getRoute()[0]
         routeApp.addRouteChangeCallback(
           (path: string, qs: string) => {
+            console.log({ path, qs })
             activateConversationBtnStyles()
             if (lastRoutePath === "/chat/new") {
               updateConversationList()

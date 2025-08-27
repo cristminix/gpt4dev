@@ -25,7 +25,7 @@
       })
     }, 1000)
   }
-  // $: loadHighlight(lang)
+  $: loadHighlight(lang)
 </script>
 
 <!-- <div class="bg-gray-800 rounded-md p-2 editor">
@@ -38,11 +38,11 @@
     theme={oneDark}
   />
 </div> -->
-<div class="my-3 bg-gray-900 rounded-lg dark:bg-neutral-800">
-  <!-- <div class="px-3 py-1">
+<div class="my-3 !bg-gray-900 !rounded-lg !dark:bg-neutral-800">
+  <div class="!px-3 !py-1">
     <span class="text-xs text-gray-400 dark:text-neutral-500">{lang}</span>
-  </div> -->
-  <div class="code-toolbar">
+  </div>
+  <div class="code-toolbar pl-6 py-3">
     <pre class="rounded-lg"><code class="language-{lang}">{text}</code></pre>
     <div class="toolbar">
       <div class="toolbar-item">
