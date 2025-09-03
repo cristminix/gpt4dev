@@ -59,6 +59,8 @@
       t,
       complete,
       params,
+      messageId,
+      messages: isRegenerate ? regenerateMessages : messages,
     }
     onChatBuffer(data)
   }

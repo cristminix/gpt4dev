@@ -38,12 +38,14 @@
     theme={oneDark}
   />
 </div> -->
-<div class="my-3 !bg-gray-900 !rounded-lg !dark:bg-neutral-800">
-  <div class="!px-3 !py-1">
+<div
+  class="my-3 bg-gray-900 rounded-lg dark:bg-neutral-900 border border-neutral-900 shadow-sm"
+>
+  <div class="py-2 px-4 dark:bg-neutral-800">
     <span class="text-xs text-gray-400 dark:text-neutral-500">{lang}</span>
   </div>
-  <div class="code-toolbar pl-6 py-3">
-    <pre class="rounded-lg"><code class="language-{lang}">{text}</code></pre>
+  <div class="code-toolbar pl-6 py-4">
+    <pre class="!my-0"><code class="language-{lang}">{text}</code></pre>
     <div class="toolbar">
       <div class="toolbar-item">
         <button

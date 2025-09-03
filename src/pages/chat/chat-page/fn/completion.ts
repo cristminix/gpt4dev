@@ -167,7 +167,10 @@ export async function completion(
     llmCompletion.onPreviewCallback = onPreviewCallback
 
     llmCompletion.abortController = abortController
-
+    const apiKey = localStorage.getItem(`${provider}-api_key`)
+    if (apiKey) {
+      llmCompletion.setApiKey(apiKey)
+    }
     await llmCompletion.completion(
       provider,
       model,
