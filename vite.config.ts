@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     host: "0.0.0.0",
     allowedHosts: ["wahwei"],
-    proxyBak: {
+    proxy: {
       "/api": {
         target: "http://localhost:7000", // Backend server
         changeOrigin: true, // Ensure the request appears to come from the frontend server
@@ -31,8 +31,8 @@ export default defineConfig({
     },
   },
   build: {
-    minify: false,
-    sourcemap: true,
+    minify: true,
+    sourcemap: false,
     // rollupOptions: {
     //   input: {
     //     ["content-script-inject"]: path.resolve(__dirname, "src/content-scripts/content-inject.ts"),

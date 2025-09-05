@@ -6,6 +6,7 @@
   import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism"
   import CodeRenderer from "../../CodeRenderer.svelte"
   export let content = ""
+  // const platform = "animated-markdown"
   const platform = "svelte-markdown"
 </script>
 
