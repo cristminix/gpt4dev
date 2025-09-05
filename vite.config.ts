@@ -7,6 +7,7 @@ export default defineConfig({
   server: {
     host: "0.0.0.0",
     allowedHosts: ["wahwei"],
+    /*
     proxy: {
       "/api": {
         target: "http://localhost:7000", // Backend server
@@ -29,7 +30,9 @@ export default defineConfig({
         // rewrite: (path) => path.replace(/^\/thumbnail/, ""), // Optional: Remove '/api' prefix
       },
     },
+     */
   },
+
   build: {
     minify: true,
     sourcemap: false,

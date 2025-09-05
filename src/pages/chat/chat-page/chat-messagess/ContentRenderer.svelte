@@ -1,4 +1,5 @@
 <script lang="ts">
+  // @ts-ignore: Could not find a declaration file for module
   import SvelteMarkdown from "../../../../libs/svelte-markdown/src/SvelteMarkdown.svelte"
   import ReactAdapter from "@/pages/demo/ReactAdapter.svelte"
   import { AnimatedMarkdown } from "flowtoken"
