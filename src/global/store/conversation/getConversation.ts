@@ -1,8 +1,9 @@
+import { CHAT_BACKEND_URL } from "../config"
 // import { getChatMessages } from "./getChatMessages"
 
 export async function getConversation(id: string) {
   try {
-    const response = await fetch(`/llm/conversations/${id}`)
+    const response = await fetch(`${CHAT_BACKEND_URL}/llm/conversations/${id}`)
 
     // Periksa apakah response berhasil
     if (!response.ok) {

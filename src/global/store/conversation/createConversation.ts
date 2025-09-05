@@ -3,11 +3,12 @@ import type {
   ConversationInterface,
 } from "@/pages/chat/chat-page/types"
 import { getCurrentUser } from "../auth/getCurrentUser"
+import { CHAT_BACKEND_URL } from "../config"
 
 export async function createConversation(conversation: ConversationInterface) {
   console.log(`Create conversation with ID: ${conversation.id}`, conversation)
   const currentUser = await getCurrentUser()
-  const response = await fetch("/llm/conversations", {
+  const response = await fetch(`${CHAT_BACKEND_URL}/llm/conversations`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

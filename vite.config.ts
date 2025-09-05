@@ -5,9 +5,9 @@ import path from "node:path"
 // https://vitejs.dev/config/
 export default defineConfig({
   server: {
-    host:"0.0.0.0",
-    allowedHosts:["wahwei"],
-    proxy: {
+    host: "0.0.0.0",
+    allowedHosts: ["wahwei"],
+    proxyBak: {
       "/api": {
         target: "http://localhost:7000", // Backend server
         changeOrigin: true, // Ensure the request appears to come from the frontend server

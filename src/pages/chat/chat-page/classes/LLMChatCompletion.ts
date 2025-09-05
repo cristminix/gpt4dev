@@ -1,3 +1,4 @@
+import { G4F_BACKEND_URL } from "@/global/store/config"
 import {
   type ChatMessageInterface,
   type ConversationInterface,
@@ -11,7 +12,7 @@ export class LLMCompletion {
   errorText = ""
   response: Promise<Response> | undefined
   isFinalized: boolean = false
-  apiUrl: string = "/api/backend-api/v2/conversation"
+  apiUrl: string = `${G4F_BACKEND_URL}/conversation`
   apiKey: string = ""
   abortController: AbortController | null = null
 

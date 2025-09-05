@@ -1,7 +1,9 @@
+import { CHAT_BACKEND_URL } from "../config"
+
 export async function getChatMessages(conversationId: string) {
   try {
     const response = await fetch(
-      `/llm/messages/conversations/${conversationId}`
+      `${CHAT_BACKEND_URL}/llm/messages/conversations/${conversationId}`
     )
 
     // Periksa apakah response berhasil

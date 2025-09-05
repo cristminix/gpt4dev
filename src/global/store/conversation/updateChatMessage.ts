@@ -1,4 +1,5 @@
 import type { ChatMessageInterface } from "@/pages/chat/chat-page/types"
+import { CHAT_BACKEND_URL } from "../config"
 
 export async function updateChatMessage(
   message: ChatMessageInterface,
@@ -8,7 +9,7 @@ export async function updateChatMessage(
   console.log(`Update message : ${conversationId}`, message)
 
   const messageResponse = await fetch(
-    `/llm/messages/conversations/${conversationId}/${message.id}`,
+    `${CHAT_BACKEND_URL}/llm/messages/conversations/${conversationId}/${message.id}`,
     {
       method: "PUT",
       headers: {

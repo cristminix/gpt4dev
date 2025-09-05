@@ -1,11 +1,16 @@
+import { CHAT_BACKEND_URL } from "../config"
+
 export async function deleteConversation(conversationId: string) {
   try {
-    const response = await fetch(`/llm/conversations/${conversationId}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
+    const response = await fetch(
+      `${CHAT_BACKEND_URL}/llm/conversations/${conversationId}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
 
     // Periksa apakah response berhasil
     if (!response.ok) {

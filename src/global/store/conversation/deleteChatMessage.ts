@@ -1,7 +1,9 @@
+import { CHAT_BACKEND_URL } from "../config"
+
 export async function deleteChatMessage(conversationId: string, id: string) {
   try {
     const response = await fetch(
-      `/llm/messages/conversations/${conversationId}/${id}`,
+      `${CHAT_BACKEND_URL}/llm/messages/conversations/${conversationId}/${id}`,
       {
         method: "DELETE",
         headers: {

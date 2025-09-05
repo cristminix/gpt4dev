@@ -45,6 +45,7 @@
   const liveProviderLabes = liveProviderList.map((p) => `${p}-Live`)
   import { getModelConfig } from "@/global/store/chat/getModelConfig"
   import { setModelConfig } from "@/global/store/chat/setModelConfig"
+  import { G4F_BACKEND_URL } from "@/global/store/config"
 
   function doSetModelConfig(
     provider: string | null = null,
@@ -98,7 +99,7 @@
   }
   async function initProviderData() {
     const providerListSet: Provider[] = await fetch(
-      "api/backend-api/v2/providers"
+      `${G4F_BACKEND_URL}/providers`
     ).then((r) => r.json())
     // console.log(providerListSet)
     providerList.update((o) => [...providerListSet, ...addLiveProvider()])
@@ -197,7 +198,7 @@
   async function initModelData(providerName: string) {
     let modelListSet: Model[] = providerName.match(/Live$/)
       ? await getLiveProviderModels(providerName)
-      : await fetch(`api/backend-api/v2/models/${providerName}`).then((r) =>
+      : await fetch(`${G4F_BACKEND_URL}/models/${providerName}`).then((r) =>
           r.json()
         )
     // modelListSet = modelListSet.sort((a, b) => a.label.localeCompare(b.label))

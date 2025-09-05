@@ -1,6 +1,10 @@
+import { CHAT_BACKEND_URL } from "../config"
+
 export async function getConversations(userId: number) {
   try {
-    const response = await fetch(`/llm/conversations/users/${userId}`)
+    const response = await fetch(
+      `${CHAT_BACKEND_URL}/llm/conversations/users/${userId}`
+    )
 
     // Periksa apakah response berhasil
     if (!response.ok) {

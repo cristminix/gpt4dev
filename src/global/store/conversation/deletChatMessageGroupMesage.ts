@@ -1,10 +1,12 @@
+import { CHAT_BACKEND_URL } from "../config"
+
 export async function deletChatMessageGroupMesage(
   messageId: string,
   groupId: string
 ) {
   try {
     const response = await fetch(
-      `/llm/message-group-messages/${groupId}/${messageId}`,
+      `${CHAT_BACKEND_URL}/llm/message-group-messages/${groupId}/${messageId}`,
       {
         method: "DELETE",
         headers: {
@@ -15,7 +17,9 @@ export async function deletChatMessageGroupMesage(
 
     // Periksa apakah response berhasil
     if (!response.ok) {
-      throw new Error(`Failed to delete message group message: ${response.statusText}`)
+      throw new Error(
+        `Failed to delete message group message: ${response.statusText}`
+      )
     }
 
     const responseMessage = await response.json()
