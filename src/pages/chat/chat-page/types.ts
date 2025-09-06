@@ -12,6 +12,8 @@ export interface ChatMessageInterface {
   folderId?: string
   collapsed?: boolean | number
   replyCount?: number
+  createdAt?: Date | string | number
+  created_at?: Date | string | number
 }
 
 export interface ConversationInterface {

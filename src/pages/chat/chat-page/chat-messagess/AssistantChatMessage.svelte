@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { formatTimeAgo } from "@/global/fn/formatTimeAgo"
   import type { ChatMessageInterface } from "../types"
 
   import ContentRenderer from "./ContentRenderer.svelte"
@@ -272,8 +273,11 @@
 
   <div class="grow max-w-[90%] w-full space-y-3">
     <!-- Card -->
-    <div class="model-info pt-1">
+    <div class="model-info pt-1 flex gap-2">
       <h4 class="text-xl font-semibold">{message.username}</h4>
+      <span class="message-time py-1 text-sm"
+        >{formatTimeAgo(message.createdAt)}</span
+      >
     </div>
     <div class="space-y-3 inner-content">
       <ContentRenderer content={message.content} />

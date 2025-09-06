@@ -7,6 +7,9 @@ export async function createChatMessage(
 ) {
   // Initialize with the correct type
   console.log(`Create message : ${conversationId}`, message)
+  console.log("create conversation", { body: message })
+  message.create_at = Math.floor(Date.now() / 1000)
+  message.createAt = Math.floor(Date.now() / 1000)
 
   const messageResponse = await fetch(
     `${CHAT_BACKEND_URL}/llm/messages/conversations/${conversationId}`,
