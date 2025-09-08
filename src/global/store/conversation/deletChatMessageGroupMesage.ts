@@ -1,11 +1,12 @@
 import { CHAT_BACKEND_URL } from "../config"
+import { fetchChatBackendApi } from "../../fn/fetchChatBackendApi"
 
 export async function deletChatMessageGroupMesage(
   messageId: string,
   groupId: string
 ) {
   try {
-    const response = await fetch(
+    const response = await fetchChatBackendApi(
       `${CHAT_BACKEND_URL}/llm/message-group-messages/${groupId}/${messageId}`,
       {
         method: "DELETE",

@@ -13,6 +13,8 @@
   import LoadingIndicator from "../../components/ux/LoadingIndicator.svelte"
   //@ts-ignore
   import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism"
+  import SvelteMarkdown from "@/libs/svelte-markdown/src/SvelteMarkdown.svelte"
+  import CodeRendererStream from "./CodeRendererStream.svelte"
 
   export let prompt: string = "hi"
   export let model: string = "gpt-4:blackbox"
@@ -178,122 +180,6 @@
       isRegenerate,
       abortController
     )
-    /*
-    const now = Date.now()
-    if (!oldRequestDate) {
-      oldRequestDate = now
-    }
-    const differenceInMilliseconds = now - oldRequestDate
-
-    await new Promise((resolve) =>
-      setTimeout(resolve, 512 - differenceInMilliseconds)
-    )
-    const OPENAI_API_KEY = getProviderApiKey(provider)
-    fullText = ""
-    const response = await fetch("/api/backend-api/v2/conversation", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        action: "next",
-        api_key: OPENAI_API_KEY,
-        aspect_ratio: "16:9",
-        conversation: null,
-        model, // or 'gpt-3.5-turbo'
-        messages: isRegenerate ? regenerateMessages : messages,
-        stream: true, // Enable streaming
-        provider,
-        id: messageId,
-        conversation_id,
-        download_media: true,
-      }),
-    })
-    if (!response.ok) {
-      updateMessage("Error fetching response:" + response.statusText)
-      return
-    }
-    const reader = response.body?.getReader()
-    if (!reader) {
-      updateMessage("Error: Unable to get response reader")
-      return
-    }
-    let reasoningText = ""
-    while (true) {
-      let buffer = ""
-
-      const { done, value } = await reader.read()
-      if (done) {
-        finalizeMessage()
-        break
-      }
-
-      buffer += new TextDecoder().decode(value)
-
-      for (const line of buffer.split("\n")) {
-        if (!line) {
-          continue
-        }
-        let resp
-        try {
-          resp = JSON.parse(line)
-        } catch (error) {
-          // Skip invalid JSON lines
-          continue
-        }
-        if (resp) {
-          // console.log(resp)
-
-          switch (resp.type) {
-            case "log":
-              break
-            case "provider":
-              break
-            case "content":
-              fullText += resp.content
-              // console.log(line)
-              updateMessage(fullText)
-
-              break
-            case "finish":
-              const reason = resp.finish.reason
-              finalizeMessage()
-              break
-
-            case "parameters":
-              break
-            case "error":
-              fullText = resp.message
-              finalizeMessage()
-              break
-            case "preview":
-              updateMessage(resp.preview)
-
-              break
-            case "conversation":
-              try {
-                // const { message_history } = resp.conversation[provider]
-                // const lastMessage = message_history[message_history.length - 1]
-                // // tmpFullText = tmpFullText
-                // fullText = lastMessage
-                // finalizeMessage()
-              } catch (error) {
-                console.error("Error accessing conversation data:", error)
-              }
-
-              break
-            case "reasoning":
-              reasoningText += getReasoningText(resp)
-              updateMessage(reasoningText)
-              break
-          }
-        } else {
-          alert("no response")
-        }
-      }
-    }
-      */
   }
   onMount(() => {})
   $: {
@@ -346,15 +232,10 @@
           </div>
           <div class="reasoning-content nice-scrollbar overflow-y-auto">
             <div class="inner-content">
-              <!-- <ReactAdapter
-                el={AnimatedMarkdown}
-                content={$reasoningContent}
-                animation="fadeIn"
-                animationDuration="0.5s"
-                animationTimingFunction="ease-in-out"
-                codeStyle={dracula}
-                sep="word"
-              /> -->
+              <SvelteMarkdown
+                source={$reasoningContent}
+                renderers={{ code: CodeRendererStream }}
+              />
             </div>
           </div>
         </div>
@@ -363,15 +244,9 @@
         {#if $finalContent === "loading"}
           <LoadingIndicator />
         {:else}
-          <ReactAdapter
-            class="inner-content"
-            el={AnimatedMarkdown}
-            content={$finalContent}
-            animation="fadeIn"
-            animationDuration="0.5s"
-            animationTimingFunction="ease-in-out"
-            codeStyle={dracula}
-            sep="word"
+          <SvelteMarkdown
+            source={$finalContent}
+            renderers={{ code: CodeRendererStream }}
           />
         {/if}
       {/if}

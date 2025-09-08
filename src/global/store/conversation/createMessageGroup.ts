@@ -1,20 +1,24 @@
 import { CHAT_BACKEND_URL } from "../config"
+import { fetchChatBackendApi } from "../../fn/fetchChatBackendApi"
 
 export async function createMessageGroup(
   groupId: string,
   conversationId: string
 ) {
   try {
-    const response = await fetch(`${CHAT_BACKEND_URL}/llm/message-groups`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        id: groupId,
-        conversationId,
-      }),
-    })
+    const response = await fetchChatBackendApi(
+      `${CHAT_BACKEND_URL}/llm/message-groups`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: groupId,
+          conversationId,
+        }),
+      }
+    )
 
     // Periksa apakah response berhasil
     if (!response.ok) {

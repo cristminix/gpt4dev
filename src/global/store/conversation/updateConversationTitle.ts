@@ -1,4 +1,5 @@
 import { CHAT_BACKEND_URL } from "../config"
+import { fetchChatBackendApi } from "../../fn/fetchChatBackendApi"
 
 export async function updateConversationTitle(conversation: any) {
   // Logic to update a conversation by its ID
@@ -6,7 +7,7 @@ export async function updateConversationTitle(conversation: any) {
     `Updating conversation title with ID: ${conversation.id}`,
     conversation.title
   )
-  const response = await fetch(
+  const response = await fetchChatBackendApi(
     `${CHAT_BACKEND_URL}/llm/conversations/${conversation.id}`,
     {
       method: "PUT",

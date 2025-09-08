@@ -1,8 +1,9 @@
 import { CHAT_BACKEND_URL } from "../config"
+import { fetchChatBackendApi } from "../../fn/fetchChatBackendApi"
 
 export async function getConversations(userId: number) {
   try {
-    const response = await fetch(
+    const response = await fetchChatBackendApi(
       `${CHAT_BACKEND_URL}/llm/conversations/users/${userId}`
     )
 

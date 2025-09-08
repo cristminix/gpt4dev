@@ -4,6 +4,7 @@ import type {
 } from "@/pages/chat/chat-page/types"
 import { getCurrentUser } from "../auth/getCurrentUser"
 import { CHAT_BACKEND_URL } from "../config"
+import { fetchChatBackendApi } from "../../fn/fetchChatBackendApi"
 
 export async function createConversation(conversation: ConversationInterface) {
   console.log(`Create conversation with ID: ${conversation.id}`, conversation)
@@ -17,13 +18,16 @@ export async function createConversation(conversation: ConversationInterface) {
     user_id: currentUser.id,
   }
   console.log("create conversation", { body })
-  const response = await fetch(`${CHAT_BACKEND_URL}/llm/conversations`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  })
+  const response = await fetchChatBackendApi(
+    `${CHAT_BACKEND_URL}/llm/conversations`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    }
+  )
   if (!response.ok) {
     throw new Error(`Failed to create conversation: ${response.statusText}`)
   }
