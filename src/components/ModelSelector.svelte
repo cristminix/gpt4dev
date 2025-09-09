@@ -232,6 +232,7 @@
   })
 
   async function onProviderChange(providerName: string) {
+    console.log("onProviderChanged")
     try {
       if (providerName) {
         await initModelData(providerName)
