@@ -51,7 +51,7 @@ export async function completion(
         instance = new Together()
         break
       case "Puter":
-        instance = new Puter()
+        instance = new Puter({ apiKey: getProviderApiKey(providerName) })
         break
       case "DeepInfra":
         instance = new DeepInfra()
@@ -60,6 +60,7 @@ export async function completion(
         instance = new HuggingFace({ apiKey: getProviderApiKey(providerName) })
         break
     }
+
     console.log({ provider, instance, model })
     let fullText = ""
     let reasoningText = ""
@@ -141,6 +142,11 @@ export async function completion(
     // throw new Error("")
     // return
   } else {
+    if (provider === "PuterJS") {
+      console.log("HERE")
+      llmCompletion.setAction("variant")
+      llmCompletion.setApiKey(getProviderApiKey(provider))
+    }
     llmCompletion.onFinalizeMessageCallback = (text: string) => {
       // if (provider === "ApiAirforce") {
       //   text = ApiAirforce(text, model)

@@ -15,6 +15,7 @@ export class LLMCompletion {
   apiUrl: string = `${G4F_BACKEND_URL}/conversation`
   apiKey: string = ""
   abortController: AbortController | null = null
+  action: string = "next"
 
   onFinalizeMessageCallback: (text: string) => void = (text: string) => {}
   onUpdateMessageCallback: (text: string) => void = (text: string) => {}
@@ -47,7 +48,9 @@ export class LLMCompletion {
   setApiKey(apiKey: string) {
     this.apiKey = apiKey
   }
-
+  setAction(action: string) {
+    this.action = action
+  }
   getReasoningText(resp: ReasoningResponse): string {
     if (resp.token) return resp.token
     if (resp.status) return resp.status
@@ -93,7 +96,7 @@ export class LLMCompletion {
           Authorization: `Bearer ${this.apiKey}`,
         },
         body: JSON.stringify({
-          action: "next",
+          action: this.action,
           api_key: this.apiKey,
           aspect_ratio: "16:9",
           model, // or 'gpt-3.5-turbo'

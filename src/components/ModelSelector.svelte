@@ -46,6 +46,7 @@
   import { getModelConfig } from "@/global/store/chat/getModelConfig"
   import { setModelConfig } from "@/global/store/chat/setModelConfig"
   import { G4F_BACKEND_URL } from "@/global/store/config"
+  import { injectPuter } from "@/pages/chat/chat-page/fn/injectPuter"
 
   function doSetModelConfig(
     provider: string | null = null,
@@ -231,11 +232,17 @@
     // console.log(o)
   })
 
+  // Fungsi getModelConfig sudah memiliki caching bawaan
+  // Jadi kita bisa menggunakan langsung getModelConfig() tanpa perlu fungsi tambahan
+
   async function onProviderChange(providerName: string) {
     console.log("onProviderChanged")
     try {
       if (providerName) {
         await initModelData(providerName)
+        if (providerName === "PuterJS") {
+          await injectPuter()
+        }
       }
       console.log({ providerName })
     } catch (error) {
@@ -251,11 +258,16 @@
 
   $: loadProviderList()
 
-  function isModelSelected(model: string, provider: string | null) {
-    const modelConfig = getModelConfig()
+  function isModelSelected(
+    model: string,
+    provider: string | null,
+    modelConfig: any = null
+  ) {
+    // Gunakan modelConfig yang diteruskan atau ambil dari cache
+    const config = modelConfig || getModelConfig()
     if (
-      (provider ? modelConfig.provider === provider : true) &&
-      modelConfig.model === model
+      (provider ? config.provider === provider : true) &&
+      config.model === model
     )
       return true
     return false
