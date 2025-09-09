@@ -39,17 +39,19 @@
   }
   function activateConversationBtnStyles() {
     setTimeout(() => {
-      const [path, queryString] = routeApp.getRoute()
-      if (path.startsWith("/chat")) {
-        for (const elem of jquery(`.conversation-item-button`)) {
-          if (
-            jquery(elem).attr("href") === path ||
-            jquery(elem).attr("href") === `#${path}`
-          ) {
-            jquery(elem).addClass("active")
-            // break
-          } else {
-            jquery(elem).removeClass("active")
+      if (routeApp) {
+        const [path, queryString] = routeApp.getRoute()
+        if (path.startsWith("/chat")) {
+          for (const elem of jquery(`.conversation-item-button`)) {
+            if (
+              jquery(elem).attr("href") === path ||
+              jquery(elem).attr("href") === `#${path}`
+            ) {
+              jquery(elem).addClass("active")
+              // break
+            } else {
+              jquery(elem).removeClass("active")
+            }
           }
         }
       }

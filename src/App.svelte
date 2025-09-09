@@ -32,10 +32,10 @@
   // const mSetting = dbStore.get("Setting") as MSetting
   onMount(() => {})
   const routingMap: RoutingMap = {
-    "/about": About,
-    "/chat/:id": ChatPage,
-    "/contact/page/:page": Contact,
-    "/demo": Demo,
+    "/about": { page: About },
+    "/chat/:id": { page: ChatPage },
+    "/contact/page/:page": { page: Contact },
+    "/demo": { page: Demo, template: "single" },
     // "/course": CoursePage,
     // "/course/display/:id/:slug": CourseDisplayPage,
     // "/course/add/:slug": AddCoursePage,
@@ -45,6 +45,7 @@
   }
 
   let page: any
+  let templateName = "admin"
   const routingKeys = Object.keys(routingMap).reverse()
   function matchRoute(input: string) {
     let matchParams: any
@@ -80,7 +81,12 @@
     // page = NotFound
     if (routeKeyFound) {
       routeParams.update((o) => params)
-      page = routingMap[routeKeyFound]
+      page = routingMap[routeKeyFound].page
+      if (routingMap[routeKeyFound].template) {
+        templateName = routingMap[routeKeyFound].template
+      } else {
+        templateName = "admin"
+      }
     } else {
       page = NotFound
     }
@@ -97,7 +103,7 @@
   <Link {routeApp} to="/contact" isActive={page === Contact}>Contact Us</Link>
 </nav> -->
 
-<Template {routeApp} {toasts}>
+<Template {routeApp} {toasts} name={templateName}>
   <RoutesApp bind:this={routeApp} {onRouteChange} />
   <Toasts bind:this={toasts} />
   <svelte:component

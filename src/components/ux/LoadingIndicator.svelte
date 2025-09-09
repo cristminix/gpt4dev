@@ -127,6 +127,105 @@
 </script>
 
 <div class="flex items-center">
+  <div class="runner">
+    <svg viewBox="0 0 100 100">
+      <!-- Kepala -->
+      <circle cx="50" cy="20" r="10" fill="#333" />
+      <!-- Badan -->
+      <line x1="50" y1="30" x2="50" y2="60" stroke="#333" stroke-width="3" />
+      <!-- Lengan Kiri -->
+      <line
+        x1="50"
+        y1="40"
+        x2="35"
+        y2="50"
+        stroke="#333"
+        stroke-width="3"
+        class="arm"
+      />
+      <!-- Lengan Kanan -->
+      <line
+        x1="50"
+        y1="40"
+        x2="65"
+        y2="50"
+        stroke="#333"
+        stroke-width="3"
+        class="arm"
+      />
+      <!-- Kaki Kiri -->
+      <line
+        x1="50"
+        y1="60"
+        x2="40"
+        y2="75"
+        stroke="#333"
+        stroke-width="3"
+        class="leg"
+      />
+      <!-- Kaki Kanan -->
+      <line
+        x1="50"
+        y1="60"
+        x2="60"
+        y2="75"
+        stroke="#333"
+        stroke-width="3"
+        class="leg"
+      />
+    </svg>
+  </div>
   <i class="fa fa-spin fa-spinner mr-2"></i>
   <span>{currentText} {dots}</span>
 </div>
+
+<style>
+  .runner {
+    width: 100px;
+    height: 100px;
+    position: relative;
+    animation: bounce 0.5s infinite alternate;
+  }
+
+  .runner svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .leg {
+    transform-origin: top center;
+    animation: runLeg 0.5s infinite alternate;
+  }
+
+  .arm {
+    transform-origin: top center;
+    animation: runArm 0.5s infinite alternate-reverse;
+  }
+
+  @keyframes runLeg {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(30deg);
+    }
+  }
+
+  @keyframes runArm {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(-30deg);
+    }
+  }
+
+  @keyframes bounce {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(-10px);
+    }
+  }
+</style>
