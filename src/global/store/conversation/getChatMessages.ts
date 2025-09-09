@@ -14,7 +14,7 @@ export async function getChatMessages(conversationId: string) {
 
     const responseMessage = await response.json()
     let chatMessages = []
-    console.log("getChatMessages responseMessage", responseMessage)
+    // console.log("getChatMessages responseMessage", responseMessage)
     if (responseMessage.data) {
       chatMessages = responseMessage.data.map((item: any) => {
         // const { message, participant } = item
@@ -32,7 +32,7 @@ export async function getChatMessages(conversationId: string) {
     }
     return chatMessages
   } catch (error) {
-    console.error("Error fetching chat messages:", error)
+    // console.error("Error fetching chat messages:", error)
     throw error // Melempar error kembali agar dapat ditangani oleh pemanggil fungsi
   }
 }

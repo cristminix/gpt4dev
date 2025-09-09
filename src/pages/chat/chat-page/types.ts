@@ -12,6 +12,9 @@ export interface ChatMessageInterface {
   folderId?: string
   collapsed?: boolean | number
   replyCount?: number
+
+  createdAt?: Date | string | number
+  // still need to clarify this
   createAt?: Date | string | number
   create_at?: Date | string | number
 }

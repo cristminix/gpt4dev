@@ -54,7 +54,7 @@
     routeChangeCallbacksKeep[key] = keep
   }
   export let onRouteChange = (path: string, queryString: string | null) => {
-    console.log(path, queryString)
+    // console.log(path, queryString)
   }
   export function triggerRouteChange(path: string, queryString: string | null) {
     Object.keys(routeChangeCallbacks).forEach((key) =>
@@ -96,10 +96,10 @@
   }
   onMount(() => {
     tab = manager.add(document.location.href)
-    console.log({ tab, href: document.location.href })
+    // console.log({ tab, href: document.location.href })
     const loadLastUrl = async () => {
       const lastUrl = document.location.hash.replace("#", "") // await idb.get(tab.id)
-      console.log({ lastUrl })
+      // console.log({ lastUrl })
       if (lastUrl) setRoute(lastUrl as string)
     }
     loadLastUrl()

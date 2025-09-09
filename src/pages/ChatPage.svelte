@@ -116,10 +116,10 @@
     hasError: boolean,
     errorMessage: string
   ) {
-    console.log({
-      $messageGroupId,
-      $messageGroupIds,
-    })
+    // console.log({
+    //   $messageGroupId,
+    //   $messageGroupIds,
+    // })
     if (isRegenerate) {
       processDoneRegenerate(fullText, id, hasError, errorMessage)
     } else
@@ -165,7 +165,7 @@
     // Handle document title update
     if ($conversation) {
       document.title = $conversation.title
-      console.log($conversation)
+      // console.log($conversation)
       await updateMessageGroupMessages()
 
       // load message groups
@@ -176,7 +176,7 @@
   async function updateMessageGroupMessages() {
     if ($conversation) {
       const messageGroups = await getMessageGroups($conversation.id)
-      console.log({ messageGroups })
+      // console.log({ messageGroups })
       if (messageGroups.length > 0) {
         const messageGroupIdsSet = messageGroups.map((mg: any) => mg.id)
         messageGroupIds.update(() => messageGroupIdsSet)
@@ -290,8 +290,9 @@
         // INITIAL
         // append user message
         const userMessage = tempChatMessagesRef.getUserMessage()
+        //@ts-ignore
         if (userMessage) $groupedChatMessages[$messageGroupId].push(userMessage)
-        console.log({ userMessage })
+        // console.log({ userMessage })
         assistantMessagePtr = {
           role: "assistant",
           username: `${$model}:${$provider}`,
@@ -302,6 +303,7 @@
         }
         // append assistant message
         if (assistantMessagePtr) {
+          //@ts-ignore
           $groupedChatMessages[$messageGroupId].push(assistantMessagePtr)
         }
 
@@ -311,6 +313,7 @@
         tempMode = 1
       } else if (tempMode === 1) {
         // UPDATE
+        //@ts-ignore
         if (assistantMessagePtr) assistantMessagePtr.content = text
         groupedChatMessages.update(() => $groupedChatMessages)
       }

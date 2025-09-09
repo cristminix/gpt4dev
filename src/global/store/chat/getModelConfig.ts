@@ -17,7 +17,7 @@ export function getModelConfig() {
   const uiModel = jquery("#model").val()
   const uiProvider = jquery("#provider").val()
   // Komentari log ini untuk mengurangi output console
-  console.log("getModelConfig()")
+  // console.log("getModelConfig()")
 
   if (uiModel && uiProvider) {
     if (uiProvider.length > 0 && uiModel.length > 0) {

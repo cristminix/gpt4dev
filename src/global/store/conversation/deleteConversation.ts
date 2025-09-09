@@ -21,7 +21,7 @@ export async function deleteConversation(conversationId: string) {
     const result = await response.json()
     return result.success
   } catch (error) {
-    console.error("Error deleting conversation:", error)
+    // console.error("Error deleting conversation:", error)
     throw error // Melempar error kembali agar dapat ditangani oleh pemanggil fungsi
   }
 }

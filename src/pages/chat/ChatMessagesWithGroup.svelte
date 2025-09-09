@@ -34,7 +34,7 @@
       }
       grouped[groupId].push(message)
     })
-    console.log({ grouped })
+    // console.log({ grouped })
     return grouped
   }
   export function onClickChangeGroupId(groupId: string) {
@@ -61,7 +61,7 @@
     // groupedChatMessages.update(() => {})
     groupedChatMessages.set(groupChatMessages(chatMessages))
 
-    console.log("HSTabs.autoInit()")
+    // console.log("HSTabs.autoInit()")
     //@ts-ignore
     HSTabs.autoInit()
     // autoScroll()
@@ -70,7 +70,7 @@
   async function deleteMessage(messageId: string, groupId: string) {
     // Implement message deletion logic here
     console.log("Delete message with ID:", messageId)
-    onDeleteMessage(messageId, groupId)
+    // onDeleteMessage(messageId, groupId)
   }
   function autoScroll() {
     // setTimeout(() => {

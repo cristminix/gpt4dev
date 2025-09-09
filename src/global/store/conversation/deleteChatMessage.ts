@@ -20,11 +20,11 @@ export async function deleteChatMessage(conversationId: string, id: string) {
 
     const responseMessage = await response.json()
 
-    console.log("deleteChatMessage responseMessage", responseMessage)
+    // console.log("deleteChatMessage responseMessage", responseMessage)
 
     return responseMessage.success
   } catch (error) {
-    console.error("Error deleting chat message:", error)
+    // console.error("Error deleting chat message:", error)
     // throw error // Melempar error kembali agar dapat ditangani oleh pemanggil fungsi
   }
 }

@@ -3,10 +3,10 @@ import { fetchChatBackendApi } from "../../fn/fetchChatBackendApi"
 
 export async function updateConversationTitle(conversation: any) {
   // Logic to update a conversation by its ID
-  console.log(
-    `Updating conversation title with ID: ${conversation.id}`,
-    conversation.title
-  )
+  // console.log(
+  //   `Updating conversation title with ID: ${conversation.id}`,
+  //   conversation.title
+  // )
   const response = await fetchChatBackendApi(
     `${CHAT_BACKEND_URL}/llm/conversations/${conversation.id}`,
     {
@@ -24,5 +24,5 @@ export async function updateConversationTitle(conversation: any) {
     throw new Error(`Failed to create conversation: ${response.statusText}`)
   }
   const data = await response.json()
-  console.log("Create conversation response", data)
+  // console.log("Create conversation response", data)
 }

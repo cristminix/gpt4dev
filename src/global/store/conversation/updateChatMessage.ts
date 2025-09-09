@@ -7,7 +7,7 @@ export async function updateChatMessage(
   conversationId: string
 ) {
   // Initialize with the correct type
-  console.log(`Update message : ${conversationId}`, message)
+  // console.log(`Update message : ${conversationId}`, message)
 
   const messageResponse = await fetchChatBackendApi(
     `${CHAT_BACKEND_URL}/llm/messages/conversations/${conversationId}/${message.id}`,

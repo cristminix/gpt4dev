@@ -7,7 +7,7 @@ import { CHAT_BACKEND_URL } from "../config"
 import { fetchChatBackendApi } from "../../fn/fetchChatBackendApi"
 
 export async function createConversation(conversation: ConversationInterface) {
-  console.log(`Create conversation with ID: ${conversation.id}`, conversation)
+  // console.log(`Create conversation with ID: ${conversation.id}`, conversation)
   const currentUser = await getCurrentUser()
   const body = {
     id: conversation.id,
@@ -17,7 +17,7 @@ export async function createConversation(conversation: ConversationInterface) {
     folder_id: "default",
     user_id: currentUser.id,
   }
-  console.log("create conversation", { body })
+  // console.log("create conversation", { body })
   const response = await fetchChatBackendApi(
     `${CHAT_BACKEND_URL}/llm/conversations`,
     {
@@ -32,7 +32,7 @@ export async function createConversation(conversation: ConversationInterface) {
     throw new Error(`Failed to create conversation: ${response.statusText}`)
   }
   const data = await response.json()
-  console.log("Create conversation response", data)
+  // console.log("Create conversation response", data)
   let conversationRow = data.data || null
   return conversationRow
 }

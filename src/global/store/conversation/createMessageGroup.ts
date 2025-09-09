@@ -27,11 +27,11 @@ export async function createMessageGroup(
 
     const jsonResponse = await response.json()
     let [messageGroup] = jsonResponse.data || []
-    console.log("createMessageGroup jsonResponse", jsonResponse)
+    // console.log("createMessageGroup jsonResponse", jsonResponse)
 
     return messageGroup
   } catch (error) {
-    console.error("Error creating message group:", error)
+    // console.error("Error creating message group:", error)
     throw error // Melempar error kembali agar dapat ditangani oleh pemanggil fungsi
   }
 }

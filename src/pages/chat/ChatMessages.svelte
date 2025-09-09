@@ -19,8 +19,7 @@
     onDeleteMessage(messageId, groupId)
   }
   function autoScroll() {
-    console.log("do autoscroll")
-
+    // console.log("do autoscroll")
     // setTimeout(() => {
     //   const element = document.querySelector(".template-content");
     //   if (element) {

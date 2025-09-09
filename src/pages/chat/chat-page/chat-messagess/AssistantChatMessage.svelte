@@ -29,7 +29,7 @@
 
   export function updateAnswerInfo(groupId: string) {
     setTimeout(() => {
-      console.log(`Update answer info ${groupId}`)
+      // console.log(`Update answer info ${groupId}`)
 
       if (!userMessage) return
       if (!getGroupData()) return
@@ -93,21 +93,21 @@
     const prevAnswerMessageId = answerIds[prevAnswerIndex]
     const prevAnswerPageNumber = answerPageNumber - 1
 
-    console.log({
-      answerIds,
-      currentAnswerIndex,
-      currentAnswerMessageId,
-      prevAnswerMessageId,
-    })
+    // console.log({
+    //   answerIds,
+    //   currentAnswerIndex,
+    //   currentAnswerMessageId,
+    //   prevAnswerMessageId,
+    // })
     // return
     for (const groupId of [...messageGroupIds].reverse()) {
       const groupedChatMessage = groupedChatMessages[groupId]
       for (const msg of groupedChatMessage) {
         if (msg.role === "assistant" && msg.id === prevAnswerMessageId) {
-          console.log({
-            groupIndexCursor,
-            currentGroupIndex,
-          })
+          // console.log({
+          //   groupIndexCursor,
+          //   currentGroupIndex,
+          // })
           foundPrevGroupIndex = true
           prevGroupIdSearch = groupId
         }
@@ -122,11 +122,11 @@
     }
     const prevGroupId = messageGroupIds[groupIndexCursor]
 
-    console.log({
-      groupIndexCursor,
-      foundPrevGroupIndex,
-      prevGroupId,
-    })
+    // console.log({
+    //   groupIndexCursor,
+    //   foundPrevGroupIndex,
+    //   prevGroupId,
+    // })
     if (!foundPrevGroupIndex) return
     answerPageNumber = prevAnswerPageNumber
 
@@ -156,13 +156,13 @@
     const nextAnswerMessageId = answerIds[nextAnswerIndex]
     const nextAnswerPageNumber = answerPageNumber + 1
 
-    console.log({
-      currentAnswerIndex,
-      nextAnswerIndex,
-      currentAnswerMessageId,
-      nextAnswerMessageId,
-      nextAnswerPageNumber,
-    })
+    // console.log({
+    //   currentAnswerIndex,
+    //   nextAnswerIndex,
+    //   currentAnswerMessageId,
+    //   nextAnswerMessageId,
+    //   nextAnswerPageNumber,
+    // })
 
     for (const groupId of messageGroupIds) {
       const groupedChatMessage = groupedChatMessages[groupId]
@@ -183,12 +183,12 @@
     if (!foundNextGroupIndex) return
     const nextGroupId = messageGroupIds[groupIndexCursor]
     answerPageNumber = nextAnswerPageNumber
-    console.log({
-      groupIndexCursor,
-      foundNextGroupIndex,
-      nextGroupId,
-      nextMessageId,
-    })
+    // console.log({
+    //   groupIndexCursor,
+    //   foundNextGroupIndex,
+    //   nextGroupId,
+    //   nextMessageId,
+    // })
     groupIndex = groupIndexCursor
     onChangeGroupId(nextGroupId)
     scrollToEl()
@@ -371,7 +371,7 @@
 
           <button
             on:click={() => {
-              console.log("regenerate")
+              // console.log("regenerate")
               regenerateMessage(message)
             }}
             type="button"

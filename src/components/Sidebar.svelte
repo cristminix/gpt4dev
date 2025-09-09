@@ -97,7 +97,7 @@
         lastRoutePath = routeApp.getRoute()[0]
         routeApp.addRouteChangeCallback(
           (path: string, qs: string) => {
-            console.log({ path, qs })
+            // console.log({ path, qs })
             activateConversationBtnStyles()
             if (lastRoutePath === "/chat/new") {
               updateConversationList()
@@ -106,7 +106,7 @@
               updateConversationList()
               routeApp.setRoute("/chat/new")
             }
-            console.log({ qs })
+            // console.log({ qs })
             if (qs) {
               if (qs.match(/reloadSidebar/)) {
                 updateConversationList()

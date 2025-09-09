@@ -7,8 +7,8 @@ export async function createChatMessage(
   conversationId: string
 ) {
   // Initialize with the correct type
-  console.log(`Create message : ${conversationId}`, message)
-  console.log("create conversation", { body: message })
+  // console.log(`Create message : ${conversationId}`, message)
+  // console.log("create conversation", { body: message })
 
   message.create_at = Math.floor(Date.now() / 1000)
   message.createAt = Math.floor(Date.now() / 1000)

@@ -11,7 +11,7 @@ export async function loadChat(
 ) {
   conversation.update((o) => null)
 
-  console.log("load chat", id)
+  // console.log("load chat", id)
   if (id == "new") {
     createNewChat()
   } else {

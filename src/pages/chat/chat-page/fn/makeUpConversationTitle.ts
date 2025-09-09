@@ -40,6 +40,7 @@ export async function makeUpConversationTitle(
         download_media: true,
       }),
     })
+    //@ts-ignore
     const reader = response.body.getReader()
     let line = ""
     let reasoningText = ""

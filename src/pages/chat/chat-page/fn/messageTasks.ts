@@ -10,7 +10,7 @@ export function addMessageTask(
   if (!exists) {
     messageTasks.update((o) => ({ ...o, [id]: { status: "onProcess" } }))
   }
-  console.log({ $messageTasks })
+  // console.log({ $messageTasks })
 }
 
 export function updateMessageTask(
@@ -27,7 +27,7 @@ export function updateMessageTask(
     newData[id] = { status }
     messageTasks.update(() => newData)
   }
-  console.log({ exists, $messageTasks })
+  // console.log({ exists, $messageTasks })
 }
 
 export function getMessageTask(
@@ -35,7 +35,7 @@ export function getMessageTask(
   $messageTasks: Record<string, MessageTask>
 ) {
   const exists = Object.keys($messageTasks).includes(id)
-  console.log({ $messageTasks })
+  // console.log({ $messageTasks })
   if (exists) {
     return $messageTasks[id]
   }

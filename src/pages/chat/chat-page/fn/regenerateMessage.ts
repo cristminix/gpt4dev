@@ -27,7 +27,7 @@ export async function onRegenerateMessage(
   $useLastMessageId: boolean,
   addMessageTask: (id: string) => void
 ) {
-  console.log("regenerate message", { message })
+  // console.log("regenerate message", { message })
   let messageToResend: ChatMessageInterface = message
   lastMessageId.update(() => messageToResend.id)
   // chek if provider and model are same
@@ -55,7 +55,7 @@ export async function onRegenerateMessage(
     messageToResend = realMessage
   }
   if (messageToResend) {
-    console.log({ messageToResend })
+    // console.log({ messageToResend })
   }
   let previousMessage: ChatMessageInterface[] = []
   for (const msg of $chatMessages.filter((msg) => msg.role !== "system")) {
@@ -94,7 +94,7 @@ export async function onRegenerateMessage(
       })
     }
     messagesToSendInConversation = [...systemMessages, ...messagesInRange]
-    console.log({ messagesToSendInConversation })
+    // console.log({ messagesToSendInConversation })
     // regeneratePromptMessages.update(()=>[])
     //@ts-ignore
     // regeneratePromptMessages.update(() => messagesToSendInConversation)
@@ -120,12 +120,12 @@ export async function onRegenerateMessage(
         return messages
       })
       messageGroupId.update(() => newGroupId)
-      console.log({
-        messagesInRange,
-        //   messagesToSendInConversation,
-        messagesToAppend,
-        //   chatMessages: $chatMessages,
-      })
+      // console.log({
+      //   messagesInRange,
+      //   //   messagesToSendInConversation,
+      //   messagesToAppend,
+      //   //   chatMessages: $chatMessages,
+      // })
     } else {
       useLastMessageId.update(() => true)
     }
@@ -143,8 +143,8 @@ export async function onRegenerateMessage(
     provider.update(() => modelConfig.provider)
     // @ts-ignore
     regeneratePromptMessages.update(() => messagesToAppend)
-    console.log("submit prompt", messageToResend.content)
-    console.log(modelConfig)
+    // console.log("submit prompt", messageToResend.content)
+    // console.log(modelConfig)
     isProcessing.update(() => false)
     isRegenerate.update(() => true)
     setTimeout(() => {

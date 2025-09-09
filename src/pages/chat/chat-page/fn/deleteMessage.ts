@@ -19,10 +19,10 @@ export async function deleteMessage(
     chatMessages.update((o) => $chatMessages)
     if ($conversation) {
       // Convert id to number for API call if it's a string
-      await deletChatMessageGroupMesage(id, groupId);
+      await deletChatMessageGroupMesage(id, groupId)
 
       await deleteChatMessage($conversation.id, id)
     }
-    console.log($chatMessages)
+    // console.log($chatMessages)
   }
 }

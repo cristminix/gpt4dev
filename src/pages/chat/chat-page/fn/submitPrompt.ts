@@ -98,7 +98,7 @@ export function submitPrompt(
     }
   }
 
-  console.log("onSubmitPrompt", userMessageContent, messages)
+  // console.log("onSubmitPrompt", userMessageContent, messages)
   // return
   userPrompt.update(() => userMessageContent)
   const modelConfig = getModelConfig()
@@ -107,7 +107,7 @@ export function submitPrompt(
   // @ts-ignore
   promptMessages.update(() => messages)
   // console.log("submit prompt", userMessageContent)
-  console.log(modelConfig)
+  // console.log(modelConfig)
   isProcessing.update(() => false)
   setTimeout(() => {
     isProcessing.update(() => true)

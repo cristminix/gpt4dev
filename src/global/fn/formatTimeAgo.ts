@@ -39,7 +39,7 @@ export function formatTimeAgo(input: any) {
   const inputDate = new Date(input)
   const m = moment(input)
   const fm = moment.utc(input).format("D/M/YYYY HH:mm")
-  console.log({ input, fm })
+  // console.log({ input, fm })
   // Basic sanity check
   if (!m.isValid()) return "Invalid date"
 

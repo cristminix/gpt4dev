@@ -131,10 +131,10 @@ export async function processDone(
           assistantMessage,
           newConversation.id
         )
-        console.log({ uMsg, aMsg })
+        // console.log({ uMsg, aMsg })
         if (params?.id !== "new") {
           chatMessages.update(() => chatMessagesData)
-          console.log("conversation id is not new")
+          // console.log("conversation id is not new")
         } else {
           if (routeApp) {
             routeApp.navigate(`/chat/${newConversation.id}`)
@@ -144,9 +144,9 @@ export async function processDone(
       }, 25)
       updateMessageTask(id, true)
     } else {
-      console.log("Message already saved", getMessageTask(id), $messageTasks)
+      // console.log("Message already saved", getMessageTask(id), $messageTasks)
     }
   } else {
-    console.log(`No message task correspond to ${id}`)
+    // console.log(`No message task correspond to ${id}`)
   }
 }

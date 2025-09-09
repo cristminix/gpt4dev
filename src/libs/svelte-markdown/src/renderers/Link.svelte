@@ -1,7 +1,7 @@
 <script>
   export let href = ""
   export let title = undefined
-  console.log(href)
+  // console.log(href)
 
   // Function to detect YouTube URL and extract video ID
   $: isYouTube =

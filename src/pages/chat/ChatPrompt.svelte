@@ -20,10 +20,10 @@
   })
 
   function onWysywygEditorChange(html: string) {
-    console.log({ html })
+    // console.log({ html })
     // Convert HTML to markdown
     const markdown = cleanSurplusBlankLine(turndownService.turndown(html))
-    console.log({ markdown })
+    // console.log({ markdown })
     jquery("#userInput").val(markdown)
   }
   function onUserPromptChange() {
@@ -47,7 +47,7 @@
   }
   function onUserPromptKeydown(event: KeyboardEvent) {
     if (event.shiftKey && event.key === "Enter") {
-      console.log("Shift+Enter was pressed!")
+      // console.log("Shift+Enter was pressed!")
       const oldValue = jquery("#userInput").val()
       jquery("#userInput").val(oldValue + "\n")
       return event.preventDefault()
@@ -60,14 +60,14 @@
     // console.log("user prompt change")
   }
   function onSubmitUserPrompt() {
-    console.log("submit user prompt")
+    // console.log("submit user prompt")
     const content = jquery("#userInput").val()
     sendKeystroke("")
     onSubmitPrompt(content, systemMessage)
   }
   $: {
     setTimeout(() => {
-      console.log("HSTabs.autoInit()")
+      // console.log("HSTabs.autoInit()")
       //@ts-ignore
       HSTabs.autoInit()
     }, 1000)

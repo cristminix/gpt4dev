@@ -13,7 +13,7 @@
   export let toasts: Toasts
   export let name: string = "admin"
 
-  console.log({ name })
+  // console.log({ name })
 </script>
 
 {#if name === "admin"}

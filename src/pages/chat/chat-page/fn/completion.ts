@@ -61,7 +61,7 @@ export async function completion(
         break
     }
 
-    console.log({ provider, instance, model })
+    // console.log({ provider, instance, model })
     let fullText = ""
     let reasoningText = ""
     let stream
@@ -143,7 +143,7 @@ export async function completion(
     // return
   } else {
     if (provider === "PuterJS") {
-      console.log("HERE")
+      // console.log("HERE")
       llmCompletion.setAction("variant")
       llmCompletion.setApiKey(getProviderApiKey(provider))
     }

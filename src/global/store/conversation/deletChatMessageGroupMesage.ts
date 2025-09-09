@@ -25,11 +25,11 @@ export async function deletChatMessageGroupMesage(
 
     const responseMessage = await response.json()
 
-    console.log("deletChatMessageGroupMesage responseMessage", responseMessage)
+    // console.log("deletChatMessageGroupMesage responseMessage", responseMessage)
 
     return responseMessage.success
   } catch (error) {
-    console.error("Error deleting message group message:", error)
+    // console.error("Error deleting message group message:", error)
     throw error // Melempar error kembali agar dapat ditangani oleh pemanggil fungsi
   }
 }

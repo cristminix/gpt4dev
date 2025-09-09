@@ -58,7 +58,7 @@ export async function processDoneRegenerate(
             //@ts-ignore
             $conversation.id
           )
-          console.log({ messageGroup })
+          // console.log({ messageGroup })
         }
         const messages = $groupedChatMessages[$messageGroupId]
         const userMessage: ChatMessageInterface = messages[messages.length - 1]
@@ -74,7 +74,7 @@ export async function processDoneRegenerate(
         if (!$useLastMessageId) {
           for (const nMsg of messages) {
             const uMsg = await createChatMessage(nMsg, $conversation.id)
-            console.log({ uMsg })
+            // console.log({ uMsg })
           }
         }
         if (!$useLastMessageId) {
@@ -82,7 +82,7 @@ export async function processDoneRegenerate(
             assistantMessage,
             $conversation.id
           )
-          console.log({ aMsg })
+          // console.log({ aMsg })
           chatMessagesData.push(assistantMessage)
         } else {
           assistantMessage.id = $lastMessageId
@@ -90,13 +90,13 @@ export async function processDoneRegenerate(
             assistantMessage,
             $conversation.id
           )
-          console.log({ aMsg })
+          // console.log({ aMsg })
           //  $chatMessages.findIndex((item) => item.id === id)
 
           const aMsgIndex = chatMessagesData.findIndex(
             (msg) => msg.id === aMsg.id
           )
-          console.log({ aMsgIndex }, chatMessagesData[aMsgIndex])
+          // console.log({ aMsgIndex }, chatMessagesData[aMsgIndex])
           if (aMsgIndex !== -1) {
             chatMessagesData[aMsgIndex] = {
               ...chatMessagesData[aMsgIndex],
@@ -118,10 +118,10 @@ export async function processDoneRegenerate(
 
       updateMessageTask(id, true)
     } else {
-      console.log("Message already saved", getMessageTask(id), $messageTasks)
+      // console.log("Message already saved", getMessageTask(id), $messageTasks)
     }
   } else {
-    console.log(`No message task correspond to ${id}`)
+    // console.log(`No message task correspond to ${id}`)
   }
   // isRegenerate.update(() => false);
 }

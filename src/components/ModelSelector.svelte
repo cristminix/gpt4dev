@@ -203,7 +203,7 @@
           r.json()
         )
     // modelListSet = modelListSet.sort((a, b) => a.label.localeCompare(b.label))
-    console.log({ modelListSet })
+    // console.log({ modelListSet })
     modelList.update((o) => modelListSet)
     setTimeout(() => {
       doSetModelConfig(providerName)
@@ -236,7 +236,7 @@
   // Jadi kita bisa menggunakan langsung getModelConfig() tanpa perlu fungsi tambahan
 
   async function onProviderChange(providerName: string) {
-    console.log("onProviderChanged")
+    // console.log("onProviderChanged")
     try {
       if (providerName) {
         await initModelData(providerName)
@@ -244,11 +244,11 @@
           await injectPuter()
         }
       }
-      console.log({ providerName })
+      // console.log({ providerName })
     } catch (error) {
       const modelConfig = getModelConfig()
       const { provider } = modelConfig
-      console.log({ provider })
+      // console.log({ provider })
 
       if (provider) {
         await initModelData(provider)
