@@ -5,7 +5,8 @@
   import ContentRenderer from "./ContentRenderer.svelte"
   import { writable } from "svelte/store"
   import { isImageModel } from "@/global/store/chat/isImageModel"
-
+  import OverlayGalery from "./OverlayGalery.svelte"
+  import jquery from "jquery"
   export let deleteMessage
   export let regenerateMessage: (message: ChatMessageInterface) => void
   export let message: ChatMessageInterface
@@ -15,6 +16,8 @@
   export let messageGroupIds: string[] = []
   export let messageGroupId: string = ""
   export let onChangeGroupId: (groupId: string) => void
+  export let overlayGaleryRef: OverlayGalery
+
   let foundGroupId: string[] = []
   let answerMessageId: Record<string, string[]> = {}
   let groupIndex = 0
@@ -267,6 +270,7 @@
       }, 128)
     }
   }
+
   $: {
     updateAnswerInfo(messageGroupId)
     shouldSwitchGaleryMode(message)
@@ -279,6 +283,13 @@
       mode = isImageModel(model) ? "grid" : "default"
     }
     displayModeConf.update(() => mode)
+  }
+  function displayGaleryModal(e: Event, messageId: string) {
+    console.log(messageId, e.target)
+    if (overlayGaleryRef) {
+      overlayGaleryRef.setContent(jquery(e.target).attr("src"))
+      overlayGaleryRef.open()
+    }
   }
 </script>
 
@@ -328,9 +339,7 @@
                 {#each answerMessageId[userMessage.id] as messageId}
                   <li
                     class="galery-item"
-                    on:click={(e: Event) => {
-                      console.log(messageId, e.target)
-                    }}
+                    on:click={(e: Event) => displayGaleryModal(e, messageId)}
                   >
                     <ContentRenderer
                       content={getContentByMessageId(messageId)}

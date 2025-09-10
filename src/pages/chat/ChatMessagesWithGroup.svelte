@@ -6,6 +6,7 @@
   import UserChatMessage from "./chat-page/chat-messagess/UserChatMessage.svelte"
   import AssistantChatMessage from "./chat-page/chat-messagess/AssistantChatMessage.svelte"
   import type { GroupedChatMessagesInterface } from "../types"
+  import OverlayGalery from "./chat-page/chat-messagess/OverlayGalery.svelte"
 
   export let conversation: ConversationInterface | null = null
   export let chatMessages: ChatMessageInterface[] = []
@@ -17,7 +18,7 @@
   export let displayMode: string = "default"
   export let groupedChatMessages
   export let showChatMessagesPager: boolean
-
+  let overlayGaleryRef: OverlayGalery
   // Objek untuk menyimpan referensi komponen asisten dengan key berupa message.id
   // Ini memungkinkan akses langsung ke komponen berdasarkan ID pesan
   let assistantMessages: Record<string, any> = {}
@@ -87,6 +88,7 @@
 </script>
 
 <!-- {showChatMessagesPager} -->
+<OverlayGalery bind:this={overlayGaleryRef} />
 <div class="mt-3">
   <div class="relative">
     <!-- svelte-ignore a11y_no_noninteractive_element_to_interactive_role -->
@@ -136,6 +138,7 @@
                   <UserChatMessage {deleteMessage} {message} {displayMode} />
                 {:else}
                   <AssistantChatMessage
+                    {overlayGaleryRef}
                     {chatMessages}
                     {displayMode}
                     bind:this={assistantMessages[message.id]}
