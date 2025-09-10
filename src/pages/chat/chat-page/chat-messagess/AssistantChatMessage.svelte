@@ -291,7 +291,7 @@
     firstTimer = false
   }
   function displayGaleryModal(e: Event, messageId: string) {
-    console.log(messageId, e.target)
+    // console.log(messageId, e.target)
     if (overlayGaleryRef) {
       // Timpa fungsi onPrev dan onNext
       // overlayGaleryRef.onPrev = onPrevImage

@@ -94,13 +94,13 @@
   function onNextImage() {
     // navigateNextAnswer()
     const assistantMessageRef = getActiveAssistantMessageRef()
-    assistantMessageRef.setNextGaleryImage()
+    if (assistantMessageRef) assistantMessageRef.setNextGaleryImage()
     // console.log("Next", $activeGaleryMessageId, nextImage)
   }
   function onPrevImage() {
     // navigatePreviousAnswer()
     const assistantMessageRef = getActiveAssistantMessageRef()
-    assistantMessageRef.setPrevGaleryImage()
+    if (assistantMessageRef) assistantMessageRef.setPrevGaleryImage()
 
     // console.log("Prev", $activeGaleryMessageId, prevImage)
   }

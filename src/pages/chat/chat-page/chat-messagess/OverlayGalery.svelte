@@ -10,7 +10,7 @@
   export let onNext = () => {}
 
   function handleKeydown(event: KeyboardEvent) {
-    console.log("Keydown event triggered", event.key)
+    // console.log("Keydown event triggered", event.key)
     if (event.key === "ArrowLeft") {
       // Panggil fungsi untuk tombol panah kiri
       handleLeftArrow()
@@ -51,13 +51,28 @@
       }
     }, 100) // Memberi sedikit jeda agar modal benar-benar terbuka sebelum difokuskan
   }
+
   export function setContent(what: any) {
     content.update(() => what)
-    // jquery("#overlayBtn").click()
-    setTimeout(() => {
-      jquery(imgEl).height(jquery(window).height() - 100)
-    }, 1000)
+    updateImageSize()
   }
+  function updateImageSize() {
+    setTimeout(() => {
+      const heightSet = jquery(window).height() - 100
+      const heightMatch = jquery(imgEl).height() === heightSet
+      if (!heightMatch) jquery(imgEl).hide()
+
+      if (!heightMatch) {
+        jquery(imgEl).height(heightSet)
+        jquery(imgEl).show()
+      }
+    }, 512)
+  }
+  onMount(() => {
+    jquery(window).resize(() => {
+      updateImageSize()
+    })
+  })
 </script>
 
 <div class="hidden">
