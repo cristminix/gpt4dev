@@ -25,7 +25,7 @@
   }
 </script>
 
-<div class="hidden-x">
+<div class="hidden">
   <button
     type="button"
     id="overlayBtn"

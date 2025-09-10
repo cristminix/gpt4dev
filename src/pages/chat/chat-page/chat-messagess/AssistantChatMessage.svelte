@@ -244,6 +244,7 @@
   }
 
   function scrollToEl() {
+    return
     const els = document.querySelectorAll(
       `.answer-pager.message-id-${userMessage?.id}`
     )
@@ -273,16 +274,19 @@
 
   $: {
     updateAnswerInfo(messageGroupId)
-    shouldSwitchGaleryMode(message)
+    // shouldSwitchGaleryMode(message)
   }
-
+  let firstTimer = true
   function shouldSwitchGaleryMode(message: ChatMessageInterface) {
+    if (!firstTimer) return
+    console.log({ firstTimer })
     let mode = "default"
     if (message) {
       const [model, provider] = message.username.split(":")
       mode = isImageModel(model) ? "grid" : "default"
     }
     displayModeConf.update(() => mode)
+    firstTimer = false
   }
   function displayGaleryModal(e: Event, messageId: string) {
     console.log(messageId, e.target)
