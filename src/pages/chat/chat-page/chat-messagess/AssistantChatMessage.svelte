@@ -301,26 +301,34 @@
       overlayGaleryRef.open()
     }
   }
-  export function getNextImage() {
-    console.log("getNextImage")
-    const els = jquery(`.galery-user-message-${userMessage!.id}`)
-    const cur = els.find(`.galery-item-${$activeGaleryMessageId}`)
-    const next = cur.next()
-    const nextImageUrl = next.find("img:first").attr("src")
-    const nextMessageId = next.attr("data-message-id")
+  export function setNextGaleryImage() {
+    // console.log("getNextImage")
+    let els = jquery(`.galery-user-message-${userMessage!.id}`)
+    let cur = els.find(`.galery-item-${$activeGaleryMessageId}`)
+    let next = cur.next()
+    let nextImageUrl = next.find("img:first").attr("src")
+    let nextMessageId = next.attr("data-message-id")
 
     // console.log({ els, cur, next, nextMessageId, nextImageUrl })
     if (next.length > 0) {
       activeGaleryMessageId.update(() => nextMessageId)
       overlayGaleryRef.setContent(nextImageUrl)
+    } else {
+      cur = els.find(`.galery-item:first`)
+      nextImageUrl = cur.find("img:first").attr("src")
+      nextMessageId = cur.attr("data-message-id")
+      if (cur.length > 0) {
+        activeGaleryMessageId.update(() => nextMessageId)
+        overlayGaleryRef.setContent(nextImageUrl)
+      }
     }
   }
-  export function getPrevImage() {
-    const els = jquery(`.galery-user-message-${userMessage!.id}`)
-    const cur = els.find(`.galery-item-${$activeGaleryMessageId}`)
-    const prev = cur.prev()
-    const prevImageUrl = prev.find("img:first").attr("src")
-    const prevMessageId = prev.attr("data-message-id")
+  export function setPrevGaleryImage() {
+    let els = jquery(`.galery-user-message-${userMessage!.id}`)
+    let cur = els.find(`.galery-item-${$activeGaleryMessageId}`)
+    let prev = cur.prev()
+    let prevImageUrl = prev.find("img:first").attr("src")
+    let prevMessageId = prev.attr("data-message-id")
 
     // console.log({
     //   els,
@@ -332,8 +340,16 @@
     if (prev.length > 0) {
       activeGaleryMessageId.update(() => prevMessageId)
       overlayGaleryRef.setContent(prevImageUrl)
+    } else {
+      cur = els.find(`.galery-item:last`)
+      prevImageUrl = cur.find("img:first").attr("src")
+      prevMessageId = cur.attr("data-message-id")
+      if (cur.length > 0) {
+        activeGaleryMessageId.update(() => prevMessageId)
+        overlayGaleryRef.setContent(prevImageUrl)
+      }
     }
-    console.log("getPrevImage")
+    // console.log("getPrevImage")
   }
 </script>
 

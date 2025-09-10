@@ -94,15 +94,15 @@
   function onNextImage() {
     // navigateNextAnswer()
     const assistantMessageRef = getActiveAssistantMessageRef()
-    const nextImage = assistantMessageRef.getNextImage()
-    console.log("Next", $activeGaleryMessageId, nextImage)
+    assistantMessageRef.setNextGaleryImage()
+    // console.log("Next", $activeGaleryMessageId, nextImage)
   }
   function onPrevImage() {
     // navigatePreviousAnswer()
     const assistantMessageRef = getActiveAssistantMessageRef()
-    const prevImage = assistantMessageRef.getPrevImage()
+    assistantMessageRef.setPrevGaleryImage()
 
-    console.log("Prev", $activeGaleryMessageId, prevImage)
+    // console.log("Prev", $activeGaleryMessageId, prevImage)
   }
 </script>
 

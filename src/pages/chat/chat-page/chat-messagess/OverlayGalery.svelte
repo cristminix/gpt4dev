@@ -22,13 +22,13 @@
 
   function handleLeftArrow() {
     // Implementasi untuk tombol panah kiri
-    console.log("Tombol panah kiri ditekan")
+    // console.log("Tombol panah kiri ditekan")
     onPrev()
   }
 
   function handleRightArrow() {
     // Implementasi untuk tombol panah kanan
-    console.log("Tombol panah kanan ditekan")
+    // console.log("Tombol panah kanan ditekan")
     onNext()
   }
 
