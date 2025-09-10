@@ -1,7 +1,7 @@
 import type { ChatMessageInterface, ConversationInterface } from "../types"
 import type { Writable } from "svelte/store"
 import { deleteChatMessage } from "@/global/store/conversation/deleteChatMessage"
-import { deletChatMessageGroupMesage } from "@/global/store/conversation/deletChatMessageGroupMesage"
+import { deleteChatMessageGroupMesage } from "@/global/store/conversation/deleteChatMessageGroupMesage"
 
 export async function deleteMessage(
   id: string,
@@ -19,7 +19,7 @@ export async function deleteMessage(
     chatMessages.update((o) => $chatMessages)
     if ($conversation) {
       // Convert id to number for API call if it's a string
-      await deletChatMessageGroupMesage(id, groupId)
+      await deleteChatMessageGroupMesage(id, groupId)
 
       await deleteChatMessage($conversation.id, id)
     }

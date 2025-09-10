@@ -1,7 +1,7 @@
 import { CHAT_BACKEND_URL } from "../config"
 import { fetchChatBackendApi } from "../../fn/fetchChatBackendApi"
 
-export async function deletChatMessageGroupMesage(
+export async function deleteChatMessageGroupMesage(
   messageId: string,
   groupId: string
 ) {

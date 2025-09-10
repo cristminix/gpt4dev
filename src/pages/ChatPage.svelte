@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { writable, type Writable } from "svelte/store"
+  import { writable } from "svelte/store"
 
   import ChatMessages from "./chat/ChatMessages.svelte"
   import ChatPrompt from "./chat/ChatPrompt.svelte"
@@ -17,10 +17,10 @@
   import { deleteMessage as deleteMessageExternal } from "./chat/chat-page/fn/deleteMessage"
   import { onRegenerateMessage as onRegenerateMessageExternal } from "./chat/chat-page/fn/regenerateMessage"
   import { processDoneRegenerate as processDoneRegenerateExternal } from "./chat/chat-page/fn/processDoneRegenerate"
+  import { onChatBuffer as onChatBufferExternal } from "./chat/chat-page/fn/onChatBuffer"
 
   import { getModelConfig } from "@/global/store/chat/getModelConfig"
   import ConversationWidget from "./chat/ConversationWidget.svelte"
-  import { deleteChatMessage } from "@/global/store/conversation/deleteChatMessage"
   import type { RouteApp as RouteAppType } from "@/components/RouteApp.types"
   import type {
     ChatMessageInterface,
@@ -29,19 +29,12 @@
   } from "./chat/chat-page/types"
   import ChatMessagesWithGroup from "./chat/ChatMessagesWithGroup.svelte"
   import { getMessageGroups } from "@/global/store/conversation/getMessageGroups"
-  import { deletChatMessageGroupMesage } from "@/global/store/conversation/deletChatMessageGroupMesage"
   import type { GroupedChatMessagesInterface } from "./types"
-  import { createMessageId } from "./chat/chat-page/fn/createMessageId"
-  import { v1 } from "uuid"
-  import { createMessageGroup } from "@/global/store/conversation/createMessageGroup"
-  import { createChatMessage } from "@/global/store/conversation/createChatMessage"
-  import { updateChatMessage } from "@/global/store/conversation/updateChatMessage"
   import Toasts from "@/components/Toasts.svelte"
   import { onMount } from "svelte"
   export let routeApp: RouteAppType
   export let params: { id?: string } | null
   export let toasts: Toasts
-  let modelImageGens = ["flux", "flux-dev", "sd-3.5-large"]
   const tempConversation = writable<any>([])
   const isProcessing = writable(false)
   const conversation = writable<ConversationInterface | null>(null)
@@ -103,10 +96,10 @@
   }
 
   function shouldPerformTitleGeneration() {
-    return false
-    if (modelImageGens.includes($model) || $provider.match(/-Live$/)) {
-      return false
-    }
+    // return false
+    // if (modelImageGens.includes($model) || $provider.match(/-Live$/)) {
+    //   return false
+    // }
     return true
   }
   function onProcessingDone(
@@ -280,50 +273,22 @@
   const tempChatMessageCls = writable("")
   function onChatBuffer(data: any) {
     return
-    if (!tempChatMessagesRef) return
-    const { text, t, complete, params } = data
-    // console.log({ text, t, complete, params })
-    if ($messageGroupId.length > 0) {
-      console.log({ messageGroupId: $messageGroupId })
-      if (!Array.isArray($groupedChatMessages[$messageGroupId])) return
-      if (tempMode === 0) {
-        // INITIAL
-        // append user message
-        const userMessage = tempChatMessagesRef.getUserMessage()
-        //@ts-ignore
-        if (userMessage) $groupedChatMessages[$messageGroupId].push(userMessage)
-        // console.log({ userMessage })
-        assistantMessagePtr = {
-          role: "assistant",
-          username: `${$model}:${$provider}`,
-          content: "",
-          id: $messageId, // Membuat ID unik untuk pesan
-          parentId: userMessage?.id || "", // Menggunakan ID pesan pengguna sebagai parentId
-          groupId: $messageGroupId, // Menggunakan groupId saat ini
-        }
-        // append assistant message
-        if (assistantMessagePtr) {
-          //@ts-ignore
-          $groupedChatMessages[$messageGroupId].push(assistantMessagePtr)
-        }
+    const result = onChatBufferExternal({
+      data,
+      tempChatMessagesRef,
+      messageGroupId,
+      groupedChatMessages,
+      messageId,
+      model,
+      provider,
+      tempChatMessageCls,
+      tempMode,
+      assistantMessagePtr,
+    })
 
-        // update groupedChatMessages
-        groupedChatMessages.update(() => $groupedChatMessages)
-        tempChatMessageCls.update(() => "hidden")
-        tempMode = 1
-      } else if (tempMode === 1) {
-        // UPDATE
-        //@ts-ignore
-        if (assistantMessagePtr) assistantMessagePtr.content = text
-        groupedChatMessages.update(() => $groupedChatMessages)
-      }
-    }
-    if (complete) {
-      tempMode = 0
-      setTimeout(() => {
-        tempChatMessageCls.update(() => "")
-      }, 3000)
-    }
+    // Update the local variables with the result
+    tempMode = result.tempMode
+    assistantMessagePtr = result.assistantMessagePtr
   }
   function reloadChat() {
     if (params?.id) loadChat(params.id)

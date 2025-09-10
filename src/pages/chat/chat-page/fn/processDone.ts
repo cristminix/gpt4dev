@@ -62,16 +62,19 @@ export async function processDone(
         let title = $userPrompt
         if ($userPrompt.length > 250) title = $userPrompt.slice(0, 250)
         let chatMessagesData = [...$chatMessages] as any[]
+        console.log({ params })
 
         if (params?.id === "new") {
+          console.log("HERE", shouldPerformTitleGeneration())
+
           if (shouldPerformTitleGeneration()) {
             const newTitle =
               (await makeUpConversationTitle(
-                fullText,
-                $model,
-                $provider,
+                $userPrompt,
+
                 $conversation
               )) || ""
+            console.log({ newTitle })
             title = newTitle as string
             title = stripMarkdown(title)
             title = cleanQuotes(title)
