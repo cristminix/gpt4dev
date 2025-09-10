@@ -4,6 +4,34 @@
   import { writable } from "svelte/store"
   const content = writable("")
   let imgEl: HTMLElement
+
+  // Fungsi yang dapat ditimpa dari luar
+  export let onPrev = () => {}
+  export let onNext = () => {}
+
+  function handleKeydown(event: KeyboardEvent) {
+    console.log("Keydown event triggered", event.key)
+    if (event.key === "ArrowLeft") {
+      // Panggil fungsi untuk tombol panah kiri
+      handleLeftArrow()
+    } else if (event.key === "ArrowRight") {
+      // Panggil fungsi untuk tombol panah kanan
+      handleRightArrow()
+    }
+  }
+
+  function handleLeftArrow() {
+    // Implementasi untuk tombol panah kiri
+    console.log("Tombol panah kiri ditekan")
+    onPrev()
+  }
+
+  function handleRightArrow() {
+    // Implementasi untuk tombol panah kanan
+    console.log("Tombol panah kanan ditekan")
+    onNext()
+  }
+
   onMount(() => {
     //@ts-ignore
     HSOverlay.autoInit()
@@ -15,6 +43,13 @@
 
   export function open() {
     jquery("#overlayBtn").click()
+    // Fokuskan elemen modal setelah dibuka
+    setTimeout(() => {
+      const modalElement = document.getElementById("hs-basic-modal")
+      if (modalElement) {
+        modalElement.focus()
+      }
+    }, 100) // Memberi sedikit jeda agar modal benar-benar terbuka sebelum difokuskan
   }
   export function setContent(what: any) {
     content.update(() => what)
@@ -42,8 +77,9 @@
   id="hs-basic-modal"
   class="hs-overlay hidden size-full fixed top-0 start-0 z-63 overflow-x-hidden overflow-y-auto pointer-events-none"
   role="dialog"
-  tabindex="-1"
+  tabindex="0"
   aria-labelledby="hs-basic-modal-label"
+  on:keydown={handleKeydown}
 >
   <div
     class="hs-overlay-open:opacity-100 hs-overlay-open:duration-500 opacity-0 transition-all m-3 mx-auto"

@@ -7,6 +7,8 @@
   import AssistantChatMessage from "./chat-page/chat-messagess/AssistantChatMessage.svelte"
   import type { GroupedChatMessagesInterface } from "../types"
   import OverlayGalery from "./chat-page/chat-messagess/OverlayGalery.svelte"
+  import { writable } from "svelte/store"
+  import { messageId } from "@/global/store/conversation/messageStore"
 
   export let conversation: ConversationInterface | null = null
   export let chatMessages: ChatMessageInterface[] = []
@@ -85,10 +87,31 @@
     // }, 1000)
   }
   // Hapus pemanggilan autoScroll otomatis
+  const activeGaleryMessageId = writable("")
+  function getActiveAssistantMessageRef() {
+    return assistantMessages[$activeGaleryMessageId]
+  }
+  function onNextImage() {
+    // navigateNextAnswer()
+    const assistantMessageRef = getActiveAssistantMessageRef()
+    const nextImage = assistantMessageRef.getNextImage()
+    console.log("Next", $activeGaleryMessageId, nextImage)
+  }
+  function onPrevImage() {
+    // navigatePreviousAnswer()
+    const assistantMessageRef = getActiveAssistantMessageRef()
+    const prevImage = assistantMessageRef.getPrevImage()
+
+    console.log("Prev", $activeGaleryMessageId, prevImage)
+  }
 </script>
 
 <!-- {showChatMessagesPager} -->
-<OverlayGalery bind:this={overlayGaleryRef} />
+<OverlayGalery
+  bind:this={overlayGaleryRef}
+  onNext={onNextImage}
+  onPrev={onPrevImage}
+/>
 <div class="mt-3">
   <div class="relative">
     <!-- svelte-ignore a11y_no_noninteractive_element_to_interactive_role -->
@@ -138,6 +161,7 @@
                   <UserChatMessage {deleteMessage} {message} {displayMode} />
                 {:else}
                   <AssistantChatMessage
+                    {activeGaleryMessageId}
                     {overlayGaleryRef}
                     {chatMessages}
                     {displayMode}

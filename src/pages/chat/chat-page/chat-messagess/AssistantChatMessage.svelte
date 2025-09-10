@@ -7,6 +7,7 @@
   import { isImageModel } from "@/global/store/chat/isImageModel"
   import OverlayGalery from "./OverlayGalery.svelte"
   import jquery from "jquery"
+  import { messageId } from "@/global/store/conversation/messageStore"
   export let deleteMessage
   export let regenerateMessage: (message: ChatMessageInterface) => void
   export let message: ChatMessageInterface
@@ -17,6 +18,7 @@
   export let messageGroupId: string = ""
   export let onChangeGroupId: (groupId: string) => void
   export let overlayGaleryRef: OverlayGalery
+  export let activeGaleryMessageId: any
 
   let foundGroupId: string[] = []
   let answerMessageId: Record<string, string[]> = {}
@@ -291,9 +293,47 @@
   function displayGaleryModal(e: Event, messageId: string) {
     console.log(messageId, e.target)
     if (overlayGaleryRef) {
+      // Timpa fungsi onPrev dan onNext
+      // overlayGaleryRef.onPrev = onPrevImage
+      // overlayGaleryRef.onNext = onNextImage
+      activeGaleryMessageId.update(() => messageId)
       overlayGaleryRef.setContent(jquery(e.target).attr("src"))
       overlayGaleryRef.open()
     }
+  }
+  export function getNextImage() {
+    console.log("getNextImage")
+    const els = jquery(`.galery-user-message-${userMessage!.id}`)
+    const cur = els.find(`.galery-item-${$activeGaleryMessageId}`)
+    const next = cur.next()
+    const nextImageUrl = next.find("img:first").attr("src")
+    const nextMessageId = next.attr("data-message-id")
+
+    // console.log({ els, cur, next, nextMessageId, nextImageUrl })
+    if (next.length > 0) {
+      activeGaleryMessageId.update(() => nextMessageId)
+      overlayGaleryRef.setContent(nextImageUrl)
+    }
+  }
+  export function getPrevImage() {
+    const els = jquery(`.galery-user-message-${userMessage!.id}`)
+    const cur = els.find(`.galery-item-${$activeGaleryMessageId}`)
+    const prev = cur.prev()
+    const prevImageUrl = prev.find("img:first").attr("src")
+    const prevMessageId = prev.attr("data-message-id")
+
+    // console.log({
+    //   els,
+    //   cur,
+    //   next: prev,
+    //   nextMessageId: prevMessageId,
+    //   nextImageUrl: prevImageUrl,
+    // })
+    if (prev.length > 0) {
+      activeGaleryMessageId.update(() => prevMessageId)
+      overlayGaleryRef.setContent(prevImageUrl)
+    }
+    console.log("getPrevImage")
   }
 </script>
 
@@ -339,10 +379,11 @@
         {#if answerMessageId[userMessage!.id]}
           {#if answerMessageId[userMessage!.id].length > 1}
             <div class="flex galery-mode">
-              <ul class="galery-grid">
+              <ul class="galery-grid galery-user-message-{userMessage!.id}">
                 {#each answerMessageId[userMessage.id] as messageId}
                   <li
-                    class="galery-item"
+                    class="galery-item galery-item-{messageId}"
+                    data-message-id={messageId}
                     on:click={(e: Event) => displayGaleryModal(e, messageId)}
                   >
                     <ContentRenderer
