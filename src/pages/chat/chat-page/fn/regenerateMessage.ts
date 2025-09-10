@@ -4,6 +4,7 @@ import { createMessageId } from "./createMessageId"
 import { v1 } from "uuid"
 import jquery from "jquery"
 import type { Writable } from "svelte/store"
+import { isImageModel } from "@/global/store/chat/isImageModel"
 
 export async function onRegenerateMessage(
   message: ChatMessageInterface,
@@ -39,7 +40,8 @@ export async function onRegenerateMessage(
   const [lastModel, lastProvider] = message.username.split(":")
   if (
     modelConfig.model === lastModel &&
-    modelConfig.provider === lastProvider
+    modelConfig.provider === lastProvider &&
+    !isImageModel(modelConfig.model)
   ) {
     useSameProviderAndModel = true
     dontCreateMessageGroup = true

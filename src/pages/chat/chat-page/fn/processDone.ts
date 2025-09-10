@@ -12,6 +12,7 @@ import { createChatMessage } from "@/global/store/conversation/createChatMessage
 import { createMessageGroup } from "@/global/store/conversation/createMessageGroup"
 import type Toasts from "@/components/Toasts.svelte"
 import jquery from "jquery"
+import { isImageModel } from "../../../../global/store/chat/isImageModel"
 export async function processDone(
   fullText: string,
   id: string,
@@ -62,15 +63,15 @@ export async function processDone(
         let title = $userPrompt
         if ($userPrompt.length > 250) title = $userPrompt.slice(0, 250)
         let chatMessagesData = [...$chatMessages] as any[]
-        console.log({ params })
+        // console.log({ params })
 
         if (params?.id === "new") {
-          console.log("HERE", shouldPerformTitleGeneration())
+          // console.log("HERE", shouldPerformTitleGeneration())
 
           if (shouldPerformTitleGeneration()) {
             const newTitle =
               (await makeUpConversationTitle(
-                $userPrompt,
+                isImageModel($model) ? $userPrompt : fullText,
 
                 $conversation
               )) || ""

@@ -3,12 +3,15 @@
   import type { ChatMessageInterface } from "../types"
 
   import ContentRenderer from "./ContentRenderer.svelte"
+  import { writable } from "svelte/store"
+  import { isImageModel } from "@/global/store/chat/isImageModel"
 
   export let deleteMessage
   export let regenerateMessage: (message: ChatMessageInterface) => void
   export let message: ChatMessageInterface
   export let userMessage: ChatMessageInterface | null
   export let groupedChatMessages: Record<string, ChatMessageInterface[]>
+  export let chatMessages: ChatMessageInterface[]
   export let messageGroupIds: string[] = []
   export let messageGroupId: string = ""
   export let onChangeGroupId: (groupId: string) => void
@@ -16,6 +19,27 @@
   let answerMessageId: Record<string, string[]> = {}
   let groupIndex = 0
   let answerPageNumber = 1
+  export let displayMode: string = "default"
+  const displayModeConf = writable(displayMode)
+
+  // Fungsi untuk mendapatkan konten pesan berdasarkan ID pesan
+  function getContentByMessageId(
+    // _messageGroupId: string,
+    messageId: string
+  ): string {
+    // Mencari pesan dengan ID yang sesuai dalam groupedChatMessages
+    const messages = chatMessages
+    // console.log({ messages, messageId })
+    if (messages && Array.isArray(messages)) {
+      const foundMessage = messages.find((msg) => msg.id === messageId)
+      // console.log({ foundMessage })
+      if (foundMessage) {
+        return foundMessage.content
+      }
+    }
+    // Jika tidak ditemukan, kembalikan string kosong
+    return ""
+  }
 
   // Fungsi utilitas untuk mendapatkan data grup
   function getGroupData() {
@@ -243,7 +267,19 @@
       }, 128)
     }
   }
-  $: updateAnswerInfo(messageGroupId)
+  $: {
+    updateAnswerInfo(messageGroupId)
+    shouldSwitchGaleryMode(message)
+  }
+
+  function shouldSwitchGaleryMode(message: ChatMessageInterface) {
+    let mode = "default"
+    if (message) {
+      const [model, provider] = message.username.split(":")
+      mode = isImageModel(model) ? "grid" : "default"
+    }
+    displayModeConf.update(() => mode)
+  }
 </script>
 
 <li
@@ -274,13 +310,40 @@
   <div class="grow max-w-[90%] w-full space-y-3">
     <!-- Card -->
     <div class="model-info pt-1 flex gap-2">
-      <h4 class="text-xl font-semibold">{message.username}</h4>
+      {#if $displayModeConf === "default"}
+        <h4 class="text-xl font-semibold">{message.username}</h4>
+      {/if}
       <span class="message-time py-1 text-sm"
         >{formatTimeAgo(message.createdAt)}</span
       >
     </div>
     <div class="space-y-3 inner-content">
-      <ContentRenderer content={message.content} />
+      {#if $displayModeConf === "default"}
+        <ContentRenderer content={message.content} />
+      {:else if userMessage}
+        {#if answerMessageId[userMessage!.id]}
+          {#if answerMessageId[userMessage!.id].length > 1}
+            <div class="flex galery-mode">
+              <ul class="galery-grid">
+                {#each answerMessageId[userMessage.id] as messageId}
+                  <li
+                    class="galery-item"
+                    on:click={(e: Event) => {
+                      console.log(messageId, e.target)
+                    }}
+                  >
+                    <ContentRenderer
+                      content={getContentByMessageId(messageId)}
+                    />
+                  </li>
+                {/each}
+              </ul>
+            </div>
+          {:else}
+            <ContentRenderer content={message.content} />
+          {/if}
+        {/if}
+      {/if}
     </div>
     <!-- End Card -->
 
@@ -288,64 +351,70 @@
     <div>
       <div class="sm:flex sm:justify-between">
         <div class="py-2 px-3 inline-flex items-center gap-x-2">
-          {#if userMessage}
-            {#if answerMessageId[userMessage!.id]}
-              {#if answerMessageId[userMessage!.id].length > 1}
-                <div class="pager answer-pager message-id-{userMessage?.id}">
-                  <button
-                    on:click={navigatePreviousAnswer}
-                    aria-label="Previous message"
-                    class="self-center p-1 hover:bg-black/5 dark:hover:bg-white/5 dark:hover:text-white hover:text-black rounded-md transition"
-                    ><svg
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                      class="size-3.5"
-                      ><path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M15.75 19.5 8.25 12l7.5-7.5"
-                      ></path></svg
-                    ></button
-                  >
-                  {#if userMessage}
-                    <ul class="hidden">
-                      {#each answerMessageId[userMessage.id] as messageId}
-                        <li
-                          class={messageId === message.id ? "text-red-300" : ""}
-                        >
-                          {messageId}
-                        </li>
-                      {/each}
-                    </ul>
-                    {answerPageNumber}/{answerMessageId[userMessage.id].length}
-                  {/if}
-                  <button
-                    on:click={navigateNextAnswer}
-                    class="self-center p-1 hover:bg-black/5 dark:hover:bg-white/5 dark:hover:text-white hover:text-black rounded-md transition"
-                    aria-label="Next message"
-                    ><svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      aria-hidden="true"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                      class="size-3.5"
-                      ><path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="m8.25 4.5 7.5 7.5-7.5 7.5"
-                      ></path></svg
-                    ></button
-                  >
-                </div>
+          {#if $displayModeConf === "default"}
+            {#if userMessage}
+              {#if answerMessageId[userMessage!.id]}
+                {#if answerMessageId[userMessage!.id].length > 1}
+                  <div class="pager answer-pager message-id-{userMessage?.id}">
+                    <button
+                      on:click={navigatePreviousAnswer}
+                      aria-label="Previous message"
+                      class="self-center p-1 hover:bg-black/5 dark:hover:bg-white/5 dark:hover:text-white hover:text-black rounded-md transition"
+                      ><svg
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        class="size-3.5"
+                        ><path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M15.75 19.5 8.25 12l7.5-7.5"
+                        ></path></svg
+                      ></button
+                    >
+                    {#if userMessage}
+                      <ul class="hidden">
+                        {#each answerMessageId[userMessage.id] as messageId}
+                          <li
+                            class={messageId === message.id
+                              ? "text-red-300"
+                              : ""}
+                          >
+                            {messageId}
+                          </li>
+                        {/each}
+                      </ul>
+                      {answerPageNumber}/{answerMessageId[userMessage.id]
+                        .length}
+                    {/if}
+                    <button
+                      on:click={navigateNextAnswer}
+                      class="self-center p-1 hover:bg-black/5 dark:hover:bg-white/5 dark:hover:text-white hover:text-black rounded-md transition"
+                      aria-label="Next message"
+                      ><svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        aria-hidden="true"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        class="size-3.5"
+                        ><path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="m8.25 4.5 7.5 7.5-7.5 7.5"
+                        ></path></svg
+                      ></button
+                    >
+                  </div>
+                {/if}
               {/if}
             {/if}
           {/if}
+
           <button
             type="button"
             on:click={(e) => console.log("Copy")}
@@ -380,6 +449,23 @@
           >
             <i class="fa fa-refresh"></i>
           </button>
+          <button
+            on:click={() => {
+              // console.log("regenerate")
+              const toggleMode =
+                $displayModeConf === "default" ? "th" : "default"
+              displayModeConf.update(() => toggleMode)
+            }}
+            type="button"
+            class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+            aria-label="View Mode"
+          >
+            <i
+              class="fa fa-solid fa-{$displayModeConf === 'default'
+                ? 'th'
+                : 'list'}"
+            ></i>
+          </button>
         </div>
 
         <div class="mt-1 sm:mt-0">
@@ -402,15 +488,19 @@
               Expand
             </button>
           {/if}
-          <button
-            on:click={() => deleteMessage(message.id, message.groupId)}
-            type="button"
-            class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
-            aria-label="Delete message"
-          >
-            <i class="fa fa-trash"></i>
-            Delete
-          </button>
+          {#if userMessage && answerMessageId[userMessage.id]}
+            {#if answerMessageId[userMessage.id].length === 1}
+              <button
+                on:click={() => deleteMessage(message.id, message.groupId)}
+                type="button"
+                class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+                aria-label="Delete message"
+              >
+                <i class="fa fa-trash"></i>
+                Delete
+              </button>
+            {/if}
+          {/if}
         </div>
       </div>
     </div>

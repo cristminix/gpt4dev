@@ -30,7 +30,7 @@ export async function makeUpConversationTitle(
             {
               role: "user",
               content:
-                "Please provide the answer to the following question without any additional context or explanations,Generate one title with a relevant emoji for this text: \n" +
+                "Please provide the answer to the following question without any additional context or explanations,Generate one title in the same language with a relevant emoji for this text: \n" +
                 sourceContent +
                 ",give one result only without quotes, make sure to include an emoji",
             },

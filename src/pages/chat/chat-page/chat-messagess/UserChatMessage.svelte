@@ -1,8 +1,9 @@
 <script lang="ts">
-  import type { ChatMessageInterface } from "../types";
+  import type { ChatMessageInterface } from "../types"
 
-  export let deleteMessage;
-  export let message: ChatMessageInterface;
+  export let deleteMessage
+  export let message: ChatMessageInterface
+  export let displayMode: string = "default"
 </script>
 
 <li

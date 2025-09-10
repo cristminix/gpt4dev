@@ -14,7 +14,7 @@
   export let messageGroupId: string = ""
   export let onChangeGroupId: (groupId: string) => void
   export let onRegenerateMessage: (message: ChatMessageInterface) => void
-
+  export let displayMode: string = "default"
   export let groupedChatMessages
   export let showChatMessagesPager: boolean
 
@@ -133,9 +133,11 @@
                 <!-- store previouseMessage=message -->
 
                 {#if message.role === "user"}
-                  <UserChatMessage {deleteMessage} {message} />
+                  <UserChatMessage {deleteMessage} {message} {displayMode} />
                 {:else}
                   <AssistantChatMessage
+                    {chatMessages}
+                    {displayMode}
                     bind:this={assistantMessages[message.id]}
                     groupedChatMessages={$groupedChatMessages}
                     {messageGroupId}
