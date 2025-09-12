@@ -2,12 +2,14 @@ import type { ConversationInterface, ChatMessageInterface } from "../types"
 import type { Writable } from "svelte/store"
 import { getConversation } from "@/global/store/conversation/getConversation"
 import { getChatMessages } from "@/global/store/conversation/getChatMessages"
+import type { RouteApp } from "@/components/RouteApp.types"
 
 export async function loadChat(
   id: string,
   conversation: Writable<ConversationInterface | null>,
   chatMessages: Writable<ChatMessageInterface[]>,
-  createNewChat: () => void
+  createNewChat: () => void,
+  routeApp: RouteApp
 ) {
   conversation.update((o) => null)
 
@@ -15,10 +17,17 @@ export async function loadChat(
   if (id == "new") {
     createNewChat()
   } else {
-    const conversationData = await getConversation(id)
-    const chatMessagesData = await getChatMessages(id)
-    conversation.update(() => conversationData)
-    chatMessages.update(() => chatMessagesData)
+    try {
+      const conversationData = await getConversation(id)
+      const chatMessagesData = await getChatMessages(id)
+      conversation.update(() => conversationData)
+      chatMessages.update(() => chatMessagesData)
+    } catch (error) {
+      alert("Chat not found or deleted!!")
+      if (routeApp) {
+        routeApp.setRoute(`/chat/new?reloadSidebar=${Date.now()}`)
+      }
+    }
   }
 
   // Note: The document title update will need to be handled in the component

@@ -13,6 +13,8 @@ import { createMessageGroup } from "@/global/store/conversation/createMessageGro
 import type Toasts from "@/components/Toasts.svelte"
 import jquery from "jquery"
 import { isImageModel } from "../../../../global/store/chat/isImageModel"
+import { executeTitleGenerationTask } from "./executeTitleGenerationTask"
+import { getCurrentUser } from "@/global/store/auth/getCurrentUser"
 export async function processDone(
   fullText: string,
   id: string,
@@ -64,25 +66,11 @@ export async function processDone(
         if ($userPrompt.length > 250) title = $userPrompt.slice(0, 250)
         let chatMessagesData = [...$chatMessages] as any[]
         // console.log({ params })
-
+        let shouldPerformTitleGenerationTask = false
         if (params?.id === "new") {
           // console.log("HERE", shouldPerformTitleGeneration())
+          shouldPerformTitleGenerationTask = shouldPerformTitleGeneration()
 
-          if (shouldPerformTitleGeneration()) {
-            const newTitle =
-              (await makeUpConversationTitle(
-                isImageModel($model) ? $userPrompt : fullText,
-
-                $conversation
-              )) || ""
-            console.log({ newTitle })
-            title = newTitle as string
-            title = stripMarkdown(title)
-            title = cleanQuotes(title)
-            if (title.length === 0) title = $userPrompt
-            if (title.length > 250) title = title.slice(0, 250)
-          }
-          newConversation.title = title
           chatMessagesData = chatMessagesData.slice(1)
         }
 
@@ -111,10 +99,11 @@ export async function processDone(
           const newMessagesGroupIds = [...$messageGroupIds, groupId]
           messageGroupIds.update(() => newMessagesGroupIds)
         }
+        const currentUser = await getCurrentUser()
         const userMessage: ChatMessageInterface = {
           role: "user",
           content: $userPrompt,
-          username: "lalisa",
+          username: currentUser.username,
           id,
           groupId,
           parentId: newConversation.id,
@@ -145,6 +134,15 @@ export async function processDone(
           }
         }
         isProcessing.update(() => false)
+        if (shouldPerformTitleGenerationTask) {
+          executeTitleGenerationTask(
+            fullText,
+            $model,
+            $userPrompt,
+            $conversation,
+            routeApp
+          )
+        }
       }, 25)
       updateMessageTask(id, true)
     } else {

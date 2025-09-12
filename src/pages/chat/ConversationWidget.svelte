@@ -9,6 +9,8 @@
   export let toggleChatMessagePager: () => void
   export let reloadChat: () => void
   export let showChatMessagesPager: boolean
+  import * as idb from "idb-keyval"
+
   let editMode = false
   async function onDeleteConversation(id: string) {
     if (confirm("This will also delete all messages, continue ?")) {
@@ -25,12 +27,11 @@
     // const title =
     // console.log(conversation.title)
     if (conversation) {
-      await updateConversationTitle(conversation)
-      if (routeApp) {
-        routeApp.setRoute(
-          `/chat/${conversation.id}?reloadSidebar=${Date.now()}`
-        )
-      }
+      await updateConversationTitle(conversation.id, conversation.title)
+      idb.set("updateSidebarItem", conversation)
+      routeApp.setRoute(
+        `/chat/${conversation.id}?updateSidebarItem=${Date.now()}`
+      )
     }
     editMode = false
   }

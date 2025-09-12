@@ -153,7 +153,13 @@
   }
 
   async function loadChat(id: string) {
-    await loadChatExternal(id, conversation, chatMessages, createNewChat)
+    await loadChatExternal(
+      id,
+      conversation,
+      chatMessages,
+      createNewChat,
+      routeApp
+    )
     messageGroupIds.update(() => [])
     // Handle document title update
     if ($conversation) {

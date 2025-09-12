@@ -28,11 +28,12 @@
 </script>
 
 {#if isYouTube}
-  <div class="youtube-embed-container">
+  <a target="_blank" {href} {title}><slot></slot></a>
+  <div class="youtube-embed-container my-4 rounded-lg">
     <iframe
       class="youtube-embed"
       src="https://www.youtube.com/embed/{youtubeId}"
-      title="YouTube video player"
+      {title}
       frameborder="0"
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
       allowfullscreen
@@ -40,11 +41,13 @@
     </iframe>
   </div>
 {:else if isTikTok}
-  <div class="tiktok-embed-container">
+  <a target="_blank" {href} {title}><slot></slot></a>
+
+  <div class="tiktok-embed-container my-4 rounded-lg">
     <iframe
       class="tiktok-embed"
       src="https://www.tiktok.com/embed/v2/{tiktokId}"
-      title="TikTok video player"
+      {title}
       frameborder="0"
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
       allowfullscreen

@@ -6,6 +6,8 @@
   import { getConversations } from "@/global/store/conversation/getConversations"
   import type { ConversationInterface } from "@/pages/chat/chat-page/types"
   import { getCurrentUser } from "@/global/store/auth/getCurrentUser"
+  import * as idb from "idb-keyval"
+
   export let routeApp: any
   const conversations = writable<ConversationInterface[]>([])
   let lastRoutePath = ""
@@ -89,7 +91,7 @@
       if (routeApp) {
         lastRoutePath = routeApp.getRoute()[0]
         routeApp.addRouteChangeCallback(
-          (path: string, qs: string) => {
+          async (path: string, qs: string) => {
             activateConversationBtnStyles()
             if (lastRoutePath === "/chat/new") {
               updateConversationList()
@@ -101,6 +103,20 @@
             if (qs) {
               if (qs.match(/reloadSidebar/)) {
                 updateConversationList()
+              } else if (qs.match(/updateSidebarItem/)) {
+                const config = await idb.get("updateSidebarItem")
+                console.log({ config })
+                if (config) {
+                  const { id, title } = config
+                  const conversationList = $conversations
+                  const conversation = conversationList.find((c) => c.id === id)
+                  if (conversation) {
+                    conversation.title = title
+                    conversations.update(() => conversationList)
+                    idb.set("updateSidebarItem", null)
+                  }
+                }
+                // updateConversationList()
               }
             }
             lastRoutePath = path

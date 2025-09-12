@@ -194,3 +194,10 @@
 .galery-grid > .galery-item  p  img{
   @apply !m-0 !p-0 cursor-pointer shadow-md;
 }
+
+ .block-quote p a{
+  text-decoration: none !important;
+}
+ .block-quote p a:hover{
+  text-decoration: underline !important;
+}
