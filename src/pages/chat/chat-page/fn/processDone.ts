@@ -44,7 +44,9 @@ export async function processDone(
   $messageGroupIds: string[],
   toasts: Toasts,
   hasError: boolean,
-  errorMessage: string
+  errorMessage: string,
+  $useChatBuffer: boolean,
+  $chatBufferGroupId: string
 ) {
   const task = getMessageTask(id)
   if (task) {
@@ -87,13 +89,19 @@ export async function processDone(
           await createConversation(newConversation)
           // create message group with conversation id
           // got groupId
-          groupId = v1()
+
+          // {groupId} = messageGroupId
+          if (!$useChatBuffer) {
+            groupId = v1()
+          }
+          //else {
+          //   groupId = $chatBufferGroupId
+          // }
           const messageGroup = await createMessageGroup(
             groupId,
             newConversation.id
           )
           console.log({ messageGroup })
-          // {groupId} = messageGroupId
           messageGroupId.update(() => groupId)
 
           const newMessagesGroupIds = [...$messageGroupIds, groupId]
@@ -126,7 +134,9 @@ export async function processDone(
         )
         // console.log({ uMsg, aMsg })
         if (params?.id !== "new") {
-          chatMessages.update(() => chatMessagesData)
+          if (!$useChatBuffer) {
+            chatMessages.update(() => chatMessagesData)
+          }
           // console.log("conversation id is not new")
         } else {
           if (routeApp) {

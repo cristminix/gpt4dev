@@ -31,8 +31,9 @@
   import { getMessageGroups } from "@/global/store/conversation/getMessageGroups"
   import type { GroupedChatMessagesInterface } from "./types"
   import Toasts from "@/components/Toasts.svelte"
-  import { onMount } from "svelte"
+  import { onMount, tick } from "svelte"
   import * as idb from "idb-keyval"
+  import { v1 } from "uuid"
   export let routeApp: RouteAppType
   export let params: { id?: string } | null
   export let toasts: Toasts
@@ -146,7 +147,9 @@
         $messageGroupIds,
         toasts,
         hasError,
-        errorMessage
+        errorMessage,
+        $useChatBuffer,
+        $chatBufferGroupId
       )
   }
   function createNewChat() {
@@ -154,6 +157,7 @@
   }
   let lastChatId = ""
   async function loadChat(id: string, reload = false) {
+    console.log("loadChat,reload", reload)
     if (lastChatId === id && !reload) return
     await loadChatExternal(
       id,
@@ -277,34 +281,178 @@
   onMount(() => {
     // chatMessages.subscribe((newChatMessages) => {})
   })
-  let tempMode = 0
-  let assistantMessagePtr: ChatMessageInterface | null = null
-  const tempChatMessageCls = writable("")
-  const useChatBuffer = writable(false)
+  const useChatBuffer = writable(true)
+  const chatBufferGroupId = writable("")
   const chatBufferMode = writable("default") // default,regenerate
+  let tempMode = 0
+  let assistantMessagePtr: ChatMessageInterface
+  const tempChatMessageCls = writable("")
+  const MIRROR_TMP_CHAT = import.meta.env.VITE_MIRROR_TMP_CHAT === "true"
+  const updateTimeouts = new Map<string, number>()
+  let newChat = 0
+  let chatIsNew = false
   async function onChatBuffer(data: any) {
-    // return
+    if (!params) return
+    if (params.id === "new" && newChat === 0) {
+      newChat = 1000
+    } else if (params.id && params.id !== "new" && newChat === 0) {
+      newChat = 1002
+    }
+    // console.log({ newChat, isRegenerate: $isRegenerate })
+    if (!MIRROR_TMP_CHAT) return
+    if (!tempChatMessagesRef) return
+    const { text, t, complete, params: dataParams, messageId, messages } = data
+    // console.log({ text, t, complete, dataParams, messageId, messages })
+    if (newChat === 1000) {
+      const groupId = v1()
+      chatBufferGroupId.update(() => groupId)
+      const newMessages = messages.map((m: ChatMessageInterface) => {
+        m.groupId = groupId
+        return m
+      })
+      const userMessage = newMessages.find(
+        (m: ChatMessageInterface) => m.role === "user"
+      )
+      assistantMessagePtr = {
+        role: "assistant",
+        username: `${$model}:${$provider}`,
+        content: "",
+        id: messageId, // Membuat ID unik untuk pesan
+        parentId: userMessage?.id || "", // Menggunakan ID pesan pengguna sebagai parentId
+        groupId, // Menggunakan groupId saat ini
+      }
 
-    const result = await onChatBufferExternal({
-      data,
-      tempChatMessagesRef,
-      messageGroupId,
-      groupedChatMessages,
-      messageId,
-      model,
-      provider,
-      tempChatMessageCls,
-      tempMode,
-      assistantMessagePtr,
-      useChatBuffer,
-      chatBufferMode,
-      $useChatBuffer,
-      $chatBufferMode,
-    })
+      messageGroupIds.update(() => [groupId])
+      messageGroupId.update(() => groupId)
+      chatMessages.update(() => [userMessage, assistantMessagePtr])
 
-    // Update the local variables with the result
-    tempMode = result.tempMode
-    assistantMessagePtr = result.assistantMessagePtr
+      newChat = 1003
+      chatIsNew = true
+      return
+    } else if (newChat === 1002) {
+      console.log("here 2")
+      if ($isRegenerate) {
+        assistantMessagePtr = $chatMessages.find(
+          (m) => m.id === messageId
+        ) as ChatMessageInterface
+      } else {
+        const groupId = $messageGroupId
+        chatBufferGroupId.update(() => groupId)
+        const newMessages = [...messages].map((m) => {
+          m.groupId = groupId
+          return m
+        })
+        const userMessage = { ...tempChatMessagesRef.getUserMessage() }
+        assistantMessagePtr = {
+          role: "assistant",
+          username: `${$model}:${$provider}`,
+          content: "",
+          id: messageId, // Membuat ID unik untuk pesan
+          parentId: userMessage?.id || "", // Menggunakan ID pesan pengguna sebagai parentId
+          groupId, // Menggunakan groupId saat ini
+        }
+
+        // messageGroupIds.update(() => [groupId])
+        // messageGroupId.update(() => groupId)
+        const chatMessagesSet = [
+          ...$chatMessages,
+          userMessage,
+          assistantMessagePtr,
+        ]
+        console.log({ chatMessagesSet })
+
+        //@ts-ignore
+        chatMessages.update(() => chatMessagesSet)
+      }
+      newChat = 1003
+      return
+    }
+    // console.log({ newChat })
+    if (newChat >= 1003) {
+      // console.log({
+      //   newChat,
+      //   messageGroupId: $messageGroupId,
+      //   groupedChatMessages: $groupedChatMessages,
+      //   messageGroupIds: $messageGroupIds,
+      // })
+      if (!Array.isArray($groupedChatMessages[$messageGroupId])) {
+        const grpCm = { [$messageGroupId]: [] }
+
+        // groupedChatMessages.update(() => grpCm)
+        // await tick()
+        console.log("Here")
+        // await tick()
+
+        return
+      }
+      if (tempMode === 0) {
+        console.log("INITIAL", { chatIsNew })
+        if (chatIsNew) {
+        } else {
+          if ($isRegenerate) {
+          } else {
+          }
+        }
+
+        tempChatMessageCls.update(() => "hidden")
+        tempMode = 1
+        // console.log({ updatedGroupedChatMessages })
+      } else if (tempMode === 1) {
+        // UPDATE
+
+        if (assistantMessagePtr) {
+          // console.log("UPDATE")
+          if (true) {
+            assistantMessagePtr.content = text
+
+            const existingTimeout = updateTimeouts.get(messageId)
+            if (existingTimeout) {
+              clearTimeout(existingTimeout)
+            }
+
+            const newTimeout = window.setTimeout(() => {
+              // Create new object reference to trigger reactivity
+              const updatedGrouped = { ...$groupedChatMessages }
+              const groupMessages = [...(updatedGrouped[$messageGroupId] || [])]
+              // Find and update the assistant message
+              const messageIndex = groupMessages.findIndex(
+                (msg: any) => msg.id === messageId
+              )
+              if (messageIndex !== -1) {
+                groupMessages[messageIndex] = {
+                  ...groupMessages[messageIndex],
+                  content: text,
+                }
+                updatedGrouped[$messageGroupId] = groupMessages
+              }
+              // console.log({ updatedGrouped })
+              groupedChatMessages.update(() => updatedGrouped)
+
+              // Clean up the timeout reference
+              updateTimeouts.delete(messageId)
+            }, 15)
+
+            updateTimeouts.set(messageId, newTimeout)
+          } else {
+          }
+
+          // await tick()
+        }
+        // await tick()
+      }
+    }
+    if (complete) {
+      tempMode = 0
+      newChat = 0
+      if (chatIsNew) {
+        chatIsNew = false
+        lastChatId = $conversation.id
+      }
+      assistantMessagePtr = null
+      setTimeout(() => {
+        tempChatMessageCls.update(() => "")
+      }, 3000)
+    }
   }
   function reloadChat() {
     if (params?.id) loadChat(params.id, true)
