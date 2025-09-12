@@ -262,7 +262,9 @@
       $userPrompt,
       hasError,
       errorMessage,
-      reloadChat
+      reloadChat,
+      $useChatBuffer,
+      $chatBufferGroupId
     )
   }
   function onChangeMessageGroupId(groupId: string) {
@@ -332,10 +334,20 @@
     } else if (newChat === 1002) {
       console.log("here 2")
       if ($isRegenerate) {
+        console.log("here 4")
+
         assistantMessagePtr = $chatMessages.find(
-          (m) => m.id === messageId
+          (m) => m.id === $lastMessageId
         ) as ChatMessageInterface
+
+        if ($useLastMessageId) {
+          console.log("here 5")
+
+          // assistantMessagePtr
+        }
       } else {
+        console.log("here 3")
+
         const groupId = $messageGroupId
         chatBufferGroupId.update(() => groupId)
         const newMessages = [...messages].map((m) => {
@@ -402,39 +414,37 @@
 
         if (assistantMessagePtr) {
           // console.log("UPDATE")
-          if (true) {
-            assistantMessagePtr.content = text
 
-            const existingTimeout = updateTimeouts.get(messageId)
-            if (existingTimeout) {
-              clearTimeout(existingTimeout)
-            }
+          assistantMessagePtr.content = text
 
-            const newTimeout = window.setTimeout(() => {
-              // Create new object reference to trigger reactivity
-              const updatedGrouped = { ...$groupedChatMessages }
-              const groupMessages = [...(updatedGrouped[$messageGroupId] || [])]
-              // Find and update the assistant message
-              const messageIndex = groupMessages.findIndex(
-                (msg: any) => msg.id === messageId
-              )
-              if (messageIndex !== -1) {
-                groupMessages[messageIndex] = {
-                  ...groupMessages[messageIndex],
-                  content: text,
-                }
-                updatedGrouped[$messageGroupId] = groupMessages
-              }
-              // console.log({ updatedGrouped })
-              groupedChatMessages.update(() => updatedGrouped)
-
-              // Clean up the timeout reference
-              updateTimeouts.delete(messageId)
-            }, 15)
-
-            updateTimeouts.set(messageId, newTimeout)
-          } else {
+          const existingTimeout = updateTimeouts.get(messageId)
+          if (existingTimeout) {
+            clearTimeout(existingTimeout)
           }
+
+          const newTimeout = window.setTimeout(() => {
+            // Create new object reference to trigger reactivity
+            const updatedGrouped = { ...$groupedChatMessages }
+            const groupMessages = [...(updatedGrouped[$messageGroupId] || [])]
+            // Find and update the assistant message
+            const messageIndex = groupMessages.findIndex(
+              (msg: any) => msg.id === messageId
+            )
+            if (messageIndex !== -1) {
+              groupMessages[messageIndex] = {
+                ...groupMessages[messageIndex],
+                content: text,
+              }
+              updatedGrouped[$messageGroupId] = groupMessages
+            }
+            // console.log({ updatedGrouped })
+            groupedChatMessages.update(() => updatedGrouped)
+
+            // Clean up the timeout reference
+            updateTimeouts.delete(messageId)
+          }, 15)
+
+          updateTimeouts.set(messageId, newTimeout)
 
           // await tick()
         }

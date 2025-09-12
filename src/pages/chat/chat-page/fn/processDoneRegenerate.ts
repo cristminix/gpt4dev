@@ -5,6 +5,7 @@ import { createChatMessage } from "@/global/store/conversation/createChatMessage
 import { updateChatMessage } from "@/global/store/conversation/updateChatMessage"
 import jquery from "jquery"
 import type { Writable } from "svelte/store"
+import { messageId } from "@/global/store/conversation/messageStore"
 
 export async function processDoneRegenerate(
   fullText: string,
@@ -33,7 +34,9 @@ export async function processDoneRegenerate(
   $userPrompt: string,
   hasError: boolean,
   errorMessage: string,
-  reloadChat: () => void
+  reloadChat: () => void,
+  $useChatBuffer: boolean,
+  $chatBufferGroupId: string
 ) {
   // console.log("processDoneRegenerate", fullText, id)
   const task = getMessageTask(id)
@@ -52,46 +55,26 @@ export async function processDoneRegenerate(
           reloadChat()
           return
         }
-        if (!$useLastMessageId) {
-          const messageGroup = await createMessageGroup(
-            $messageGroupId,
-            //@ts-ignore
-            $conversation.id
-          )
-          // console.log({ messageGroup })
-        }
-        const messages = $groupedChatMessages[$messageGroupId]
-        const userMessage: ChatMessageInterface = messages[messages.length - 1]
-        const assistantMessage: ChatMessageInterface = {
-          role: "assistant",
-          content: fullText,
-          id: createMessageId(),
-          parentId: id,
-          groupId: $messageGroupId,
-          username: `${$model}:${$provider}`,
-        }
-        let chatMessagesData = [...$chatMessages] as any[]
-        if (!$useLastMessageId) {
-          for (const nMsg of messages) {
-            const uMsg = await createChatMessage(nMsg, $conversation.id)
-            // console.log({ uMsg })
+        // USE SAME MODEL
+        if ($useLastMessageId) {
+          const messages = $groupedChatMessages[$messageGroupId]
+          const userMessage: ChatMessageInterface =
+            messages[messages.length - 1]
+          const assistantMessage: ChatMessageInterface = {
+            role: "assistant",
+            content: fullText,
+            id: $lastMessageId,
+            parentId: userMessage.id,
+            groupId: $messageGroupId,
+            username: `${$model}:${$provider}`,
           }
-        }
-        if (!$useLastMessageId) {
-          const aMsg = await createChatMessage(
-            assistantMessage,
-            $conversation.id
-          )
-          // console.log({ aMsg })
-          chatMessagesData.push(assistantMessage)
-        } else {
+          let chatMessagesData = [...$chatMessages] as any[]
+
           assistantMessage.id = $lastMessageId
           const aMsg = await updateChatMessage(
             assistantMessage,
             $conversation.id
           )
-          // console.log({ aMsg })
-          //  $chatMessages.findIndex((item) => item.id === id)
 
           const aMsgIndex = chatMessagesData.findIndex(
             (msg) => msg.id === aMsg.id
@@ -104,16 +87,49 @@ export async function processDoneRegenerate(
             }
           }
 
-          // const filtered = chatMessagesData.filter((msg) => msg.id === aMsg.id)
-          // if (filtered.length > 0) {
-          //   filtered[0] = aMsg
-          // }
+          if (!$useChatBuffer) {
+            chatMessages.update(() => chatMessagesData)
+          }
+        } else {
+          await createMessageGroup(
+            $messageGroupId,
+            //@ts-ignore
+            $conversation.id
+          )
+          // console.log({ messageGroup })
+          const messages = $groupedChatMessages[$messageGroupId]
+          const userMessage: ChatMessageInterface =
+            messages[messages.length - 1]
+          const assistantMessage: ChatMessageInterface = {
+            role: "assistant",
+            content: fullText,
+            id: $lastMessageId,
+            parentId: userMessage.id,
+            groupId: $messageGroupId,
+            username: `${$model}:${$provider}`,
+          }
+          let chatMessagesData = [...$chatMessages] as any[]
+          if (!$useLastMessageId) {
+            for (const nMsg of messages) {
+              const uMsg = await createChatMessage(nMsg, $conversation.id)
+              // console.log({ uMsg })
+            }
+          }
+          if (!$useLastMessageId) {
+            const aMsg = await createChatMessage(
+              assistantMessage,
+              $conversation.id
+            )
+            // console.log({ aMsg })
+            chatMessagesData.push(assistantMessage)
+          }
+          if (!$useChatBuffer) {
+            chatMessages.update(() => chatMessagesData)
+          }
         }
-        chatMessages.update(() => chatMessagesData)
+
         isProcessing.update(() => false)
-        // setTimeout(() => {
         updateMessageGroupMessages()
-        // }, 512)
       }, 25)
 
       updateMessageTask(id, true)

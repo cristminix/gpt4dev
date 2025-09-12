@@ -30,6 +30,7 @@ export async function onRegenerateMessage(
 ) {
   // console.log("regenerate message", { message })
   let messageToResend: ChatMessageInterface = message
+  console.log({ messageToResend })
   lastMessageId.update(() => messageToResend.id)
   // chek if provider and model are same
   const modelConfig = getModelConfig()
@@ -137,9 +138,15 @@ export async function onRegenerateMessage(
     // const id = createMessageId()
     // setTimeout(() => {
     messageTasks.update(() => ({}))
-    messageId.update(() => messageToResend.id)
-    addMessageTask(messageToResend.id)
-
+    if (useSameProviderAndModel) {
+      messageId.update(() => messageToResend.id)
+      addMessageTask(messageToResend.id)
+    } else {
+      const newMessageId = createMessageId()
+      messageId.update(() => messageToResend.id)
+      addMessageTask(messageToResend.id)
+      lastMessageId.update(() => newMessageId)
+    }
     userPrompt.update(() => messageToResend.content)
     model.update(() => modelConfig.model)
     provider.update(() => modelConfig.provider)
