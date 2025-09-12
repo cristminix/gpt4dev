@@ -140,7 +140,8 @@ export async function processDone(
             $model,
             $userPrompt,
             $conversation,
-            routeApp
+            routeApp,
+            conversation
           )
         }
       }, 25)

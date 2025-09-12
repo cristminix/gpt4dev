@@ -151,8 +151,9 @@
   function createNewChat() {
     createNewChatExternal(conversation, chatMessages, jquery)
   }
-
-  async function loadChat(id: string) {
+  let lastChatId = ""
+  async function loadChat(id: string, reload = false) {
+    if (lastChatId === id && !reload) return
     await loadChatExternal(
       id,
       conversation,
@@ -170,6 +171,7 @@
       // load message groups
       // await updateMessageGroupMessages()
       // toasts.doToast("success", "Loaded")
+      lastChatId = id
     }
   }
   async function updateMessageGroupMessages() {
@@ -297,7 +299,7 @@
     assistantMessagePtr = result.assistantMessagePtr
   }
   function reloadChat() {
-    if (params?.id) loadChat(params.id)
+    if (params?.id) loadChat(params.id, true)
     setTimeout(() => {
       if ($messageGroupId.length > 0 && chatMessageWithGroupRef) {
         chatMessageWithGroupRef.onClickChangeGroupId($messageGroupId)
