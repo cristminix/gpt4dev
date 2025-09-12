@@ -32,6 +32,7 @@
   import type { GroupedChatMessagesInterface } from "./types"
   import Toasts from "@/components/Toasts.svelte"
   import { onMount } from "svelte"
+  import * as idb from "idb-keyval"
   export let routeApp: RouteAppType
   export let params: { id?: string } | null
   export let toasts: Toasts
@@ -279,9 +280,12 @@
   let tempMode = 0
   let assistantMessagePtr: ChatMessageInterface | null = null
   const tempChatMessageCls = writable("")
-  function onChatBuffer(data: any) {
-    return
-    const result = onChatBufferExternal({
+  const useChatBuffer = writable(false)
+  const chatBufferMode = writable("default") // default,regenerate
+  async function onChatBuffer(data: any) {
+    // return
+
+    const result = await onChatBufferExternal({
       data,
       tempChatMessagesRef,
       messageGroupId,
@@ -292,6 +296,10 @@
       tempChatMessageCls,
       tempMode,
       assistantMessagePtr,
+      useChatBuffer,
+      chatBufferMode,
+      $useChatBuffer,
+      $chatBufferMode,
     })
 
     // Update the local variables with the result

@@ -102,7 +102,7 @@
       reasoning.update(() => false)
 
       finalContent.update(() => text)
-      autoScroll()
+      // autoScroll()
     }, 256)
   }
   async function updateReasoningMessage(

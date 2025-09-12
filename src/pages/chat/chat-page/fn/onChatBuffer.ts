@@ -1,7 +1,7 @@
 import type { Writable } from "svelte/store"
 import type { ChatMessageInterface } from "../types"
 import type { GroupedChatMessagesInterface } from "../../../types"
-
+import * as idb from "idb-keyval"
 interface OnChatBufferParams {
   data: any
   tempChatMessagesRef: any
@@ -13,9 +13,13 @@ interface OnChatBufferParams {
   tempChatMessageCls: Writable<string>
   tempMode: number
   assistantMessagePtr: ChatMessageInterface | null
+  useChatBuffer: Writable<boolean>
+  chatBufferMode: Writable<string>
+  $useChatBuffer: boolean
+  $chatBufferMode: string
 }
 
-export function onChatBuffer({
+export async function onChatBuffer({
   data,
   tempChatMessagesRef,
   messageGroupId,
@@ -26,10 +30,14 @@ export function onChatBuffer({
   tempChatMessageCls,
   tempMode,
   assistantMessagePtr,
-}: OnChatBufferParams): {
+  useChatBuffer,
+  chatBufferMode,
+  $useChatBuffer,
+  $chatBufferMode,
+}: OnChatBufferParams): Promise<{
   tempMode: number
   assistantMessagePtr: ChatMessageInterface | null
-} {
+}> {
   // Early return if tempChatMessagesRef is not available
   if (!tempChatMessagesRef) return { tempMode, assistantMessagePtr }
 

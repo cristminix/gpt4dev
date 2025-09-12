@@ -34,7 +34,7 @@
 
   onMount(() => {
     chatContainer = document.querySelector("#chat-container")
-    autoScroll()
+    // autoScroll()
   })
   export function abortCompletion() {
     if (assistantMessage) {
