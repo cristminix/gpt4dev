@@ -374,6 +374,7 @@
         //   return m
         // })
         const userMessage = { ...tempChatMessagesRef.getUserMessage() }
+        userMessage.groupId = groupId
         assistantMessagePtr = {
           role: "assistant",
           username: `${$model}:${$provider}`,
