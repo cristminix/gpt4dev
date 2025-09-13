@@ -17,7 +17,6 @@
   import { deleteMessage as deleteMessageExternal } from "./chat/chat-page/fn/deleteMessage"
   import { onRegenerateMessage as onRegenerateMessageExternal } from "./chat/chat-page/fn/regenerateMessage"
   import { processDoneRegenerate as processDoneRegenerateExternal } from "./chat/chat-page/fn/processDoneRegenerate"
-  import { onChatBuffer as onChatBufferExternal } from "./chat/chat-page/fn/onChatBuffer"
 
   import { getModelConfig } from "@/global/store/chat/getModelConfig"
   import ConversationWidget from "./chat/ConversationWidget.svelte"
@@ -228,7 +227,9 @@
       isRegenerate,
       regenerateUsingSameModelProvider,
       $regenerateUsingSameModelProvider,
-      addMessageTask
+      addMessageTask,
+      messageGroupIds,
+      $messageGroupIds
     )
   }
   async function processDoneRegenerate(
@@ -354,16 +355,24 @@
           ) as ChatMessageInterface
           // assistantMessagePtr
         } else {
+          console.log("here 6")
+          assistantMessagePtr = $chatMessages.find(
+            (m) =>
+              m.id === $lastGeneratedAssistantMessageId &&
+              m.role === "assistant"
+          ) as ChatMessageInterface
+
+          console.log({ assistantMessagePtr })
         }
       } else {
         console.log("here 3")
 
         const groupId = $messageGroupId
         chatBufferGroupId.update(() => groupId)
-        const newMessages = [...messages].map((m) => {
-          m.groupId = groupId
-          return m
-        })
+        // const newMessages = [...messages].map((m) => {
+        //   m.groupId = groupId
+        //   return m
+        // })
         const userMessage = { ...tempChatMessagesRef.getUserMessage() }
         assistantMessagePtr = {
           role: "assistant",
@@ -423,43 +432,53 @@
         // UPDATE
 
         if (assistantMessagePtr) {
-          // console.log("UPDATE")
-          // console.log({ text })
-          if (text.length === 0) return
-          assistantMessagePtr.content = text
+          if (assistantMessagePtr.id) {
+            // console.log("UPDATE")
+            // console.log({ text })
+            if (text.length === 0) return
+            assistantMessagePtr.content = text
 
-          const existingTimeout = updateTimeouts.get(assistantMessagePtr.id)
-          if (existingTimeout) {
-            clearTimeout(existingTimeout)
-          }
-
-          const newTimeout = window.setTimeout(() => {
-            // Create new object reference to trigger reactivity
-            const updatedGrouped = { ...$groupedChatMessages }
-            const groupMessages = [...(updatedGrouped[$messageGroupId] || [])]
-            // Find and update the assistant message
-            const messageIndex = groupMessages.findIndex(
-              (msg: any) => msg.id === messageId
-            )
-            if (messageIndex !== -1) {
-              groupMessages[messageIndex] = {
-                ...groupMessages[messageIndex],
-                content: text,
-              }
-              updatedGrouped[$messageGroupId] = groupMessages
+            const existingTimeout = updateTimeouts.get(assistantMessagePtr.id)
+            if (existingTimeout) {
+              clearTimeout(existingTimeout)
             }
-            // console.log({ updatedGrouped })
-            groupedChatMessages.update(() => updatedGrouped)
 
-            // Clean up the timeout reference
-            updateTimeouts.delete(messageId)
-          }, 15)
+            const newTimeout = window.setTimeout(() => {
+              if (assistantMessagePtr) {
+                if (assistantMessagePtr.id) {
+                  // Create new object reference to trigger reactivity
+                  const updatedGrouped = { ...$groupedChatMessages }
+                  const groupMessages = [
+                    ...(updatedGrouped[$messageGroupId] || []),
+                  ]
+                  // Find and update the assistant message
+                  const messageIndex = groupMessages.findIndex((msg: any) => {
+                    if (assistantMessagePtr) {
+                      if (assistantMessagePtr.id) {
+                        return msg.id === assistantMessagePtr.id
+                      }
+                    }
+                    return false
+                  })
+                  if (messageIndex !== -1) {
+                    groupMessages[messageIndex] = {
+                      ...groupMessages[messageIndex],
+                      content: text,
+                    }
+                    updatedGrouped[$messageGroupId] = groupMessages
+                  }
+                  // console.log({ updatedGrouped })
+                  groupedChatMessages.update(() => updatedGrouped)
 
-          updateTimeouts.set(assistantMessagePtr.id, newTimeout)
+                  // Clean up the timeout reference
+                  updateTimeouts.delete(assistantMessagePtr.id)
+                }
+              }
+            }, 15)
 
-          // await tick()
+            updateTimeouts.set(assistantMessagePtr.id, newTimeout)
+          }
         }
-        // await tick()
       }
     }
     if (complete) {
@@ -467,8 +486,10 @@
       newChat = 0
       if (chatIsNew) {
         chatIsNew = false
+        //@ts-ignore
         lastChatId = $conversation.id
       }
+      //@ts-ignore
       assistantMessagePtr = null
       setTimeout(() => {
         tempChatMessageCls.update(() => "")

@@ -23,7 +23,8 @@ function shouldRegenerateUsingSameModelProvider(
     dontCreateMessageGroup = true
     dontAppendMessages = true
   }
-  return [useSameProviderAndModel, dontCreateMessageGroup, dontAppendMessages]
+  return [false, dontCreateMessageGroup, dontAppendMessages]
+  // return [useSameProviderAndModel, dontCreateMessageGroup, dontAppendMessages]
 }
 function getUserMessageToGenerate(
   sourceAssistantMessage: ChatMessageInterface,
@@ -116,7 +117,9 @@ export async function onRegenerateMessage(
   isRegenerate: Writable<boolean>,
   regenerateUsingSameModelProvider: Writable<boolean>,
   $regenerateUsingSameModelProvider: boolean,
-  addMessageTask: (id: string) => void
+  addMessageTask: (id: string) => void,
+  messageGroupIds: Writable<string[]>,
+  $messageGroupIds: string[]
 ) {
   // 0 . check source message
   if (!sourceAssistantMessage) {
@@ -159,7 +162,7 @@ export async function onRegenerateMessage(
   )
 
   // console.log({ previousMessage });
-  const assistantMessageToRegenerateId = "0000-0000-0000-0000"
+  // const assistantMessageToRegenerateId = "0000-0000-0000-0000"
   // trim messages data
   const assistantMessageIndex = previousChatMessages.findIndex(
     (item) => item.id === assistantMessageToRegenerate.id
@@ -167,21 +170,40 @@ export async function onRegenerateMessage(
   const validAssistantMessageInRange = assistantMessageIndex > -1
   if (validAssistantMessageInRange) {
     const newGroupId = v1()
-    // test append message with new groupId
-    const regenerateChatMessages = populateRegenerateChatMessages(
-      previousChatMessages,
-      useSameProviderAndModel,
-      newGroupId,
-      assistantMessageIndex
-    )
+    let copiedGroupMessages: ChatMessageInterface[] = []
+    const regenerateChatMessages = [
+      ...populateRegenerateChatMessages(
+        previousChatMessages,
+        useSameProviderAndModel,
+        newGroupId,
+        assistantMessageIndex
+      ),
+    ]
     if (!useSameProviderAndModel) {
-      // update current messageGroupId
-      messageGroupId.update(() => newGroupId)
+      copiedGroupMessages = [...regenerateChatMessages].filter(
+        (msg) => msg.role !== "system"
+      )
+    }
+    // remove last assistantMessage
+    regenerateChatMessages.pop()
 
+    if (!useSameProviderAndModel) {
+      // update copied messages group id
+      copiedGroupMessages = copiedGroupMessages.map((m) => {
+        m.groupId = newGroupId
+        return m
+      })
+
+      const lastAssistantMessage =
+        copiedGroupMessages[copiedGroupMessages.length - 1]
+      lastAssistantMessage.username = `${modelConfig.model}:${modelConfig.provider}`
+      lastAssistantMessage.id = createMessageId()
+      const assistantMessageToRegenerateId = lastAssistantMessage.id
+      console.log({ lastAssistantMessage, copiedGroupMessages })
       // update chatMessages
       chatMessages.update((o: ChatMessageInterface[]) => [
         ...o,
-        ...regenerateChatMessages,
+        ...copiedGroupMessages,
       ])
       const newMessageId = userMessageToRegenerate.id
 
@@ -190,6 +212,10 @@ export async function onRegenerateMessage(
       lastGeneratedAssistantMessageId.update(
         () => assistantMessageToRegenerateId
       )
+      // update current messageGroupId
+      // messageGroupIds.update([])
+      messageGroupIds.update((o) => [...o, newGroupId])
+      messageGroupId.update(() => newGroupId)
     } else {
       messageId.update(() => assistantMessageToRegenerate.id)
       addMessageTask(assistantMessageToRegenerate.id)

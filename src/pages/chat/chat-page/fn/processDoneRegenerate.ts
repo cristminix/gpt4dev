@@ -105,7 +105,7 @@ export async function processDoneRegenerate(
         }
 
         isProcessing.update(() => false)
-        updateMessageGroupMessages()
+        // updateMessageGroupMessages()
       }, 25)
 
       updateMessageTask(id, true)
