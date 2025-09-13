@@ -267,7 +267,8 @@
       reloadChat,
       $useChatBuffer,
       $chatBufferGroupId,
-      $regeneratePromptMessages
+      $regeneratePromptMessages,
+      tempChatMessagesRef
     )
   }
   function onChangeMessageGroupId(groupId: string) {
@@ -423,7 +424,7 @@
 
         if (assistantMessagePtr) {
           // console.log("UPDATE")
-          console.log({ text })
+          // console.log({ text })
           if (text.length === 0) return
           assistantMessagePtr.content = text
 

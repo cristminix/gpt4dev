@@ -159,7 +159,7 @@ export async function onRegenerateMessage(
   )
 
   // console.log({ previousMessage });
-
+  const assistantMessageToRegenerateId = "0000-0000-0000-0000"
   // trim messages data
   const assistantMessageIndex = previousChatMessages.findIndex(
     (item) => item.id === assistantMessageToRegenerate.id
@@ -183,13 +183,19 @@ export async function onRegenerateMessage(
         ...o,
         ...regenerateChatMessages,
       ])
-      const newMessageId = createMessageId()
-      messageId.update(() => assistantMessageToRegenerate.id)
-      addMessageTask(assistantMessageToRegenerate.id)
-      lastGeneratedAssistantMessageId.update(() => newMessageId)
+      const newMessageId = userMessageToRegenerate.id
+
+      messageId.update(() => newMessageId)
+      addMessageTask(newMessageId)
+      lastGeneratedAssistantMessageId.update(
+        () => assistantMessageToRegenerateId
+      )
     } else {
       messageId.update(() => assistantMessageToRegenerate.id)
       addMessageTask(assistantMessageToRegenerate.id)
+      lastGeneratedAssistantMessageId.update(
+        () => assistantMessageToRegenerate.id
+      )
     }
     // clean messageTasks
 

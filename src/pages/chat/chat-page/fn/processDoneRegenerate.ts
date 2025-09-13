@@ -6,6 +6,7 @@ import { updateChatMessage } from "@/global/store/conversation/updateChatMessage
 import jquery from "jquery"
 import type { Writable } from "svelte/store"
 import { messageId } from "@/global/store/conversation/messageStore"
+import type TempChatMessages from "../../TempChatMessages.svelte"
 
 export async function processDoneRegenerate(
   fullText: string,
@@ -37,7 +38,8 @@ export async function processDoneRegenerate(
   reloadChat: () => void,
   $useChatBuffer: boolean,
   $chatBufferGroupId: string,
-  $regeneratePromptMessages: ChatMessageInterface[]
+  $regeneratePromptMessages: ChatMessageInterface[],
+  tempChatMessagesRef: TempChatMessages
 ) {
   console.log("processDoneRegenerate", fullText, id)
   const task = getMessageTask(id)
@@ -57,11 +59,49 @@ export async function processDoneRegenerate(
           reloadChat()
           return
         }
-        // USE SAME MODEL
-        // regeneratePromptMessages
-        console.log({ regeneratePromptMessages: $regeneratePromptMessages })
-        if ($regenerateUsingSameModelProvider) {
-        } else {
+        // GET userMessage
+        if (tempChatMessagesRef) {
+          const userMessage = tempChatMessagesRef.getUserMessage()
+          if (userMessage) {
+            // USE SAME MODEL
+            // regeneratePromptMessages
+            const assistantMessageId = $lastGeneratedAssistantMessageId
+            console.log({ regeneratePromptMessages: $regeneratePromptMessages })
+            if ($regenerateUsingSameModelProvider) {
+              const assistantMessage: ChatMessageInterface = {
+                role: "assistant",
+                content: fullText,
+                id: assistantMessageId,
+                parentId: userMessage.id,
+                groupId: $messageGroupId,
+                username: `${$model}:${$provider}`,
+              }
+              console.log(assistantMessage)
+
+              const aMsg = await updateChatMessage(
+                assistantMessage,
+                $conversation.id
+              )
+              /*
+              let chatMessagesData = [...$chatMessages] as any[]
+
+              const aMsgIndex = chatMessagesData.findIndex(
+                (msg) => msg.id === aMsg.id
+              )
+              // console.log({ aMsgIndex }, chatMessagesData[aMsgIndex])
+              if (aMsgIndex !== -1) {
+                chatMessagesData[aMsgIndex] = {
+                  ...chatMessagesData[aMsgIndex],
+                  ...aMsg,
+                }
+              }
+              */
+              if (!$useChatBuffer) {
+                // chatMessages.update(() => chatMessagesData)
+              }
+            } else {
+            }
+          }
         }
 
         isProcessing.update(() => false)

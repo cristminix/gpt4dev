@@ -10,7 +10,7 @@
   export let content = ""
   // const platform = "animated-markdown"
   const platform = "svelte-markdown"
-  export let isProcessing: boolean
+  export let isProcessing: boolean = false
 </script>
 
 {#if platform === "svelte-markdown"}
