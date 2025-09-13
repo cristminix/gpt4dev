@@ -6,13 +6,19 @@
   //@ts-ignore
   import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism"
   import CodeRenderer from "../../CodeRenderer.svelte"
+  import CodeRendererStream from "../../CodeRendererStream.svelte"
   export let content = ""
   // const platform = "animated-markdown"
   const platform = "svelte-markdown"
+  export let isProcessing: boolean
 </script>
 
 {#if platform === "svelte-markdown"}
-  <SvelteMarkdown source={content} renderers={{ code: CodeRenderer }} />
+  {#if isProcessing}
+    <SvelteMarkdown source={content} renderers={{ code: CodeRendererStream }} />
+  {:else}
+    <SvelteMarkdown source={content} renderers={{ code: CodeRenderer }} />
+  {/if}
 {:else}
   <ReactAdapter
     el={AnimatedMarkdown}

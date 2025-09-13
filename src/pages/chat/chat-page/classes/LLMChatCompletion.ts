@@ -121,14 +121,28 @@ export class LLMCompletion {
         this.onError("Error: Unable to get response reader")
         return
       }
-
+      let start = 0
+      let finished = false
       while (true) {
         let buffer = ""
 
         try {
+          // Menambahkan delay 256ms sebelum membaca chunk berikutnya
+          if (start === 0) {
+            await new Promise((resolve) => setTimeout(resolve, 256))
+            start = 1
+          } else if (start === 1) {
+            await new Promise((resolve) => setTimeout(resolve, 128))
+            start = 3
+          } else if (start === 3) {
+            await new Promise((resolve) => setTimeout(resolve, 32))
+          }
           const { done, value } = await reader.read()
           if (done) {
-            this.finalizeMessage()
+            if (!finished) {
+              this.finalizeMessage()
+              finished = true
+            }
             break
           }
 
@@ -163,7 +177,10 @@ export class LLMCompletion {
                   break
                 case "finish":
                   // const reason = resp.finish.reason
-                  this.finalizeMessage()
+                  if (!finished) {
+                    this.finalizeMessage()
+                    finished = true
+                  }
                   break
 
                 case "parameters":
@@ -207,7 +224,11 @@ export class LLMCompletion {
           // Check if the error is due to abort
           if (error.name === "AbortError") {
             console.log("Request was aborted")
-            this.finalizeMessage(true)
+            if (!finished) {
+              this.finalizeMessage(true)
+              finished = true
+            }
+
             break
           } else {
             console.error("Stream reading error:", error)

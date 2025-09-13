@@ -47,11 +47,11 @@
   const provider = writable("")
   const userPrompt = writable("")
   const messageId = writable("")
-  const lastMessageId = writable("")
+  const lastGeneratedAssistantMessageId = writable("")
   const messageGroupId = writable("")
   const messageGroupIds = writable<string[]>([])
   const isRegenerate = writable(false)
-  const useLastMessageId = writable(false)
+  const regenerateUsingSameModelProvider = writable(false)
   const groupedChatMessages = writable<GroupedChatMessagesInterface>({})
   const showChatMessagesPager = writable(false)
   const messageTasks = writable<Record<string, MessageTask>>({})
@@ -93,7 +93,7 @@
       $chatMessages,
       messageGroupId,
       $messageGroupId,
-      useLastMessageId
+      regenerateUsingSameModelProvider
     )
   }
 
@@ -158,7 +158,7 @@
   let lastChatId = ""
   async function loadChat(id: string, reload = false) {
     console.log("loadChat,reload", reload)
-    if (lastChatId === id && !reload) return
+    if (lastChatId === id && !reload && id !== "new") return
     await loadChatExternal(
       id,
       conversation,
@@ -208,7 +208,7 @@
   async function onRegenerateMessage(message: ChatMessageInterface) {
     onRegenerateMessageExternal(
       message,
-      lastMessageId,
+      lastGeneratedAssistantMessageId,
       chatMessages,
       $chatMessages,
       messageGroupId,
@@ -224,8 +224,8 @@
       provider,
       isProcessing,
       isRegenerate,
-      useLastMessageId,
-      $useLastMessageId,
+      regenerateUsingSameModelProvider,
+      $regenerateUsingSameModelProvider,
       addMessageTask
     )
   }
@@ -240,8 +240,8 @@
       id,
       getMessageTask,
       $conversation,
-      useLastMessageId,
-      $useLastMessageId,
+      regenerateUsingSameModelProvider,
+      $regenerateUsingSameModelProvider,
       messageGroupId,
       $messageGroupId,
       groupedChatMessages,
@@ -250,8 +250,8 @@
       $model,
       provider,
       $provider,
-      lastMessageId,
-      $lastMessageId,
+      lastGeneratedAssistantMessageId,
+      $lastGeneratedAssistantMessageId,
       chatMessages,
       $chatMessages,
       isProcessing,
@@ -264,7 +264,8 @@
       errorMessage,
       reloadChat,
       $useChatBuffer,
-      $chatBufferGroupId
+      $chatBufferGroupId,
+      $regeneratePromptMessages
     )
   }
   function onChangeMessageGroupId(groupId: string) {
@@ -336,14 +337,13 @@
       if ($isRegenerate) {
         console.log("here 4")
 
-        assistantMessagePtr = $chatMessages.find(
-          (m) => m.id === $lastMessageId
-        ) as ChatMessageInterface
-
-        if ($useLastMessageId) {
+        if ($regenerateUsingSameModelProvider) {
           console.log("here 5")
-
+          assistantMessagePtr = $chatMessages.find(
+            (m) => m.id === messageId && m.role === "assistant"
+          ) as ChatMessageInterface
           // assistantMessagePtr
+        } else {
         }
       } else {
         console.log("here 3")
@@ -414,10 +414,11 @@
 
         if (assistantMessagePtr) {
           // console.log("UPDATE")
-
+          console.log({ text })
+          if (text.length === 0) return
           assistantMessagePtr.content = text
 
-          const existingTimeout = updateTimeouts.get(messageId)
+          const existingTimeout = updateTimeouts.get(assistantMessagePtr.id)
           if (existingTimeout) {
             clearTimeout(existingTimeout)
           }
@@ -444,7 +445,7 @@
             updateTimeouts.delete(messageId)
           }, 15)
 
-          updateTimeouts.set(messageId, newTimeout)
+          updateTimeouts.set(assistantMessagePtr.id, newTimeout)
 
           // await tick()
         }
@@ -495,6 +496,7 @@
       onChangeGroupId={onChangeMessageGroupId}
       {onDeleteMessage}
       {onRegenerateMessage}
+      isProcessing={$isProcessing}
     />
   {:else}
     <ChatMessages

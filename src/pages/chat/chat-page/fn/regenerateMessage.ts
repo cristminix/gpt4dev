@@ -5,10 +5,100 @@ import { v1 } from "uuid"
 import jquery from "jquery"
 import type { Writable } from "svelte/store"
 import { isImageModel } from "@/global/store/chat/isImageModel"
+function shouldRegenerateUsingSameModelProvider(
+  sourceAssistantMessage: ChatMessageInterface,
+  modelConfig: any
+) {
+  let useSameProviderAndModel = false
+  let dontCreateMessageGroup = false
+  let dontAppendMessages = false
 
+  const [lastModel, lastProvider] = sourceAssistantMessage.username.split(":")
+  if (
+    modelConfig.model === lastModel &&
+    modelConfig.provider === lastProvider &&
+    !isImageModel(modelConfig.model)
+  ) {
+    useSameProviderAndModel = true
+    dontCreateMessageGroup = true
+    dontAppendMessages = true
+  }
+  return [useSameProviderAndModel, dontCreateMessageGroup, dontAppendMessages]
+}
+function getUserMessageToGenerate(
+  sourceAssistantMessage: ChatMessageInterface,
+  $groupedChatMessages: Record<string, ChatMessageInterface[]>,
+  $messageGroupId: string
+) {
+  return $groupedChatMessages[$messageGroupId].find(
+    (m) => m.id === sourceAssistantMessage.parentId
+  )
+}
+
+function getPreviousChatMessages(
+  $chatMessages: ChatMessageInterface[],
+  $groupedChatMessages: Record<string, ChatMessageInterface[]>,
+  $messageGroupId: string
+) {
+  let previousChatMessages: ChatMessageInterface[] = []
+  // POPULATE PREVIOUS MESSAGES
+
+  if ($messageGroupId.length > 0) {
+    previousChatMessages = []
+    for (const msg of $groupedChatMessages[$messageGroupId]) {
+      previousChatMessages.push({ ...msg })
+    }
+  } else {
+    // for (const msg of $chatMessages.filter((msg) => msg.role !== "system")) {
+    //   previousChatMessages.push({ ...msg })
+    // }
+  }
+  return previousChatMessages
+}
+function populateRegenerateChatMessages(
+  previousChatMessages: ChatMessageInterface[],
+  useSameProviderAndModel: boolean,
+  newGroupId: string,
+  assistantMessageIndex: number
+) {
+  //@ts-ignore
+  const messagesInRange: ChatMessageInterface[] = []
+  for (const msg of previousChatMessages.slice(0, assistantMessageIndex + 1)) {
+    messagesInRange.push({ ...msg })
+  }
+  const systemMessage: string = jquery("#chatPrompt").val()
+  let messagesToSendInConversation: ChatMessageInterface[] = []
+  const systemMessages = []
+  if (systemMessage.length > 0) {
+    systemMessages.push({
+      role: "system",
+      content: systemMessage,
+      id: createMessageId(),
+      username: "system",
+      parentId: "",
+      groupId: "",
+    })
+  }
+  messagesToSendInConversation = [...systemMessages, ...messagesInRange]
+  // console.log({ messagesToSendInConversation })
+  // regeneratePromptMessages.update(()=>[])
+  //@ts-ignore
+  // regeneratePromptMessages.update(() => messagesToSendInConversation)
+  // test append message with new groupId
+  const regenerateChatMessages = [
+    ...systemMessages,
+    ...messagesInRange.map((msg) => {
+      const newMsg = { ...msg }
+
+      if (!useSameProviderAndModel) newMsg.groupId = newGroupId
+      return newMsg
+    }),
+  ]
+  return regenerateChatMessages
+}
 export async function onRegenerateMessage(
-  message: ChatMessageInterface,
-  lastMessageId: Writable<string>,
+  sourceAssistantMessage: ChatMessageInterface,
+  lastGeneratedAssistantMessageId: Writable<string>,
   chatMessages: Writable<ChatMessageInterface[]>,
   $chatMessages: ChatMessageInterface[],
   messageGroupId: Writable<string>,
@@ -24,141 +114,95 @@ export async function onRegenerateMessage(
   provider: Writable<string>,
   isProcessing: Writable<boolean>,
   isRegenerate: Writable<boolean>,
-  useLastMessageId: Writable<boolean>,
-  $useLastMessageId: boolean,
+  regenerateUsingSameModelProvider: Writable<boolean>,
+  $regenerateUsingSameModelProvider: boolean,
   addMessageTask: (id: string) => void
 ) {
-  // console.log("regenerate message", { message })
-  let messageToResend: ChatMessageInterface = message
-  console.log({ messageToResend })
-  lastMessageId.update(() => messageToResend.id)
-  // chek if provider and model are same
+  // 0 . check source message
+  if (!sourceAssistantMessage) {
+    alert("User assistant message to regenerate is not available !")
+    return
+  }
+  // - invalid impl : in this line lastGeneratedAssistantMessageId.update(() => assistantMessageToRegenerate.id)
+  //
+  // 1. copy assistant message that want to regenerate
+  let assistantMessageToRegenerate: ChatMessageInterface = {
+    ...sourceAssistantMessage,
+  }
+  console.log({ assistantMessageToRegenerate })
+  // 2. chek if provider and model are same
+  // 2.1 get current modelConfig
   const modelConfig = getModelConfig()
 
-  let useSameProviderAndModel = false
-  let dontCreateMessageGroup = false
-  let dontAppendMessages = false
-  const [lastModel, lastProvider] = message.username.split(":")
-  if (
-    modelConfig.model === lastModel &&
-    modelConfig.provider === lastProvider &&
-    !isImageModel(modelConfig.model)
-  ) {
-    useSameProviderAndModel = true
-    dontCreateMessageGroup = true
-    dontAppendMessages = true
-  }
-  // console.log({ useSameProviderAndModel })
-  // return
-  // check if assistant message
-  if (message.role != "user") {
-    const [realMessage] = $chatMessages.filter(
-      (msg) => msg.id === message.parentId
+  const [useSameProviderAndModel, dontCreateMessageGroup, dontAppendMessages] =
+    shouldRegenerateUsingSameModelProvider(
+      assistantMessageToRegenerate,
+      modelConfig
     )
-    messageToResend = realMessage
+  regenerateUsingSameModelProvider.update(() => useSameProviderAndModel)
+
+  let userMessageToRegenerate: ChatMessageInterface | undefined =
+    getUserMessageToGenerate(
+      sourceAssistantMessage,
+      $groupedChatMessages,
+      $messageGroupId
+    )
+  if (!userMessageToRegenerate) {
+    alert("User message to regenerate is not available !")
+    return
   }
-  if (messageToResend) {
-    // console.log({ messageToResend })
-  }
-  let previousMessage: ChatMessageInterface[] = []
-  for (const msg of $chatMessages.filter((msg) => msg.role !== "system")) {
-    previousMessage.push({ ...msg })
-  }
-  if ($messageGroupId.length > 0) {
-    previousMessage = []
-    for (const msg of $groupedChatMessages[$messageGroupId]) {
-      previousMessage.push({ ...msg })
-    }
-  }
+  let previousChatMessages: ChatMessageInterface[] = getPreviousChatMessages(
+    $chatMessages,
+    $groupedChatMessages,
+    $messageGroupId
+  )
 
   // console.log({ previousMessage });
 
   // trim messages data
-  const msgIndex = previousMessage.findIndex(
-    (item) => item.id === messageToResend.id
+  const assistantMessageIndex = previousChatMessages.findIndex(
+    (item) => item.id === assistantMessageToRegenerate.id
   )
-  if (msgIndex > -1) {
-    //@ts-ignore
-    const messagesInRange: ChatMessageInterface[] = []
-    for (const msg of previousMessage.slice(0, msgIndex + 1)) {
-      messagesInRange.push({ ...msg })
-    }
-    const systemMessage: string = jquery("#chatPrompt").val()
-    let messagesToSendInConversation: ChatMessageInterface[] = []
-    const systemMessages = []
-    if (systemMessage.length > 0) {
-      systemMessages.push({
-        role: "system",
-        content: systemMessage,
-        id: createMessageId(),
-        username: "system",
-        parentId: "",
-        groupId: "",
-      })
-    }
-    messagesToSendInConversation = [...systemMessages, ...messagesInRange]
-    // console.log({ messagesToSendInConversation })
-    // regeneratePromptMessages.update(()=>[])
-    //@ts-ignore
-    // regeneratePromptMessages.update(() => messagesToSendInConversation)
+  const validAssistantMessageInRange = assistantMessageIndex > -1
+  if (validAssistantMessageInRange) {
     const newGroupId = v1()
     // test append message with new groupId
-    const messagesToAppend = [
-      ...systemMessages,
-      ...messagesInRange.map((msg) => {
-        const newMsg = { ...msg }
-
-        if (!useSameProviderAndModel) newMsg.groupId = newGroupId
-        return newMsg
-      }),
-    ]
-
+    const regenerateChatMessages = populateRegenerateChatMessages(
+      previousChatMessages,
+      useSameProviderAndModel,
+      newGroupId,
+      assistantMessageIndex
+    )
     if (!useSameProviderAndModel) {
-      // create new message group
-      useLastMessageId.update(() => false)
-
-      chatMessages.update((o: ChatMessageInterface[]) => {
-        const messages = [...o, ...messagesToAppend]
-        // console.log({ messages });
-        return messages
-      })
+      // update current messageGroupId
       messageGroupId.update(() => newGroupId)
-      // console.log({
-      //   messagesInRange,
-      //   //   messagesToSendInConversation,
-      //   messagesToAppend,
-      //   //   chatMessages: $chatMessages,
-      // })
-    } else {
-      useLastMessageId.update(() => true)
-    }
 
-    // console.log("onSubmitPrompt", userMessageContent, messages);
-    // return
-    // const id = createMessageId()
-    // setTimeout(() => {
-    messageTasks.update(() => ({}))
-    if (useSameProviderAndModel) {
-      messageId.update(() => messageToResend.id)
-      addMessageTask(messageToResend.id)
-    } else {
+      // update chatMessages
+      chatMessages.update((o: ChatMessageInterface[]) => [
+        ...o,
+        ...regenerateChatMessages,
+      ])
       const newMessageId = createMessageId()
-      messageId.update(() => messageToResend.id)
-      addMessageTask(messageToResend.id)
-      lastMessageId.update(() => newMessageId)
+      messageId.update(() => assistantMessageToRegenerate.id)
+      addMessageTask(assistantMessageToRegenerate.id)
+      lastGeneratedAssistantMessageId.update(() => newMessageId)
+    } else {
+      messageId.update(() => assistantMessageToRegenerate.id)
+      addMessageTask(assistantMessageToRegenerate.id)
     }
-    userPrompt.update(() => messageToResend.content)
+    // clean messageTasks
+    messageTasks.update(() => ({}))
+
+    // update userPrompt and model config
+    userPrompt.update(() => assistantMessageToRegenerate.content)
     model.update(() => modelConfig.model)
     provider.update(() => modelConfig.provider)
     // @ts-ignore
-    regeneratePromptMessages.update(() => messagesToAppend)
-    // console.log("submit prompt", messageToResend.content)
-    // console.log(modelConfig)
+    regeneratePromptMessages.update(() => regenerateChatMessages)
     isProcessing.update(() => false)
     isRegenerate.update(() => true)
     setTimeout(() => {
       isProcessing.update(() => true)
     }, 256)
-    // }, 1000);
   }
 }

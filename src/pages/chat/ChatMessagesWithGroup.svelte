@@ -20,6 +20,8 @@
   export let displayMode: string = "default"
   export let groupedChatMessages
   export let showChatMessagesPager: boolean
+  export let isProcessing: boolean
+
   let overlayGaleryRef: OverlayGalery
   // Objek untuk menyimpan referensi komponen asisten dengan key berupa message.id
   // Ini memungkinkan akses langsung ke komponen berdasarkan ID pesan
@@ -161,6 +163,7 @@
                   <UserChatMessage {deleteMessage} {message} {displayMode} />
                 {:else}
                   <AssistantChatMessage
+                    {isProcessing}
                     {activeGaleryMessageId}
                     {overlayGaleryRef}
                     {chatMessages}

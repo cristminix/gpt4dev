@@ -19,6 +19,7 @@
   export let onChangeGroupId: (groupId: string) => void
   export let overlayGaleryRef: OverlayGalery
   export let activeGaleryMessageId: any
+  export let isProcessing: boolean
 
   let foundGroupId: string[] = []
   let answerMessageId: Record<string, string[]> = {}
@@ -390,7 +391,7 @@
     </div>
     <div class="space-y-3 inner-content">
       {#if $displayModeConf === "default"}
-        <ContentRenderer content={message.content} />
+        <ContentRenderer content={message.content} {isProcessing} />
       {:else if userMessage}
         {#if answerMessageId[userMessage!.id]}
           {#if answerMessageId[userMessage!.id].length > 1}

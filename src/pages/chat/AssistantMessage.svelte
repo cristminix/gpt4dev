@@ -50,7 +50,10 @@
   onMount(() => {})
 
   onDestroy(() => {})
-  function processOnChatBuffer(
+  // Store untuk throttling pemanggilan onChatBuffer
+  let lastCalledChatBufferTm = Date.now()
+  let lastComplete = false
+  async function processOnChatBuffer(
     text: string,
     t: string,
     complete: boolean,
@@ -64,7 +67,24 @@
       messageId,
       messages: isRegenerate ? regenerateMessages : messages,
     }
+    const now = Date.now()
+    const lastCalled = now - lastCalledChatBufferTm
+    // console.log(lastCalled)
+    // if (lastCalled > 256) {
     onChatBuffer(data)
+    //   lastCalledChatBufferTm = Date.now()
+    // } else {
+    //   console.log("onChatBuffer delayed", complete)
+    //   if (complete && !lastComplete) {
+    //     setTimeout(() => {
+    //       onChatBuffer(data)
+    //       lastComplete = false
+    //     }, 256)
+    //   }
+    //   lastComplete = true
+    // }
+
+    // Menerapkan throttling pada pemanggilan onChatBuffer dengan interval minimal 256ms
   }
   // Efek untuk animasi titik saat dalam keadaan reasoning
   let dotInterval: number | null = null
@@ -84,6 +104,7 @@
     }
     // Reset teks animasi
     dotAnimation.set("")
+    lastCalledChatBufferTm = Date.now()
   }
 
   // Debounce function
