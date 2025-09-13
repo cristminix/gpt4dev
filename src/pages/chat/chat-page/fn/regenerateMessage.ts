@@ -140,6 +140,7 @@ export async function onRegenerateMessage(
       modelConfig
     )
   regenerateUsingSameModelProvider.update(() => useSameProviderAndModel)
+  messageTasks.update(() => ({}))
 
   let userMessageToRegenerate: ChatMessageInterface | undefined =
     getUserMessageToGenerate(
@@ -191,7 +192,6 @@ export async function onRegenerateMessage(
       addMessageTask(assistantMessageToRegenerate.id)
     }
     // clean messageTasks
-    messageTasks.update(() => ({}))
 
     // update userPrompt and model config
     userPrompt.update(() => assistantMessageToRegenerate.content)

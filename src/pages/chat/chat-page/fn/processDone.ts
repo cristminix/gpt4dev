@@ -46,7 +46,8 @@ export async function processDone(
   hasError: boolean,
   errorMessage: string,
   $useChatBuffer: boolean,
-  $chatBufferGroupId: string
+  $chatBufferGroupId: string,
+  reloadChat: () => void
 ) {
   const task = getMessageTask(id)
   if (task) {
@@ -60,6 +61,7 @@ export async function processDone(
             errorMessage.length > 0 ? errorMessage : "text is empty"
           )
           jquery("#userInput").val($userPrompt)
+          reloadChat()
           return
         }
         tempConversation.update((o) => o.concat(fullText))

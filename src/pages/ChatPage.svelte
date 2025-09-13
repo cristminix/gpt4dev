@@ -149,7 +149,8 @@
         hasError,
         errorMessage,
         $useChatBuffer,
-        $chatBufferGroupId
+        $chatBufferGroupId,
+        reloadChat
       )
   }
   function createNewChat() {
@@ -158,6 +159,7 @@
   let lastChatId = ""
   async function loadChat(id: string, reload = false) {
     console.log("loadChat,reload", reload)
+    clearChatBuffer()
     if (lastChatId === id && !reload && id !== "new") return
     await loadChatExternal(
       id,
@@ -279,6 +281,7 @@
   function stopGeneration() {
     if (tempChatMessagesRef) {
       tempChatMessagesRef.abortCompletion()
+      isProcessing.update(() => false)
     }
   }
   onMount(() => {
@@ -288,12 +291,18 @@
   const chatBufferGroupId = writable("")
   const chatBufferMode = writable("default") // default,regenerate
   let tempMode = 0
-  let assistantMessagePtr: ChatMessageInterface
+  let assistantMessagePtr: ChatMessageInterface | undefined
   const tempChatMessageCls = writable("")
   const MIRROR_TMP_CHAT = import.meta.env.VITE_MIRROR_TMP_CHAT === "true"
   const updateTimeouts = new Map<string, number>()
   let newChat = 0
   let chatIsNew = false
+  function clearChatBuffer() {
+    newChat = 0
+    chatIsNew = false
+    assistantMessagePtr = undefined
+    tempMode = 0
+  }
   async function onChatBuffer(data: any) {
     if (!params) return
     if (params.id === "new" && newChat === 0) {

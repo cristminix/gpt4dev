@@ -39,8 +39,9 @@ export async function processDoneRegenerate(
   $chatBufferGroupId: string,
   $regeneratePromptMessages: ChatMessageInterface[]
 ) {
-  // console.log("processDoneRegenerate", fullText, id)
+  console.log("processDoneRegenerate", fullText, id)
   const task = getMessageTask(id)
+  console.log({ task })
 
   if (task && $conversation) {
     if (task.status === "onProcess") {
@@ -72,7 +73,8 @@ export async function processDoneRegenerate(
       // console.log("Message already saved", getMessageTask(id), $messageTasks)
     }
   } else {
-    // console.log(`No message task correspond to ${id}`)
+    console.log(`No message task correspond to ${id}`)
+    isProcessing.update(() => false)
   }
   // isRegenerate.update(() => false);
 }
