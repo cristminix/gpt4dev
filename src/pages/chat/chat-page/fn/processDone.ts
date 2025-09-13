@@ -15,6 +15,7 @@ import jquery from "jquery"
 import { isImageModel } from "../../../../global/store/chat/isImageModel"
 import { executeTitleGenerationTask } from "./executeTitleGenerationTask"
 import { getCurrentUser } from "@/global/store/auth/getCurrentUser"
+import { updateAssistantMessageContent } from "./updateAssistantMessageContent"
 export async function processDone(
   fullText: string,
   id: string,
@@ -47,7 +48,9 @@ export async function processDone(
   errorMessage: string,
   $useChatBuffer: boolean,
   $chatBufferGroupId: string,
-  reloadChat: () => void
+  reloadChat: () => void,
+  groupedChatMessages: Writable<Record<string, ChatMessageInterface[]>>,
+  $groupedChatMessages: Record<string, ChatMessageInterface[]>
 ) {
   const task = getMessageTask(id)
   if (task) {
@@ -133,6 +136,13 @@ export async function processDone(
         const aMsg = await createChatMessage(
           assistantMessage,
           newConversation.id
+        )
+        updateAssistantMessageContent(
+          assistantMessage.content,
+          groupedChatMessages,
+          $groupedChatMessages,
+          $messageGroupId,
+          assistantMessage.id
         )
         // console.log({ uMsg, aMsg })
         if (params?.id !== "new") {

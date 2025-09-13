@@ -7,6 +7,7 @@ import jquery from "jquery"
 import type { Writable } from "svelte/store"
 import { messageId } from "@/global/store/conversation/messageStore"
 import type TempChatMessages from "../../TempChatMessages.svelte"
+import { updateAssistantMessageContent } from "./updateAssistantMessageContent"
 
 export async function processDoneRegenerate(
   fullText: string,
@@ -41,7 +42,7 @@ export async function processDoneRegenerate(
   $regeneratePromptMessages: ChatMessageInterface[],
   tempChatMessagesRef: TempChatMessages
 ) {
-  console.log("processDoneRegenerate", fullText, id)
+  // console.log("processDoneRegenerate", fullText, id)
   const task = getMessageTask(id)
   console.log({ task })
 
@@ -81,6 +82,13 @@ export async function processDoneRegenerate(
               const aMsg = await updateChatMessage(
                 assistantMessage,
                 $conversation.id
+              )
+              updateAssistantMessageContent(
+                assistantMessage.content,
+                groupedChatMessages,
+                $groupedChatMessages,
+                $messageGroupId,
+                assistantMessage.id
               )
               /*
               let chatMessagesData = [...$chatMessages] as any[]
@@ -132,6 +140,13 @@ export async function processDoneRegenerate(
               const aMsg = await createChatMessage(
                 assistantMessage,
                 $conversation.id
+              )
+              updateAssistantMessageContent(
+                assistantMessage.content,
+                groupedChatMessages,
+                $groupedChatMessages,
+                $messageGroupId,
+                assistantMessage.id
               )
               console.log({ aMsg })
 

@@ -149,7 +149,9 @@
         errorMessage,
         $useChatBuffer,
         $chatBufferGroupId,
-        reloadChat
+        reloadChat,
+        groupedChatMessages,
+        $groupedChatMessages
       )
   }
   function createNewChat() {
