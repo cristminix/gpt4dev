@@ -100,6 +100,44 @@ export async function processDoneRegenerate(
                 // chatMessages.update(() => chatMessagesData)
               }
             } else {
+              await createMessageGroup(
+                $messageGroupId,
+                //@ts-ignore
+                $conversation.id
+              )
+              // console.log({ messageGroup })
+              const groupMessages = [...$groupedChatMessages[$messageGroupId]]
+              const assistantMessage: ChatMessageInterface = {
+                role: "assistant",
+                content: fullText,
+                id: assistantMessageId,
+                parentId: userMessage.id,
+                groupId: $messageGroupId,
+                username: `${$model}:${$provider}`,
+              }
+              console.log(assistantMessage)
+              // remove last assistant message
+              groupMessages.pop()
+              for (const nMsg of groupMessages) {
+                const nMsgFiltered = {
+                  id: nMsg.id,
+                  groupId: nMsg.groupId,
+                }
+                console.log("createChatMessage", nMsgFiltered)
+                const uMsg = await createChatMessage(nMsg, $conversation.id)
+                console.log({ uMsg })
+              }
+              console.log("createChatMessage", assistantMessage)
+
+              const aMsg = await createChatMessage(
+                assistantMessage,
+                $conversation.id
+              )
+              console.log({ aMsg })
+
+              if (!$useChatBuffer) {
+                // chatMessages.update(() => chatMessagesData)
+              }
             }
           }
         }

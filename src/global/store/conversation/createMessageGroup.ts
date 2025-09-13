@@ -26,7 +26,7 @@ export async function createMessageGroup(
     }
 
     const jsonResponse = await response.json()
-    let [messageGroup] = jsonResponse.data || []
+    let messageGroup = jsonResponse.data || []
     // console.log("createMessageGroup jsonResponse", jsonResponse)
 
     return messageGroup

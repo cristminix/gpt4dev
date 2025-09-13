@@ -75,7 +75,10 @@
       const currentMessageId = message.id
 
       for (const groupId of messageGroupIds) {
-        const groupedChatMessage = groupedChatMessages[groupId]
+        let groupedChatMessage = groupedChatMessages[groupId]
+        if (!Array.isArray(groupedChatMessage)) {
+          groupedChatMessage = []
+        }
         for (const msg of groupedChatMessage) {
           if (msg.role === "assistant") {
             if (msg.parentId === userMessage.id) {
@@ -131,7 +134,9 @@
     // })
     // return
     for (const groupId of [...messageGroupIds].reverse()) {
-      const groupedChatMessage = groupedChatMessages[groupId]
+      let groupedChatMessage = groupedChatMessages[groupId]
+      if (!Array.isArray(groupedChatMessage)) groupedChatMessage = []
+
       for (const msg of groupedChatMessage) {
         if (msg.role === "assistant" && msg.id === prevAnswerMessageId) {
           // console.log({
@@ -195,7 +200,8 @@
     // })
 
     for (const groupId of messageGroupIds) {
-      const groupedChatMessage = groupedChatMessages[groupId]
+      let groupedChatMessage = groupedChatMessages[groupId]
+      if (!Array.isArray(groupedChatMessage)) groupedChatMessage = []
       for (const msg of groupedChatMessage) {
         if (msg.role === "assistant" && msg.id === nextAnswerMessageId) {
           foundNextGroupIndex = true
