@@ -226,7 +226,7 @@ export async function onRegenerateMessage(
     // clean messageTasks
 
     // update userPrompt and model config
-    userPrompt.update(() => assistantMessageToRegenerate.content)
+    userPrompt.update(() => userMessageToRegenerate.content)
     model.update(() => modelConfig.model)
     provider.update(() => modelConfig.provider)
     // @ts-ignore
