@@ -135,7 +135,7 @@ export class LLMCompletion {
             await new Promise((resolve) => setTimeout(resolve, 128))
             start = 3
           } else if (start === 3) {
-            await new Promise((resolve) => setTimeout(resolve, 32))
+            await new Promise((resolve) => setTimeout(resolve, 15))
           }
           const { done, value } = await reader.read()
           if (done) {

@@ -41,12 +41,14 @@
     "Together",
     "DeepInfra",
     "HuggingFace",
+    "Dummy",
   ]
   const liveProviderLabes = liveProviderList.map((p) => `${p}-Live`)
   import { getModelConfig } from "@/global/store/chat/getModelConfig"
   import { setModelConfig } from "@/global/store/chat/setModelConfig"
   import { G4F_BACKEND_URL } from "@/global/store/config"
   import { injectPuter } from "@/pages/chat/chat-page/fn/injectPuter"
+  import Dummy from "@/pages/chat/chat-page/classes/cors-proxy-manager/providers/Dummy"
 
   function doSetModelConfig(
     provider: string | null = null,
@@ -103,13 +105,22 @@
       `${G4F_BACKEND_URL}/providers`
     ).then((r) => r.json())
     // console.log(providerListSet)
+    // providerListSet.push({
+    //   active_by_default: false,
+    //   audio: 0,
+    //   auth: false,
+    //   image: 0,
+    //   label: "Dummy",
+    //   name: "Dummy",
+    //   video: 0,
+    // })
     providerList.update((o) => [...providerListSet, ...addLiveProvider()])
   }
   async function getLiveProviderModels(p: string) {
     const providerName = p.replace(/-Live$/, "")
     // const idx = liveProviderList.findIndex
     let instance: any
-    let models: []
+    let models: any[] = []
     switch (providerName) {
       case "PollinationsAI":
         instance = new PollinationsAI()
@@ -151,6 +162,18 @@
       case "Together":
         instance = new Together()
         break
+      case "Dummy":
+        instance = new Dummy()
+        models.push({
+          audio: 0,
+          image: 0,
+          label: "dummy",
+          model: "dummy",
+          video: 0,
+        })
+
+        break
+
       case "Puter":
         instance = new Puter()
         break
@@ -194,6 +217,23 @@
     }
     console.log({ p, providerName, instance })
     //@ts-ignore
+    if (models.length === 0) {
+      try {
+        models = await instance.models.list()
+        models = models.map((m) => {
+          return {
+            audio: false,
+            count: null,
+            default: true,
+            image: false,
+            label: m.id,
+            model: m.id,
+            video: false,
+            vision: false,
+          }
+        })
+      } catch (error) {}
+    }
     return models
   }
   async function initModelData(providerName: string) {
@@ -204,6 +244,15 @@
         )
     // modelListSet = modelListSet.sort((a, b) => a.label.localeCompare(b.label))
     // console.log({ modelListSet })
+    // if (providerName === "Dummy") {
+    //   modelListSet.push({
+    //     audio: 0,
+    //     image: 0,
+    //     label: "dummy",
+    //     model: "dummy",
+    //     video: 0,
+    //   })
+    // }
     modelList.update((o) => modelListSet)
     setTimeout(() => {
       doSetModelConfig(providerName)

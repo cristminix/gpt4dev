@@ -13,6 +13,7 @@ import {
 } from "@/pages/chat/chat-page/classes/cors-proxy-manager/CorsProxyManager"
 import { ApiAirforce } from "./parser/ApiAirforce"
 import { LMArenaBeta } from "./parser/LMArenaBeta"
+import Dummy from "../classes/cors-proxy-manager/providers/Dummy"
 export async function completion(
   provider: string,
   model: string,
@@ -35,6 +36,7 @@ export async function completion(
     "Together",
     "DeepInfra",
     "HuggingFace",
+    "Dummy",
   ]
   const liveProviderLabes = liveProviders.map((p) => `${p}-Live`)
   let firsTimer = 0
@@ -46,6 +48,9 @@ export async function completion(
     switch (providerName) {
       case "PollinationsAI":
         instance = new PollinationsAI()
+        break
+      case "Dummy":
+        instance = new Dummy()
         break
       case "Together":
         instance = new Together()

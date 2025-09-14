@@ -59,6 +59,16 @@
   })
   let chatMessageWithGroupRef: ChatMessagesWithGroup | null = null
   let tempChatMessagesRef: TempChatMessages
+  const useChatBuffer = writable(true)
+  const chatBufferGroupId = writable("")
+  const chatBufferMode = writable("default") // default,regenerate
+  let tempMode = 0
+  let assistantMessagePtr: ChatMessageInterface | undefined
+  const tempChatMessageCls = writable("")
+  const MIRROR_TMP_CHAT = import.meta.env.VITE_MIRROR_TMP_CHAT === "true"
+  const updateTimeouts = new Map<string, number>()
+  let newChat = 0
+  let chatIsNew = false
   function setChatConfig(config: any) {
     chatConfig.update((o: any) => ({ ...o, ...config }))
   }
@@ -92,7 +102,9 @@
       $chatMessages,
       messageGroupId,
       $messageGroupId,
-      regenerateUsingSameModelProvider
+      lastGeneratedAssistantMessageId,
+      $conversation,
+      messageGroupIds
     )
   }
 
@@ -291,16 +303,7 @@
   onMount(() => {
     // chatMessages.subscribe((newChatMessages) => {})
   })
-  const useChatBuffer = writable(true)
-  const chatBufferGroupId = writable("")
-  const chatBufferMode = writable("default") // default,regenerate
-  let tempMode = 0
-  let assistantMessagePtr: ChatMessageInterface | undefined
-  const tempChatMessageCls = writable("")
-  const MIRROR_TMP_CHAT = import.meta.env.VITE_MIRROR_TMP_CHAT === "true"
-  const updateTimeouts = new Map<string, number>()
-  let newChat = 0
-  let chatIsNew = false
+
   function clearChatBuffer() {
     newChat = 0
     chatIsNew = false
@@ -314,108 +317,38 @@
     } else if (params.id && params.id !== "new" && newChat === 0) {
       newChat = 1002
     }
-    // console.log({ newChat, isRegenerate: $isRegenerate })
     if (!MIRROR_TMP_CHAT) return
     if (!tempChatMessagesRef) return
-    const { text, t, complete, params: dataParams, messageId, messages } = data
-    // console.log({ text, t, complete, dataParams, messageId, messages })
+    const { text, complete } = data
     if (newChat === 1000) {
-      const groupId = v1()
-      chatBufferGroupId.update(() => groupId)
-      const newMessages = messages.map((m: ChatMessageInterface) => {
-        m.groupId = groupId
-        return m
-      })
-      const userMessage = newMessages.find(
-        (m: ChatMessageInterface) => m.role === "user"
-      )
-      assistantMessagePtr = {
-        role: "assistant",
-        username: `${$model}:${$provider}`,
-        content: "",
-        id: messageId, // Membuat ID unik untuk pesan
-        parentId: userMessage?.id || "", // Menggunakan ID pesan pengguna sebagai parentId
-        groupId, // Menggunakan groupId saat ini
-      }
-
-      messageGroupIds.update(() => [groupId])
-      messageGroupId.update(() => groupId)
-      chatMessages.update(() => [userMessage, assistantMessagePtr])
-
       newChat = 1003
       chatIsNew = true
       return
     } else if (newChat === 1002) {
+      //EXISTING CHAT
+
       console.log("here 2")
       if ($isRegenerate) {
         console.log("here 4")
+        //REGENERATE CHAT
 
         if ($regenerateUsingSameModelProvider) {
           console.log("here 5")
-          assistantMessagePtr = $chatMessages.find(
-            (m) => m.id === messageId && m.role === "assistant"
-          ) as ChatMessageInterface
-          // assistantMessagePtr
         } else {
           console.log("here 6")
-          assistantMessagePtr = $chatMessages.find(
-            (m) =>
-              m.id === $lastGeneratedAssistantMessageId &&
-              m.role === "assistant"
-          ) as ChatMessageInterface
-
-          console.log({ assistantMessagePtr })
         }
       } else {
+        //Existing chat
         console.log("here 3")
-
-        const groupId = $messageGroupId
-        chatBufferGroupId.update(() => groupId)
-        // const newMessages = [...messages].map((m) => {
-        //   m.groupId = groupId
-        //   return m
-        // })
-        const userMessage = { ...tempChatMessagesRef.getUserMessage() }
-        userMessage.groupId = groupId
-        assistantMessagePtr = {
-          role: "assistant",
-          username: `${$model}:${$provider}`,
-          content: "",
-          id: messageId, // Membuat ID unik untuk pesan
-          parentId: userMessage?.id || "", // Menggunakan ID pesan pengguna sebagai parentId
-          groupId, // Menggunakan groupId saat ini
-        }
-
-        // messageGroupIds.update(() => [groupId])
-        // messageGroupId.update(() => groupId)
-        const chatMessagesSet = [
-          ...$chatMessages,
-          userMessage,
-          assistantMessagePtr,
-        ]
-        console.log({ chatMessagesSet })
-
-        //@ts-ignore
-        chatMessages.update(() => chatMessagesSet)
       }
+
       newChat = 1003
       return
     }
     // console.log({ newChat })
     if (newChat >= 1003) {
-      // console.log({
-      //   newChat,
-      //   messageGroupId: $messageGroupId,
-      //   groupedChatMessages: $groupedChatMessages,
-      //   messageGroupIds: $messageGroupIds,
-      // })
       if (!Array.isArray($groupedChatMessages[$messageGroupId])) {
-        const grpCm = { [$messageGroupId]: [] }
-
-        // groupedChatMessages.update(() => grpCm)
-        // await tick()
         console.log("Here")
-        // await tick()
 
         return
       }
@@ -430,14 +363,17 @@
 
         tempChatMessageCls.update(() => "hidden")
         tempMode = 1
-        // console.log({ updatedGroupedChatMessages })
       } else if (tempMode === 1) {
         // UPDATE
-
+        if (!assistantMessagePtr) {
+          assistantMessagePtr = $chatMessages.find(
+            (m) =>
+              m.id === $lastGeneratedAssistantMessageId &&
+              m.role === "assistant"
+          ) as ChatMessageInterface
+        }
         if (assistantMessagePtr) {
           if (assistantMessagePtr.id) {
-            // console.log("UPDATE")
-            // console.log({ text })
             if (text.length === 0) return
             assistantMessagePtr.content = text
 
