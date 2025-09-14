@@ -7,7 +7,6 @@
   import { isImageModel } from "@/global/store/chat/isImageModel"
   import OverlayGalery from "./OverlayGalery.svelte"
   import jquery from "jquery"
-  import { messageId } from "@/global/store/conversation/messageStore"
   export let deleteMessage
   export let regenerateMessage: (message: ChatMessageInterface) => void
   export let message: ChatMessageInterface
@@ -20,6 +19,18 @@
   export let overlayGaleryRef: OverlayGalery
   export let activeGaleryMessageId: any
   export let isProcessing: boolean
+
+  // Fungsi untuk menyalin konten pesan ke clipboard
+  async function copyMessageContent() {
+    try {
+      await navigator.clipboard.writeText(message.content)
+      console.log("Konten pesan berhasil disalin ke clipboard")
+      // Di sini Anda bisa menambahkan notifikasi UI bahwa konten telah disalin
+    } catch (err) {
+      console.error("Gagal menyalin konten pesan: ", err)
+      // Di sini Anda bisa menambahkan penanganan kesalahan UI
+    }
+  }
 
   let foundGroupId: string[] = []
   let answerMessageId: Record<string, string[]> = {}
@@ -494,26 +505,26 @@
 
           <button
             type="button"
-            on:click={(e) => console.log("Copy")}
+            on:click={copyMessageContent}
             class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
             aria-label="Copy message"
           >
             <i class="fa fa-copy"></i>
           </button>
-          <button
+          <!-- <button
             type="button"
             class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
             aria-label="Play audio"
           >
             <i class="fa fa-volume-up"></i>
-          </button>
-          <button
+          </button> -->
+          <!-- <button
             type="button"
             class="py-2 px-3 inline-flex items-center gap-x-2 text-sm rounded-full border border-transparent text-gray-500 hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
             aria-label="Play video"
           >
             <i class="fa fa-play"></i>
-          </button>
+          </button> -->
 
           <button
             on:click={() => {
@@ -545,7 +556,7 @@
           </button>
         </div>
 
-        <div class="mt-1 sm:mt-0">
+        <div class="mt-1 sm:mt-0 hidden">
           {#if !message.collapsed}
             <button
               type="button"

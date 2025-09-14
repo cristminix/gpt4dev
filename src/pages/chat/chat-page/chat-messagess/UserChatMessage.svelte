@@ -24,7 +24,7 @@
       <div class="space-y-3 inner-content flex-grow flex flex-row-reverse">
         <div>{message.content}</div>
       </div>
-      <div class="px-2">
+      <div class="px-2 hidden">
         <button
           on:click={() => deleteMessage(message.id, message.groupId)}
           aria-label="Delete message"

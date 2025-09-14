@@ -119,7 +119,7 @@
         >
           System
         </button>
-        <button
+        <!-- <button
           type="button"
           class="hs-tab-active:bg-gray-200 hs-tab-active:text-gray-800 hs-tab-active:hover:text-gray-800 dark:hs-tab-active:bg-neutral-700 dark:hs-tab-active:text-white py-3 px-4 inline-flex items-center gap-x-2 bg-transparent text-sm font-medium text-center text-gray-500 rounded-lg hover:text-blue-600 focus:outline-hidden focus:text-blue-600 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-500 dark:hover:text-neutral-400 dark:focus:text-neutral-400"
           id="pills-on-gray-color-item-4"
@@ -129,7 +129,7 @@
           role="tab"
         >
           Tools
-        </button>
+        </button> -->
       </nav>
 
       <div class="mt-3">
@@ -222,15 +222,15 @@
               <i class="fa fa-history"></i>
             </button>
 
-            <button
+            <!-- <button
               type="button"
               aria-label="Microphone"
               class="hidden inline-flex shrink-0 justify-center items-center size-8 rounded-lg text-gray-500 hover:bg-white focus:z-10 focus:outline-hidden focus:bg-white dark:text-neutral-500 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
             >
               <i class="fa fa-microphone"></i>
-            </button>
+            </button> -->
 
-            <button
+            <!-- <button
               type="button"
               aria-label="Clear"
               class=" inline-flex shrink-0 justify-center items-center size-8 rounded-lg text-gray-500 hover:bg-white focus:z-10 focus:outline-hidden focus:bg-white dark:text-neutral-500 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700 hidden"
@@ -250,11 +250,11 @@
                 <rect width="18" height="18" x="3" y="3" rx="2"></rect>
                 <line x1="9" x2="15" y1="15" y2="9"></line>
               </svg>
-            </button>
+            </button> -->
             <!-- End Mic Button -->
 
             <!-- Attach Button -->
-            <button
+            <!-- <button
               type="button"
               aria-label="Attach file"
               class="hidden inline-flex shrink-0 justify-center items-center size-8 rounded-lg text-gray-500 hover:bg-white focus:z-10 focus:outline-hidden focus:bg-white dark:text-neutral-500 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
@@ -275,7 +275,7 @@
                   d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"
                 ></path>
               </svg>
-            </button>
+            </button> -->
             <!-- End Attach Button -->
           </div>
           <!-- End Button Group -->
@@ -283,7 +283,7 @@
           <!-- Button Group -->
           <div class="flex items-center gap-x-1">
             <!-- Mic Button -->
-            <button
+            <!-- <button
               type="button"
               aria-label="Voice input"
               class="hidden inline-flex shrink-0 justify-center items-center size-8 rounded-lg text-gray-500 hover:bg-white focus:z-10 focus:outline-hidden focus:bg-white dark:text-neutral-500 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
@@ -305,7 +305,7 @@
                 <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
                 <line x1="12" x2="12" y1="19" y2="22"></line>
               </svg>
-            </button>
+            </button> -->
             <!-- End Mic Button -->
             <!-- Cancel Button-->
             <button
