@@ -17,6 +17,13 @@
   import { deleteMessage as deleteMessageExternal } from "./chat/chat-page/fn/deleteMessage"
   import { onRegenerateMessage as onRegenerateMessageExternal } from "./chat/chat-page/fn/regenerateMessage"
   import { processDoneRegenerate as processDoneRegenerateExternal } from "./chat/chat-page/fn/processDoneRegenerate"
+  import {
+    ocbInitializeChatState,
+    ocbIsValidMessageGroup,
+    ocbSetupChatBuffer,
+    ocbUpdateAssistantMessageContent,
+    ocbHandleCompletion,
+  } from "./chat/chat-page/fn/onChatBuffer"
 
   import { getModelConfig } from "@/global/store/chat/getModelConfig"
   import ConversationWidget from "./chat/ConversationWidget.svelte"
@@ -31,8 +38,6 @@
   import type { GroupedChatMessagesInterface } from "./types"
   import Toasts from "@/components/Toasts.svelte"
   import { onMount, tick } from "svelte"
-  import * as idb from "idb-keyval"
-  import { v1 } from "uuid"
   export let routeApp: RouteAppType
   export let params: { id?: string } | null
   export let toasts: Toasts
@@ -310,129 +315,85 @@
     assistantMessagePtr = undefined
     tempMode = 0
   }
+
   async function onChatBuffer(data: any) {
-    if (!params) return
-    if (params.id === "new" && newChat === 0) {
-      newChat = 1000
-    } else if (params.id && params.id !== "new" && newChat === 0) {
-      newChat = 1002
-    }
-    if (!MIRROR_TMP_CHAT) return
-    if (!tempChatMessagesRef) return
+    // Early returns for guard conditions
+    if (!params || !MIRROR_TMP_CHAT || !tempChatMessagesRef) return
+
     const { text, complete } = data
-    if (newChat === 1000) {
-      newChat = 1003
-      chatIsNew = true
-      return
-    } else if (newChat === 1002) {
-      //EXISTING CHAT
 
-      console.log("here 2")
-      if ($isRegenerate) {
-        console.log("here 4")
-        //REGENERATE CHAT
-
-        if ($regenerateUsingSameModelProvider) {
-          console.log("here 5")
-        } else {
-          console.log("here 6")
+    // Initialize chat state
+    if (
+      ocbInitializeChatState(
+        params,
+        newChat,
+        (value: number) => {
+          newChat = value
+        },
+        (value: boolean) => {
+          chatIsNew = value
         }
-      } else {
-        //Existing chat
-        console.log("here 3")
-      }
-
-      newChat = 1003
+      )
+    ) {
       return
     }
-    // console.log({ newChat })
-    if (newChat >= 1003) {
-      if (!Array.isArray($groupedChatMessages[$messageGroupId])) {
-        console.log("Here")
 
+    // Process chat buffer updates
+    if (newChat >= 1003) {
+      // Validate message group exists
+      if (!ocbIsValidMessageGroup($groupedChatMessages, $messageGroupId)) {
         return
       }
+
+      // Initial setup for chat buffer
       if (tempMode === 0) {
-        console.log("INITIAL", { chatIsNew })
-        if (chatIsNew) {
-        } else {
-          if ($isRegenerate) {
-          } else {
+        ocbSetupChatBuffer(tempChatMessageCls, (value: number) => {
+          tempMode = value
+        })
+      }
+      // Update existing assistant message
+      else if (tempMode === 1) {
+        ocbUpdateAssistantMessageContent(
+          text,
+          assistantMessagePtr,
+          (value: ChatMessageInterface | undefined) => {
+            assistantMessagePtr = value
+          },
+          $chatMessages,
+          $lastGeneratedAssistantMessageId,
+          updateTimeouts,
+          $groupedChatMessages,
+          $messageGroupId,
+          (value: any) => {
+            groupedChatMessages.update(() => value)
           }
-        }
-
-        tempChatMessageCls.update(() => "hidden")
-        tempMode = 1
-      } else if (tempMode === 1) {
-        // UPDATE
-        if (!assistantMessagePtr) {
-          assistantMessagePtr = $chatMessages.find(
-            (m) =>
-              m.id === $lastGeneratedAssistantMessageId &&
-              m.role === "assistant"
-          ) as ChatMessageInterface
-        }
-        if (assistantMessagePtr) {
-          if (assistantMessagePtr.id) {
-            if (text.length === 0) return
-            assistantMessagePtr.content = text
-
-            const existingTimeout = updateTimeouts.get(assistantMessagePtr.id)
-            if (existingTimeout) {
-              clearTimeout(existingTimeout)
-            }
-
-            const newTimeout = window.setTimeout(() => {
-              if (assistantMessagePtr) {
-                if (assistantMessagePtr.id) {
-                  // Create new object reference to trigger reactivity
-                  const updatedGrouped = { ...$groupedChatMessages }
-                  const groupMessages = [
-                    ...(updatedGrouped[$messageGroupId] || []),
-                  ]
-                  // Find and update the assistant message
-                  const messageIndex = groupMessages.findIndex((msg: any) => {
-                    if (assistantMessagePtr) {
-                      if (assistantMessagePtr.id) {
-                        return msg.id === assistantMessagePtr.id
-                      }
-                    }
-                    return false
-                  })
-                  if (messageIndex !== -1) {
-                    groupMessages[messageIndex] = {
-                      ...groupMessages[messageIndex],
-                      content: text,
-                    }
-                    updatedGrouped[$messageGroupId] = groupMessages
-                  }
-                  // console.log({ updatedGrouped })
-                  groupedChatMessages.update(() => updatedGrouped)
-
-                  // Clean up the timeout reference
-                  updateTimeouts.delete(assistantMessagePtr.id)
-                }
-              }
-            }, 15)
-
-            updateTimeouts.set(assistantMessagePtr.id, newTimeout)
-          }
-        }
+        )
       }
     }
+
+    // Handle completion
     if (complete) {
-      tempMode = 0
-      newChat = 0
-      if (chatIsNew) {
-        chatIsNew = false
-        //@ts-ignore
-        lastChatId = $conversation.id
-      }
-      //@ts-ignore
-      assistantMessagePtr = null
-      setTimeout(() => {
-        tempChatMessageCls.update(() => "")
-      }, 3000)
+      ocbHandleCompletion(
+        (value: number) => {
+          tempMode = value
+        },
+        (value: number) => {
+          newChat = value
+        },
+        chatIsNew,
+        (value: boolean) => {
+          chatIsNew = value
+        },
+        $conversation,
+        (value: ChatMessageInterface | undefined) => {
+          assistantMessagePtr = value
+        },
+        tempChatMessageCls,
+        lastChatId,
+        (value: string) => {
+          lastChatId = value
+        }
+      )
     }
   }
   function reloadChat() {
