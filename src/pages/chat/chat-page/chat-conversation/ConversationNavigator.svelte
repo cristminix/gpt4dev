@@ -4,6 +4,7 @@
   import jquery from "jquery"
   import { writable } from "svelte/store"
   import { getConversations } from "@/global/store/conversation/getConversations"
+  import { getConversationCounts } from "@/global/store/conversation/getConversationCounts"
   import type { ConversationInterface } from "@/pages/chat/chat-page/types"
   import { getCurrentUser } from "@/global/store/auth/getCurrentUser"
   import * as idb from "idb-keyval"
@@ -11,11 +12,21 @@
   export let routeApp: any
   const conversations = writable<ConversationInterface[]>([])
   let lastRoutePath = ""
+  let conversationCount = writable<number>(0)
 
   async function loadConversations() {
     const currentUser = await getCurrentUser()
     const conversationList = await getConversations(currentUser.id)
     conversations.update(() => conversationList)
+
+    // Memanggil fungsi getConversationCounts untuk mendapatkan jumlah percakapan
+    try {
+      const count = await getConversationCounts(currentUser.id)
+      conversationCount.set(count)
+    } catch (error) {
+      console.error("Gagal memuat jumlah percakapan:", error)
+      conversationCount.set(0)
+    }
 
     setTimeout(() => {
       // Inisialisasi accordion jika diperlukan
@@ -153,6 +164,10 @@
         <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
       </svg>
       Conversation
+      <span
+        class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-lg text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-800/30 dark:text-blue-500"
+        >{$conversationCount}</span
+      >
 
       <svg
         class="hs-accordion-active:block ms-auto hidden size-4"
