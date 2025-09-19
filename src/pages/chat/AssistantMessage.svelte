@@ -126,7 +126,11 @@
     isProcessing.set(true)
     setTimeout(() => {
       reasoning.update(() => false)
-      if (text.trim().length > 0 && $chatStreamStatus !== "update")
+      if (
+        text.trim().length > 0 &&
+        $chatStreamStatus !== "update" &&
+        text.trim() !== "loading"
+      )
         chatStreamStatus.update(() => "update")
       finalContent.update(() => text)
       // autoScroll()
