@@ -65,6 +65,7 @@
   let chatMessageWithGroupRef: ChatMessagesWithGroup | null = null
   let tempChatMessagesRef: TempChatMessages
   const useChatBuffer = writable(true)
+  const chatStreamStatus = writable("init")
   const chatBufferGroupId = writable("")
   const chatBufferMode = writable("default") // default,regenerate
   let tempMode = 0
@@ -109,7 +110,8 @@
       $messageGroupId,
       lastGeneratedAssistantMessageId,
       $conversation,
-      messageGroupIds
+      messageGroupIds,
+      chatStreamStatus
     )
   }
 
@@ -248,7 +250,8 @@
       $regenerateUsingSameModelProvider,
       addMessageTask,
       messageGroupIds,
-      $messageGroupIds
+      $messageGroupIds,
+      chatStreamStatus
     )
   }
   async function processDoneRegenerate(
@@ -417,6 +420,7 @@
   />
   {#if $messageGroupIds.length > 0}
     <ChatMessagesWithGroup
+      chatStreamStatus={$chatStreamStatus}
       bind:this={chatMessageWithGroupRef}
       showChatMessagesPager={$showChatMessagesPager}
       {groupedChatMessages}
@@ -427,6 +431,7 @@
       onChangeGroupId={onChangeMessageGroupId}
       {onDeleteMessage}
       {onRegenerateMessage}
+      lastGeneratedAssistantMessageId={$lastGeneratedAssistantMessageId}
       isProcessing={$isProcessing}
     />
   {:else}
@@ -438,19 +443,22 @@
     />
   {/if}
   {#if $isProcessing && $conversation}
-    <TempChatMessages
-      className={$tempChatMessageCls}
-      bind:this={tempChatMessagesRef}
-      {onChatBuffer}
-      {onProcessingDone}
-      messages={$promptMessages}
-      model={$model}
-      provider={$provider}
-      conversation={$conversation}
-      messageId={$messageId}
-      regenerateMessages={$regeneratePromptMessages}
-      isRegenerate={$isRegenerate}
-    />
+    <div class="hidden">
+      <TempChatMessages
+        {chatStreamStatus}
+        className={$tempChatMessageCls}
+        bind:this={tempChatMessagesRef}
+        {onChatBuffer}
+        {onProcessingDone}
+        messages={$promptMessages}
+        model={$model}
+        provider={$provider}
+        conversation={$conversation}
+        messageId={$messageId}
+        regenerateMessages={$regeneratePromptMessages}
+        isRegenerate={$isRegenerate}
+      />
+    </div>
   {/if}
   <ChatPrompt
     isProcessing={$isProcessing}

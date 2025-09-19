@@ -3,10 +3,11 @@
   import type { ChatMessageInterface } from "../types"
 
   import ContentRenderer from "./ContentRenderer.svelte"
-  import { writable } from "svelte/store"
+  import { writable, type Writable } from "svelte/store"
   import { isImageModel } from "@/global/store/chat/isImageModel"
   import OverlayGalery from "./OverlayGalery.svelte"
   import jquery from "jquery"
+  import LoadingIndicator from "@/components/ux/LoadingIndicator.svelte"
   export let deleteMessage
   export let regenerateMessage: (message: ChatMessageInterface) => void
   export let message: ChatMessageInterface
@@ -19,6 +20,9 @@
   export let overlayGaleryRef: OverlayGalery
   export let activeGaleryMessageId: any
   export let isProcessing: boolean
+  export let chatStreamStatus: string
+  export let lastGeneratedAssistantMessageId: string
+  const dotAnimationForText = writable("")
 
   // Fungsi untuk menyalin konten pesan ke clipboard
   async function copyMessageContent() {
@@ -291,9 +295,34 @@
       }, 128)
     }
   }
+  let dotIntervalTm: number | null = null
 
   $: {
     updateAnswerInfo(messageGroupId)
+    if (
+      chatStreamStatus === "reasoning" &&
+      lastGeneratedAssistantMessageId === message.id
+    ) {
+      // if (dotIntervalTm) {
+      //   clearInterval(dotIntervalTm)
+      //   dotIntervalTm = null
+      // }
+      // Mulai animasi titik
+      dotIntervalTm = window.setInterval(() => {
+        dotAnimationForText.update((dots) => {
+          if (dots.length >= 3) return ""
+          return dots + "."
+        })
+      }, 500)
+    } else {
+      // Hentikan animasi titik
+      if (dotIntervalTm) {
+        clearInterval(dotIntervalTm)
+        dotIntervalTm = null
+      }
+      // Reset teks animasi
+      dotAnimationForText.set("")
+    }
     // shouldSwitchGaleryMode(message)
   }
   let firstTimer = true
@@ -408,7 +437,28 @@
     </div>
     <div class="space-y-3 inner-content">
       {#if $displayModeConf === "default"}
-        <ContentRenderer content={message.content} {isProcessing} />
+        {#if chatStreamStatus === "loading" && lastGeneratedAssistantMessageId === message.id}
+          <LoadingIndicator />
+        {:else if chatStreamStatus === "update" && lastGeneratedAssistantMessageId === message.id}
+          <ContentRenderer content={message.content} {isProcessing} />
+          {#if isProcessing}
+            <div class="animate-blink">|</div>
+          {/if}
+        {:else if chatStreamStatus === "reasoning" && lastGeneratedAssistantMessageId === message.id}
+          <div class="flex flex-col gap-2 max-h-48 reasoning-container">
+            <div class="reasoning-info">
+              <i class="fa fa-spin fa-spinner"></i>
+              <span class="ml-2">Thinking {$dotAnimationForText}</span>
+            </div>
+            <div class="reasoning-content nice-scrollbar overflow-y-auto">
+              <div class="inner-content">
+                <ContentRenderer content={message.content} {isProcessing} />
+              </div>
+            </div>
+          </div>
+        {:else}
+          <ContentRenderer content={message.content} {isProcessing} />
+        {/if}
       {:else if userMessage}
         {#if answerMessageId[userMessage!.id]}
           {#if answerMessageId[userMessage!.id].length > 1}

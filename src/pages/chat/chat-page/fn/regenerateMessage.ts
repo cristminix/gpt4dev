@@ -119,13 +119,15 @@ export async function onRegenerateMessage(
   $regenerateUsingSameModelProvider: boolean,
   addMessageTask: (id: string) => void,
   messageGroupIds: Writable<string[]>,
-  $messageGroupIds: string[]
+  $messageGroupIds: string[],
+  chatStreamStatus: Writable<string>
 ) {
   // 0 . check source message
   if (!sourceAssistantMessage) {
     alert("User assistant message to regenerate is not available !")
     return
   }
+  chatStreamStatus.update(() => "loading")
   // - invalid impl : in this line lastGeneratedAssistantMessageId.update(() => assistantMessageToRegenerate.id)
   //
   // 1. copy assistant message that want to regenerate

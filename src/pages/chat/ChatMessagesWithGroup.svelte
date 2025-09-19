@@ -21,7 +21,8 @@
   export let groupedChatMessages
   export let showChatMessagesPager: boolean
   export let isProcessing: boolean
-
+  export let chatStreamStatus: string
+  export let lastGeneratedAssistantMessageId: string
   let overlayGaleryRef: OverlayGalery
   // Objek untuk menyimpan referensi komponen asisten dengan key berupa message.id
   // Ini memungkinkan akses langsung ke komponen berdasarkan ID pesan
@@ -163,6 +164,8 @@
                   <UserChatMessage {deleteMessage} {message} {displayMode} />
                 {:else}
                   <AssistantChatMessage
+                    {lastGeneratedAssistantMessageId}
+                    {chatStreamStatus}
                     {isProcessing}
                     {activeGaleryMessageId}
                     {overlayGaleryRef}

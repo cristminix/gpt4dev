@@ -7,6 +7,7 @@
     ChatMessageInterface,
     ConversationInterface,
   } from "./chat-page/types"
+  import type { Writable } from "svelte/store"
 
   export let onProcessingDone: (
     text: string,
@@ -24,6 +25,8 @@
   export let isRegenerate: boolean
   export let regenerateMessages: ChatMessageInterface[]
   export let onChatBuffer
+  export let chatStreamStatus: Writable<string>
+
   let chatContainer
   let assistantMessage: AssistantMessage
   let filteredMessages = messages.filter((m) => m.role !== "system")
@@ -55,6 +58,7 @@
     {/if}
     <AssistantMessage
       bind:this={assistantMessage}
+      {chatStreamStatus}
       {onProcessingDone}
       {onChatBuffer}
       isStreaming={true}

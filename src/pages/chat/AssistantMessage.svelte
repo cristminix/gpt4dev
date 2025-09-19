@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte"
-  import { writable } from "svelte/store"
+  import { writable, type Writable } from "svelte/store"
   import type {
     ChatMessageInterface,
     ConversationInterface,
@@ -36,6 +36,8 @@
   export let messageId: string
   export let isRegenerate: boolean
   export let onChatBuffer: (data: any) => void
+
+  export let chatStreamStatus: Writable<string>
   // Store for abort handler
 
   const finalContent = writable("")
@@ -120,10 +122,12 @@
 
   async function updateMessage(text: string): Promise<void> {
     processOnChatBuffer(text, "update", false)
+
     isProcessing.set(true)
     setTimeout(() => {
       reasoning.update(() => false)
-
+      if (text.trim().length > 0 && $chatStreamStatus !== "update")
+        chatStreamStatus.update(() => "update")
       finalContent.update(() => text)
       // autoScroll()
     }, 256)
@@ -134,6 +138,8 @@
   ): Promise<void> {
     if (!$reasoning) reasoning.update(() => true)
     processOnChatBuffer(text, "reasoning", false)
+    chatStreamStatus.update(() => "reasoning")
+
     const debouncedUpdate = debounce(() => {
       if (!autoScrollManager) {
         autoScrollManager = autoScrollReasoning(
@@ -160,6 +166,7 @@
       autoScrollManager.cleanup()
       autoScrollManager = null
     }
+    chatStreamStatus.update(() => "finish")
     processOnChatBuffer(text, "finish", true, {
       messageId,
       isRegenerate,
@@ -194,10 +201,14 @@
       },
       //preview callback
       (text: string) => {
+        chatStreamStatus.update(() => "preview")
+
         updateMessage(text)
       },
       //error callback
       (text: string) => {
+        chatStreamStatus.update(() => "error")
+
         finalizeMessage("", true, text)
       },
       isRegenerate,

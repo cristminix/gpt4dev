@@ -34,9 +34,11 @@ export async function submitPrompt(
   $messageGroupId: string,
   lastGeneratedAssistantMessageId: Writable<string>,
   $conversation: ConversationInterface | null,
-  messageGroupIds: Writable<string[]>
+  messageGroupIds: Writable<string[]>,
+  chatStreamStatus: Writable<string>
 ) {
   if (!$conversation) return
+  chatStreamStatus.update(() => "loading")
   let isNewConversation = params?.id === "new"
   const currentUser = await getCurrentUser()
 

@@ -5,6 +5,7 @@
     ConversationInterface,
   } from "./chat-page/types"
   import ChatStreaming from "./ChatStreaming.svelte"
+  import type { Writable } from "svelte/store"
   export let onProcessingDone: (
     text: string,
     id: string,
@@ -22,6 +23,8 @@
   export let isRegenerate: boolean
   export let onChatBuffer
   export let className = ""
+  export let chatStreamStatus: Writable<string>
+
   let chatStreaming: ChatStreaming
   export function abortCompletion() {
     if (chatStreaming) {
@@ -36,6 +39,7 @@
 
 <div class="mt-6 space-y-5 {className}">
   <ChatStreaming
+    {chatStreamStatus}
     bind:this={chatStreaming}
     {onChatBuffer}
     {onProcessingDone}
