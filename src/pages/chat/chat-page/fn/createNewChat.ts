@@ -7,14 +7,16 @@ import type { Writable } from "svelte/store"
 export function createNewChat(
   conversation: Writable<ConversationInterface | null>,
   chatMessages: Writable<ChatMessageInterface[]>,
-  jquery: any
+ 
 ) {
+    const systemMessage: string = jquery("#systemPrompt").val()
+  
   const newConversation = {
     id: v1(),
     title: "New Conversation",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    systemMessage: "",
+    systemMessage,
     enableSystemMessage: true,
   }
 

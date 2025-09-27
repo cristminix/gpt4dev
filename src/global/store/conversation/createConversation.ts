@@ -16,6 +16,8 @@ export async function createConversation(conversation: ConversationInterface) {
     updated_at: Math.floor(Date.now() / 1000),
     folder_id: "default",
     user_id: currentUser.id,
+    enableSystemMessage:conversation.enableSystemMessage,
+    systemMessage:conversation.systemMessage
   }
   // console.log("create conversation", { body })
   const response = await fetchChatBackendApi(

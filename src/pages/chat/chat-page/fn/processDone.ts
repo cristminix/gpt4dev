@@ -79,6 +79,8 @@ export async function processDone(
           shouldPerformTitleGenerationTask = shouldPerformTitleGeneration()
 
           chatMessagesData = chatMessagesData.slice(1)
+          newConversation.enableSystemMessage = true
+          newConversation.systemMessage = jquery("#systemPrompt").val()
         }
 
         console.log("saving to storage")

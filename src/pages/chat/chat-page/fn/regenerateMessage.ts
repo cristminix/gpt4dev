@@ -67,7 +67,7 @@ function populateRegenerateChatMessages(
   for (const msg of previousChatMessages.slice(0, assistantMessageIndex + 1)) {
     messagesInRange.push({ ...msg })
   }
-  const systemMessage: string = jquery("#chatPrompt").val()
+  const systemMessage: string = jquery("#systemPrompt").val()
   let messagesToSendInConversation: ChatMessageInterface[] = []
   const systemMessages = []
   if (systemMessage.length > 0) {

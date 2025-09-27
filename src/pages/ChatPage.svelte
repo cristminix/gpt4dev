@@ -174,7 +174,7 @@
       )
   }
   function createNewChat() {
-    createNewChatExternal(conversation, chatMessages, jquery)
+    createNewChatExternal(conversation, chatMessages)
   }
   let lastChatId = ""
   async function loadChat(id: string, reload = false) {
