@@ -5,15 +5,33 @@
   import ChatPromptWyswyg from "./ChatPromptWyswyg.svelte"
   import { cleanSurplusBlankLine } from "./chat-page/fn/cleanSurplusBlankLine"
   import ChatPromptToolbox from "./ChatPromptToolbox.svelte"
+  import type { ConversationInterface } from "./chat-page/types"
+  import { updateConversationTitle } from "@/global/store/conversation/updateConversationTitle"
+  import { updateConversation } from "@/global/store/conversation/updateConversation"
   export let onSubmitPrompt: any
   export let setChatConfig: any
   export let onStopGeneration: () => void
   export let isProcessing: boolean
+  export let conversation: ConversationInterface | null
   let attachChatHistoryToUserPrompt = false
 
   // Initialize turndown service
   const turndownService = new TurndownService()
   let systemMessage = ""
+
+  // Debounce function
+  function debounce<T extends (...args: any[]) => void>(func: T, wait: number) {
+    let timeout: NodeJS.Timeout | null = null
+    return function executedFunction(...args: Parameters<T>) {
+      const later = () => {
+        timeout = null
+        func(...args)
+      }
+      if (timeout) clearTimeout(timeout)
+      timeout = setTimeout(later, wait)
+    }
+  }
+
   onMount(() => {
     //@ts-ignore
     HSTextareaAutoHeight.autoInit()
@@ -29,6 +47,17 @@
   function onUserPromptChange() {
     // console.log("user prompt change")
   }
+
+  // Create debounced version of the system prompt change handler
+  const onSystemPromptChange = debounce(async () => {
+    // Handle system prompt change
+    console.log("system prompt change", systemMessage)
+    if (conversation) {
+      conversation.systemMessage = systemMessage
+      await updateConversation(conversation)
+    }
+  }, 512)
+
   function sendKeystroke(text: string) {
     const textarea = document.getElementById("userInput")
     if (textarea && textarea instanceof HTMLTextAreaElement) {
@@ -163,6 +192,8 @@
           aria-labelledby="pills-on-gray-color-item-3"
         >
           <textarea
+            on:change={onSystemPromptChange}
+            on:paste={onSystemPromptChange}
             id="systemPrompt"
             bind:value={systemMessage}
             class="p-3 sm:p-4 pb-12 sm:pb-12 block w-full bg-gray-100 border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"

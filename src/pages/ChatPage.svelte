@@ -461,6 +461,7 @@
     </div>
   {/if}
   <ChatPrompt
+    conversation={$conversation}
     isProcessing={$isProcessing}
     {onSubmitPrompt}
     {setChatConfig}
