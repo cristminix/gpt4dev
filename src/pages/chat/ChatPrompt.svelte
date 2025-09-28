@@ -63,7 +63,7 @@
     // console.log("submit user prompt")
     const content = jquery("#userInput").val()
     sendKeystroke("")
-    onSubmitPrompt(content, systemMessage)
+    onSubmitPrompt(content, jquery("#systemPrompt").val())
   }
   $: {
     setTimeout(() => {
